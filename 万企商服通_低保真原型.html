@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>万企商服通｜低保真产品原型</title>
+  <style>
+    :root { --ink:#1f2933; --line:#aab2bb; --soft:#eef1f4; --muted:#66717c; --paper:#fff; --bg:#f3f5f7; --note:#fff8d9; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; color:var(--ink); background:var(--bg); font:14px/1.45 "Microsoft YaHei","PingFang SC",Arial,sans-serif; }
+    .top { position:sticky; top:0; z-index:10; background:#fff; border-bottom:1px solid #d9dee3; display:flex; justify-content:space-between; align-items:center; padding:12px max(22px,calc((100vw - 1440px)/2)); }
+    .brand { font-weight:700; letter-spacing:.5px; }
+    .brand small { font-weight:400; color:var(--muted); margin-left:9px; }
+    .nav { display:flex; gap:15px; font-size:12px; }
+    .nav a { color:var(--muted); text-decoration:none; }
+    .nav a:hover { color:var(--ink); text-decoration:underline; }
+    main { max-width:1440px; margin:0 auto; padding:30px 22px 60px; }
+    .cover { background:var(--paper); border:1px solid #c8d0d7; padding:34px 38px; margin-bottom:22px; }
+    h1 { margin:0 0 8px; font-size:29px; letter-spacing:1px; }
+    h2 { margin:0; font-size:19px; }
+    h3 { margin:0 0 8px; font-size:14px; }
+    .sub { color:var(--muted); margin:0 0 21px; }
+    .chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .chip { background:var(--soft); border:1px solid #cbd2d9; border-radius:2px; padding:5px 9px; font-size:12px; }
+    .callout { margin-top:22px; padding:10px 12px; background:var(--note); border-left:4px solid #66717c; font-size:12px; }
+    .section-title { display:flex; align-items:center; gap:12px; margin:35px 0 13px; }
+    .section-title span { color:#fff; background:#333c45; width:27px; height:27px; display:grid; place-items:center; font-weight:700; font-size:12px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:18px; align-items:start; }
+    .board { background:var(--paper); border:1px solid #c8d0d7; min-width:0; }
+    .board-head { min-height:47px; padding:11px 14px; border-bottom:1px solid #d8dde2; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .tag { color:#fff; background:#65717c; border-radius:2px; padding:3px 7px; font-size:11px; white-space:nowrap; }
+    .board-body { padding:18px; }
+    .annotation { color:#4f5963; border-top:1px dashed #c7cdd2; margin:15px 0 0; padding:10px 0 0; font-size:12px; }
+    .annotation b { color:#202930; }
+    .phone-stage { min-height:626px; display:flex; align-items:center; justify-content:center; background:#f5f6f7; padding:17px; }
+    .phone { position:relative; width:288px; min-height:579px; background:#fff; border:7px solid #303840; border-radius:26px; overflow:hidden; box-shadow:0 3px 0 #a8b0b7; }
+    .phone::before { content:""; width:92px; height:17px; border-radius:0 0 11px 11px; background:#303840; position:absolute; top:0; left:calc(50% - 46px); z-index:2; }
+    .p-status { height:38px; background:#f5f6f7; padding:13px 15px 0; font-size:9px; display:flex; justify-content:space-between; }
+    .p-nav { height:42px; display:flex; align-items:center; justify-content:center; border-bottom:1px solid #e1e5e8; font-weight:700; }
+    .p-back { position:absolute; left:14px; top:51px; color:#5b6570; font-size:18px; }
+    .p-body { padding:13px 13px 66px; }
+    .p-bottom { position:absolute; bottom:0; left:0; right:0; height:57px; background:#fff; border-top:1px solid #e0e4e7; display:flex; justify-content:space-around; align-items:center; color:#68727c; font-size:10px; }
+    .p-bottom .active { font-weight:700; color:#1f2933; }
+    .hero { height:108px; background:#dce1e5; border:1px dashed #9ba5ad; padding:17px; display:flex; flex-direction:column; justify-content:space-between; }
+    .placeholder { color:#66717c; font-size:11px; }
+    .title-line { height:11px; width:65%; background:#65717c; }
+    .line { height:8px; background:#d9dee2; margin:7px 0; }
+    .line.short { width:47%; }
+    .line.xs { width:26%; }
+    .mini-label { font-size:10px; color:#67717b; }
+    .module-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:13px; }
+    .module { min-height:74px; border:1px solid #aeb7be; background:#f4f5f6; padding:8px 6px; text-align:center; font-size:11px; display:flex; flex-direction:column; justify-content:center; }
+    .module i { width:25px; height:25px; border:2px solid #606b74; border-radius:50%; margin:0 auto 5px; }
+    .service-card, .report-card { margin-top:9px; border:1px solid #b8c0c6; padding:10px; background:#fff; }
+    .service-card { display:flex; gap:9px; align-items:center; }
+    .square { width:46px; height:46px; flex:0 0 auto; background:#dfe4e7; border:1px dashed #98a1a9; }
+    .grow { flex:1; min-width:0; }
+    .chev { color:#68727b; font-size:19px; }
+    .tabs { display:flex; gap:14px; border-bottom:1px solid #dfe3e6; margin-bottom:12px; }
+    .tabs span { padding:0 0 8px; font-size:11px; color:#69737c; }
+    .tabs .on { color:#212930; border-bottom:2px solid #303840; font-weight:700; }
+    .field { margin:10px 0; }
+    .field label { display:block; font-size:11px; margin-bottom:5px; }
+    .input { height:31px; border:1px solid #b8c0c7; background:#fafafa; color:#94a0a9; padding:8px; font-size:10px; }
+    .input.area { height:61px; }
+    .btn { height:35px; background:#343d46; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; margin-top:15px; }
+    .btn.ghost { background:#fff; color:#2e3740; border:1px solid #7c8790; }
+    .steps { display:flex; justify-content:space-between; margin:6px 0 15px; font-size:9px; color:#68727b; }
+    .steps span { text-align:center; flex:1; position:relative; }
+    .steps span::before { content:""; display:block; width:17px; height:17px; border-radius:50%; border:1px solid #78838c; background:#fff; margin:0 auto 4px; }
+    .steps .done::before { background:#39434b; border-color:#39434b; }
+    .steps .done::after { content:""; position:absolute; height:1px; background:#79838c; top:8px; left:50%; width:100%; }
+    .steps span:last-child::after { display:none; }
+    .status { display:inline-block; padding:2px 5px; font-size:9px; border:1px solid #a9b2ba; color:#46515a; background:#f0f2f4; }
+    .summary { border:1px solid #bcc4ca; background:#f5f7f8; padding:10px; font-size:11px; margin-top:10px; }
+    .profile { display:flex; gap:10px; align-items:center; padding:6px 0 13px; border-bottom:1px solid #e0e4e7; }
+    .avatar { width:38px; height:38px; border:1px solid #9ca6ae; border-radius:50%; background:#e3e7e9; }
+    .list-row { display:flex; justify-content:space-between; align-items:center; padding:13px 3px; border-bottom:1px solid #e1e5e7; font-size:12px; }
+    .desktop-stage { padding:0; min-height:548px; background:#f7f8f9; border:1px solid #c5cdd4; display:flex; }
+    .sidebar { flex:0 0 117px; background:#303940; color:#dae0e4; padding:15px 0; font-size:11px; }
+    .side-brand { padding:0 15px 16px; font-weight:700; color:#fff; font-size:13px; border-bottom:1px solid #546069; }
+    .side-item { padding:10px 15px; }
+    .side-item.active { background:#4d5860; border-left:3px solid #fff; padding-left:12px; color:#fff; }
+    .desktop { flex:1; min-width:0; }
+    .d-top { height:48px; background:#fff; border-bottom:1px solid #dce1e5; padding:0 17px; display:flex; align-items:center; justify-content:space-between; color:#5f6971; font-size:11px; }
+    .d-content { padding:17px; }
+    .crumb { font-size:11px; color:#717b84; margin-bottom:12px; }
+    .d-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:13px; }
+    .d-title h3 { font-size:16px; margin:0; }
+    .small-btn { background:#343d46; color:#fff; padding:6px 10px; font-size:11px; }
+    .metric-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+    .metric { background:#fff; border:1px solid #d2d8dd; padding:12px; }
+    .metric b { display:block; font-size:23px; margin-top:3px; }
+    .filter { display:flex; flex-wrap:wrap; gap:8px; background:#fff; border:1px solid #d3d9de; padding:10px; margin-bottom:10px; }
+    .filter .input { height:27px; min-width:105px; flex:1; padding:6px; }
+    .filter .small-btn { padding:6px 10px; }
+    table { width:100%; border-collapse:collapse; background:#fff; font-size:10px; }
+    th,td { border:1px solid #d4dbe0; padding:8px 7px; text-align:left; vertical-align:middle; }
+    th { color:#57616a; background:#edf0f2; font-weight:700; }
+    .upload { min-height:190px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px; background:#fff; border:2px dashed #9da8b0; color:#66717b; }
+    .upload-icon { width:42px; height:42px; border:2px solid #66717b; border-radius:4px; position:relative; }
+    .upload-icon::after { content:"↑"; position:absolute; font-size:28px; left:12px; top:1px; }
+    .two-col { display:grid; grid-template-columns:1.2fr .8fr; gap:12px; }
+    .panel { background:#fff; border:1px solid #d2d9de; padding:13px; }
+    .rule { border:1px dashed #aeb7be; padding:9px; margin-top:8px; background:#fafbfc; font-size:10px; }
+    .flow { background:#fff; border:1px solid #c8d0d7; padding:22px; }
+    .flow-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .flow-box { border:1px solid #75808a; background:#f7f8f9; padding:10px 12px; min-width:130px; text-align:center; font-size:12px; }
+    .flow-arrow { color:#68727b; font-size:20px; }
+    .legend { display:flex; gap:15px; margin-top:13px; font-size:11px; color:#66717c; }
+    .legend i { display:inline-block; width:11px; height:11px; background:#343d46; margin-right:4px; vertical-align:-1px; }
+    .legend i.light { background:#edf0f2; border:1px solid #aeb6bd; }
+    @media (max-width:780px) { .top { position:static; } .nav { display:none; } main { padding:16px 10px 35px; } .cover { padding:24px 19px; } .grid { grid-template-columns:1fr; } .metric-row { grid-template-columns:repeat(2,1fr); } .sidebar { flex-basis:88px; } .side-item { padding-left:8px; padding-right:7px; } .side-brand { padding-left:8px; } .d-content { padding:10px; } .two-col { grid-template-columns:1fr; } }
+    @media print { .top { display:none; } body { background:#fff; } main { max-width:none; padding:0; } .cover,.board,.flow { break-inside:avoid; } .grid { display:block; } .board { margin:0 0 16px; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="brand">万企商服通 <small>低保真产品原型 · V1.0</small></div>
+    <nav class="nav"><a href="#flow">主流程</a><a href="#mobile">小程序端</a><a href="#admin">管理后台</a><a href="#rules">关键规则</a></nav>
+  </header>
+  <main>
+    <section class="cover">
+      <h1>万企商服通｜低保真产品原型</h1>
+      <p class="sub">基于《小程序报单系统开发需求说明书》整理｜用于确认页面结构、字段、操作路径，不代表最终视觉设计。</p>
+      <div class="chips">
+        <span class="chip">小程序端：按业务类型动态报单</span><span class="chip">贸易增量：11 项资料收集</span><span class="chip">知识产权 / 资质：3 项简表单</span><span class="chip">后台：资料审核与客户情况导出</span><span class="chip">权限：敏感资料受控查看</span>
+      </div>
+      <div class="callout"><b>本轮更新重点：</b>贸易增量报单须收集营业执照、开票信息、法人身份证、无欠税证明、开票额度、网银限额与余额、征信、办公照片/视频、水母报告链接等资料；知识产权和资质申报仅填写法人姓名、公司名称、联系电话。后台支持审核并导出客户资料情况表。</div>
+    </section>
+
+    <div class="section-title" id="flow"><span>01</span><h2>主业务流程</h2></div>
+    <section class="flow">
+      <div class="flow-row">
+        <div class="flow-box">微信登录</div><div class="flow-arrow">→</div>
+        <div class="flow-box">浏览服务 / 选择项目</div><div class="flow-arrow">→</div>
+        <div class="flow-box">按业务类型填写资料</div><div class="flow-arrow">→</div>
+        <div class="flow-box">提交报单</div><div class="flow-arrow">→</div>
+        <div class="flow-box">后台审核与处理</div><div class="flow-arrow">→</div>
+        <div class="flow-box">小程序查看进度</div><div class="flow-arrow">→</div>
+        <div class="flow-box">导出客户资料情况</div>
+      </div>
+      <div class="legend"><span><i></i>用户可操作</span><span><i class="light"></i>系统自动记录 / 后台处理</span></div>
+    </section>
+
+    <div class="section-title" id="mobile"><span>02</span><h2>微信小程序端</h2></div>
+    <section class="grid">
+      <article class="board">
+        <div class="board-head"><h3>M01 · 首页 / 服务入口</h3><span class="tag">用户端</span></div>
+        <div class="board-body"><div class="phone-stage"><div class="phone">
+          <div class="p-status"><span>9:41</span><span>● ● ●</span></div><div class="p-nav">万企商服通</div>
+          <div class="p-body"><div class="hero"><span class="mini-label">轮播位 / 服务公告</span><div><div class="title-line"></div><div class="line short"></div></div></div>
+          <div class="mini-label" style="margin-top:14px">业务服务</div><div class="module-grid"><div class="module"><i></i>贸易增量</div><div class="module"><i></i>知识产权</div><div class="module"><i></i>科技资质</div></div>
+          <div class="mini-label" style="margin-top:15px">推荐服务</div><div class="service-card"><div class="square"></div><div class="grow"><b>高新技术企业认定</b><div class="line short"></div></div><div class="chev">›</div></div><div class="service-card"><div class="square"></div><div class="grow"><b>商标注册咨询</b><div class="line short"></div></div><div class="chev">›</div></div></div>
+          <div class="p-bottom"><span class="active">⌂<br>首页</span><span>▣<br>服务</span><span>◷<br>报单</span><span>◉<br>我的</span></div>
+        </div></div><p class="annotation"><b>目标：</b>用户无需先填写企业资料即可浏览。点击业务模块进入服务列表，点击服务卡进入详情。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>M02 · 服务详情 / 选择项目</h3><span class="tag">用户端</span></div>
+        <div class="board-body"><div class="phone-stage"><div class="phone">
+          <div class="p-status"><span>9:41</span><span>● ● ●</span></div><div class="p-nav"><span class="p-back">‹</span>服务详情</div>
+          <div class="p-body"><div class="square" style="width:100%;height:120px"></div><h3 style="margin:13px 0 4px">高新技术企业认定</h3><span class="status">科技资质</span><div class="line"></div><div class="line short"></div>
+          <div class="summary"><b>适用企业</b><br><span class="mini-label">具备研发能力、需要申报科技资质的企业</span></div><div class="summary"><b>服务说明</b><br><span class="mini-label">提交基本信息和需求后，由专人进行对接。</span></div><div class="btn">立即报单</div></div>
+        </div></div><p class="annotation"><b>目标：</b>清楚展示服务归属、适用对象和说明。用户点击“立即报单”进入填写页；知识产权类可在此页提供多选服务项。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>M03 · 贸易增量资料填报</h3><span class="tag">11 项资料</span></div>
+        <div class="board-body"><div class="phone-stage"><div class="phone">
+          <div class="p-status"><span>9:41</span><span>● ● ●</span></div><div class="p-nav"><span class="p-back">‹</span>贸易增量报单</div>
+          <div class="p-body"><div class="steps"><span class="done">选择服务</span><span class="done">填写资料</span><span>提交完成</span></div><div class="summary"><b>已选服务：贸易增量</b><br><span class="mini-label">请完整提交以下资料（11 项）</span></div>
+          <div class="field"><label>营业执照 *</label><div class="input">▧ 上传营业执照图片（JPG / PNG）</div></div><div class="field"><label>开票信息 *</label><div class="input">公司名称、税号等 8 项文字信息　›</div></div>
+          <div class="summary"><b>证明与额度资料　已完成 2 / 5</b><br><span class="mini-label">法人身份证（盖章）｜无欠税证明｜税局开票额度截图｜网银限额截图｜网银余额&gt;1000截图</span></div>
+          <div class="summary"><b>征信与经营资料　已完成 0 / 4</b><br><span class="mini-label">法人征信报告｜企业征信报告｜办公室照片及视频｜水母报告链接</span></div><div class="btn">下一步：核对并提交</div></div>
+        </div></div><p class="annotation"><b>动态表单：</b>仅“贸易增量”服务出现此资料清单。每项独立上传 / 填写并展示完成状态；提交前校验 11 项均已完成。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>M04 · 开票信息与资料上传明细</h3><span class="tag">敏感资料保护</span></div>
+        <div class="board-body"><div class="phone-stage"><div class="phone">
+          <div class="p-status"><span>9:41</span><span>● ● ●</span></div><div class="p-nav"><span class="p-back">‹</span>补充资料</div>
+          <div class="p-body"><div class="tabs"><span class="on">开票信息</span><span>附件资料</span></div><div class="field"><label>公司名称 *</label><div class="input"></div></div><div class="field"><label>税号 *</label><div class="input"></div></div><div class="field"><label>联系地址 *</label><div class="input"></div></div><div class="field"><label>联系电话 *</label><div class="input"></div></div><div class="field"><label>法定代表人 *</label><div class="input"></div></div><div class="field"><label>公司邮箱 *</label><div class="input"></div></div><div class="field"><label>开户行网点 *</label><div class="input"></div></div><div class="field"><label>基本户帐号 *</label><div class="input"></div></div><div class="btn">保存并继续</div></div>
+        </div></div><p class="annotation"><b>附件页：</b>法人身份证扫描件（须盖公章）、无欠税证明、税局开票额度截图（右上公司名称 + 右下实时日期）、网银限额 / 余额截图、征信报告、办公室照片和视频均在“附件资料”页逐项上传。敏感文件仅授权审核人员可查看，并默认遮罩预览。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>M05 · 知识产权 / 资质申报简表单</h3><span class="tag">仅 3 项</span></div>
+        <div class="board-body"><div class="phone-stage"><div class="phone">
+          <div class="p-status"><span>9:41</span><span>● ● ●</span></div><div class="p-nav"><span class="p-back">‹</span>提交申报需求</div>
+          <div class="p-body"><div class="summary"><b>已选服务：商标注册咨询</b><br><span class="mini-label">知识产权 / 资质申报只需填写以下信息</span></div><div class="field"><label>法人姓名 *</label><div class="input"></div></div><div class="field"><label>公司名称 *</label><div class="input"></div></div><div class="field"><label>联系电话 *</label><div class="input"></div></div><div class="btn">提交申报</div><div class="summary" style="margin-top:18px"><b>提交后</b><br><span class="mini-label">系统生成报单编号，后台人员审核并联系您补充后续材料。</span></div></div>
+        </div></div><p class="annotation"><b>简化规则：</b>知识产权和科技资质申报不显示贸易增量的 11 项材料，只收集法人姓名、公司名称、联系电话。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>M06 · 我的报单 / 个人中心</h3><span class="tag">用户端</span></div>
+        <div class="board-body"><div class="phone-stage"><div class="phone">
+          <div class="p-status"><span>9:41</span><span>● ● ●</span></div><div class="p-nav">我的</div>
+          <div class="p-body"><div class="profile"><div class="avatar"></div><div><b>微信用户</b><br><span class="mini-label">已绑定企业资料</span></div><div class="chev">›</div></div>
+          <div class="list-row"><span>企业资料</span><span class="chev">›</span></div><div class="list-row"><span>我的报单</span><span class="chev">›</span></div><div class="mini-label" style="margin-top:13px">最近报单</div>
+          <div class="report-card"><b>贸易增量服务</b><span class="status" style="float:right">待补充资料</span><div class="line short"></div><span class="mini-label">资料完成度：8 / 11　2026-09-21</span></div><div class="report-card"><b>商标注册咨询</b><span class="status" style="float:right">待审核</span><div class="line short"></div><span class="mini-label">提交时间：2026-09-18</span></div></div>
+          <div class="p-bottom"><span>⌂<br>首页</span><span>▣<br>服务</span><span>◷<br>报单</span><span class="active">◉<br>我的</span></div>
+        </div></div><p class="annotation"><b>规则：</b>贸易增量报单显示资料完成度和需补充状态；用户只能查看自己的资料与报单，不能删除历史报单。</p></div>
+      </article>
+    </section>
+
+    <div class="section-title" id="admin"><span>03</span><h2>电脑端 Web 管理后台</h2></div>
+    <section class="grid">
+      <article class="board">
+        <div class="board-head"><h3>B01 · 后台工作台</h3><span class="tag">管理员 / 操作员</span></div>
+        <div class="board-body"><div class="desktop-stage"><aside class="sidebar"><div class="side-brand">万企商服通<br><small>管理后台</small></div><div class="side-item active">工作台</div><div class="side-item">报单管理</div><div class="side-item">产品管理</div><div class="side-item">企业与用户</div><div class="side-item">客户资料</div><div class="side-item">用户导入</div><div class="side-item">权限与日志</div></aside><div class="desktop"><div class="d-top"><span>工作台</span><span>刘立 ▾</span></div><div class="d-content"><div class="crumb">首页 / 工作台</div><div class="d-title"><h3>今日概览</h3><span class="mini-label">数据仅为线框示例</span></div><div class="metric-row"><div class="metric"><span class="mini-label">待审核报单</span><b>12</b></div><div class="metric"><span class="mini-label">处理中</span><b>28</b></div><div class="metric"><span class="mini-label">本月新增用户</span><b>86</b></div><div class="metric"><span class="mini-label">缺少资料待处理</span><b>3</b></div></div><div class="panel" style="margin-top:12px"><b>待处理报单</b><table style="margin-top:10px"><tr><th>报单编号</th><th>企业名称</th><th>服务类型</th><th>状态</th></tr><tr><td>BD20260921001</td><td>示例科技有限公司</td><td>科技资质</td><td>待审核</td></tr><tr><td>BD20260920008</td><td>示例贸易有限公司</td><td>贸易增量</td><td>待审核</td></tr></table></div></div></div></div><p class="annotation"><b>目标：</b>后台首页聚合待处理事项；不同账号只显示其已授权的菜单与数据。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>B02 · 报单管理 / 审核详情</h3><span class="tag">后台核心操作</span></div>
+        <div class="board-body"><div class="desktop-stage"><aside class="sidebar"><div class="side-brand">万企商服通<br><small>管理后台</small></div><div class="side-item">工作台</div><div class="side-item active">报单管理</div><div class="side-item">产品管理</div><div class="side-item">企业与用户</div><div class="side-item">批量导入</div></aside><div class="desktop"><div class="d-top"><span>报单管理</span><span>刘立 ▾</span></div><div class="d-content"><div class="crumb">报单管理 / 全部报单</div><div class="filter"><div class="input">企业名称 / 编号</div><div class="input">业务类型 ▾</div><div class="input">报单状态 ▾</div><span class="small-btn">查询</span></div><table><tr><th>编号</th><th>企业名称</th><th>服务项目</th><th>提交时间</th><th>状态</th><th>操作</th></tr><tr><td>BD20260921001</td><td>示例科技有限公司</td><td>高新技术企业认定</td><td>09-21 10:18</td><td><span class="status">待审核</span></td><td>查看</td></tr><tr><td>BD20260920008</td><td>示例贸易有限公司</td><td>贸易增量服务</td><td>09-20 16:42</td><td><span class="status">处理中</span></td><td>查看</td></tr></table><div class="two-col" style="margin-top:13px"><div class="panel"><b>报单详情</b><div class="line" style="margin-top:10px"></div><div class="line short"></div><div class="line"></div><div class="line short"></div></div><div class="panel"><b>处理操作</b><div class="input" style="margin-top:10px">修改状态：待审核 ▾</div><div class="input area" style="margin-top:9px">内部处理备注（用户不可见）</div><div class="small-btn" style="margin-top:9px;display:inline-block">保存处理结果</div></div></div></div></div></div><p class="annotation"><b>状态：</b>暂定待审核、处理中、已完成、已驳回、已作废。内部备注默认不在小程序端展示。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>B03 · 产品与业务模块管理</h3><span class="tag">内容维护</span></div>
+        <div class="board-body"><div class="desktop-stage"><aside class="sidebar"><div class="side-brand">万企商服通<br><small>管理后台</small></div><div class="side-item">工作台</div><div class="side-item">报单管理</div><div class="side-item active">产品管理</div><div class="side-item">企业与用户</div><div class="side-item">批量导入</div></aside><div class="desktop"><div class="d-top"><span>产品管理</span><span>刘立 ▾</span></div><div class="d-content"><div class="d-title"><h3>产品 / 项目</h3><span class="small-btn">+ 新增产品</span></div><div class="tabs"><span class="on">全部</span><span>贸易增量</span><span>知识产权</span><span>科技资质</span></div><table><tr><th>产品名称</th><th>所属模块</th><th>展示状态</th><th>更新时间</th><th>操作</th></tr><tr><td>高新技术企业认定</td><td>科技资质</td><td><span class="status">已上架</span></td><td>2026-09-20</td><td>编辑 / 下架</td></tr><tr><td>商标注册咨询</td><td>知识产权</td><td><span class="status">已上架</span></td><td>2026-09-18</td><td>编辑 / 下架</td></tr><tr><td>贸易增量服务</td><td>贸易增量</td><td><span class="status">已下架</span></td><td>2026-09-16</td><td>编辑 / 上架</td></tr></table><div class="rule"><b>编辑字段：</b>产品名称、所属模块、简介、适用说明、排序、上架状态；上架后小程序可见，下架后仅保留历史报单引用。</div></div></div></div><p class="annotation"><b>目标：</b>不需要每次开发即可维护服务内容。产品按三大业务模块分类，支持新增、编辑、上架和下架。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>B04 · 客户资料列表 / 导出入口</h3><span class="tag">审核人员</span></div>
+        <div class="board-body"><div class="desktop-stage">
+          <aside class="sidebar"><div class="side-brand">万企商服通<br><small>管理后台</small></div><div class="side-item">工作台</div><div class="side-item">报单管理</div><div class="side-item">产品管理</div><div class="side-item">企业与用户</div><div class="side-item active">客户资料</div><div class="side-item">用户导入</div></aside>
+          <div class="desktop"><div class="d-top"><span>客户资料</span><span>刘立 ▾</span></div><div class="d-content">
+            <div class="crumb">客户资料 / 全部客户</div>
+            <div class="d-title"><h3>客户资料与审核情况</h3><span style="display:flex;gap:8px"><span class="small-btn">导出审核表 Excel</span><span class="small-btn">下载资料包 ZIP</span></span></div>
+            <div class="filter"><div class="input">公司名称 / 报单编号</div><div class="input">业务类型 ▾</div><div class="input">资料状态 ▾</div><div class="input">提交月份 ▾</div><span class="small-btn">查询</span></div>
+            <table><tr><th>报单编号</th><th>公司名称</th><th>增量产品 / 服务</th><th>资料完成度</th><th>审核状态</th><th>操作</th></tr><tr><td>BD20260921001</td><td>示例科技有限公司</td><td>贸易增量服务</td><td>8 / 11</td><td><span class="status">待补充</span></td><td>审核 / Excel / ZIP</td></tr><tr><td>BD20260920008</td><td>示例贸易有限公司</td><td>贸易增量服务</td><td>11 / 11</td><td><span class="status">审核中</span></td><td>审核 / Excel / ZIP</td></tr><tr><td>BD20260918003</td><td>示例知识产权公司</td><td>商标注册咨询</td><td>3 / 3</td><td><span class="status">待审核</span></td><td>审核 / Excel</td></tr></table>
+            <div class="rule"><b>两种导出：</b>① <b>审核表 Excel</b>：客户基本信息、资料审核状态和备注；② <b>资料包 ZIP</b>：仅贸易增量报单可下载，按“公司名称_报单编号”打包 11 项原始资料，并附审核表 Excel。知识产权 / 资质申报只有简表单，默认不生成资料包。</div>
+          </div></div>
+        </div></div><p class="annotation"><b>更正：</b>这里的 Excel 是“导出客户情况”；客户上传的原始图片、PDF 和视频则通过“下载资料包 ZIP”导出。原有用户 Excel 批量导入功能保留在“企业与用户 → 用户导入”中，和本页面分开。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>B05 · 贸易增量资料审核详情</h3><span class="tag">11 项逐项审核</span></div>
+        <div class="board-body"><div class="desktop-stage"><aside class="sidebar"><div class="side-brand">万企商服通<br><small>管理后台</small></div><div class="side-item">工作台</div><div class="side-item">报单管理</div><div class="side-item">产品管理</div><div class="side-item">企业与用户</div><div class="side-item active">客户资料</div><div class="side-item">用户导入</div></aside><div class="desktop"><div class="d-top"><span>客户资料审核</span><span>刘立 ▾</span></div><div class="d-content"><div class="crumb">客户资料 / 示例科技有限公司 / 审核详情</div><div class="two-col"><div class="panel"><h3>报单基本信息</h3><div class="rule"><b>公司名称：</b>示例科技有限公司　　<b>增量产品：</b>技术服务<br><b>报单月份：</b>2026-09　　<b>增量金额：</b>待审核录入<br><b>省份 / 城市：</b>待审核录入　　<b>审核时间：</b>—</div></div><div class="panel"><h3>处理操作</h3><div class="input">整体状态：待补充资料 ▾</div><div class="input area" style="margin-top:8px">审核备注：请补充税局最新开票额度截图</div><div class="small-btn" style="margin-top:9px;display:inline-block">保存审核结果</div></div></div><table style="margin-top:12px"><tr><th>资料明细</th><th>客户提交</th><th>审核结果</th><th>备注</th><th>操作</th></tr><tr><td>1. 营业执照图片</td><td>已上传</td><td><span class="status">通过</span></td><td>—</td><td>受控查看</td></tr><tr><td>2. 开票信息（8 项文字）</td><td>已填写</td><td><span class="status">待审核</span></td><td>待核对公司邮箱</td><td>查看 / 编辑</td></tr><tr><td>3. 法人身份证扫描件（盖公章）</td><td>已上传</td><td><span class="status">通过</span></td><td>—</td><td>受控查看</td></tr><tr><td>4. 无欠税证明</td><td>已上传</td><td><span class="status">通过</span></td><td>—</td><td>查看</td></tr><tr><td>5. 税局开票额度截图</td><td>已上传</td><td><span class="status">未通过</span></td><td>需含右上公司名称、右下实时日期</td><td>查看</td></tr><tr><td>6. 网银限额截图</td><td>未上传</td><td><span class="status">缺少材料</span></td><td>—</td><td>催补</td></tr><tr><td>7. 网银余额大于 1000 元截图</td><td>未上传</td><td><span class="status">缺少材料</span></td><td>—</td><td>催补</td></tr><tr><td>8. 法人征信报告</td><td>已上传</td><td><span class="status">待审核</span></td><td>—</td><td>受控查看</td></tr><tr><td>9. 企业征信报告</td><td>已上传</td><td><span class="status">待审核</span></td><td>—</td><td>受控查看</td></tr><tr><td>10. 企业办公室照片及视频</td><td>已上传</td><td><span class="status">通过</span></td><td>—</td><td>查看</td></tr><tr><td>11. 水母报告链接</td><td>已填写</td><td><span class="status">待审核</span></td><td>—</td><td>打开链接</td></tr></table></div></div></div><p class="annotation"><b>审核模式：</b>审核人员对每项资料标记“通过 / 未通过 / 缺少材料”，填写备注后保存。身份证、征信、网银类资料只向有“敏感资料查看”权限的审核角色开放。</p></div>
+      </article>
+
+      <article class="board">
+        <div class="board-head"><h3>B06 · 客户资料导出预览（Excel + ZIP）</h3><span class="tag">两种导出</span></div>
+        <div class="board-body"><div class="desktop-stage">
+          <aside class="sidebar"><div class="side-brand">万企商服通<br><small>管理后台</small></div><div class="side-item">工作台</div><div class="side-item">报单管理</div><div class="side-item">产品管理</div><div class="side-item">企业与用户</div><div class="side-item active">客户资料</div><div class="side-item">用户导入</div></aside>
+          <div class="desktop"><div class="d-top"><span>客户资料导出</span><span>刘立 ▾</span></div><div class="d-content">
+            <div class="d-title"><h3>导出预览：示例科技有限公司</h3><span style="display:flex;gap:8px"><span class="small-btn">导出审核表 Excel</span><span class="small-btn">下载资料包 ZIP</span></span></div>
+            <table><tr><th>公司名称</th><td>示例科技有限公司</td><th>增量产品</th><td>技术服务</td><th>增量金额</th><td>待审核录入</td></tr><tr><th>报单月份</th><td>2026-09</td><th>银行额度</th><td>待审核录入</td><th>发票额度</th><td>待审核录入</td></tr><tr><th>企业资质</th><td>待审核录入</td><th>省份</th><td>待审核录入</td><th>城市</th><td>待审核录入</td></tr><tr><th>社保人数</th><td>待审核录入</td><th>纳税等级</th><td>待审核录入</td><th>审核时间</th><td colspan="3">2026-09-21 17:15:32（示例）</td></tr></table>
+            <div class="two-col" style="margin-top:12px"><div class="panel"><h3>审核表 Excel 内容</h3><table style="margin-top:9px"><tr><th>资料明细</th><th>审核结果</th><th>备注</th></tr><tr><td>营业执照图片</td><td><span class="status">通过</span></td><td>—</td></tr><tr><td>开票信息（8 项文字）</td><td><span class="status">待审核</span></td><td>待核对公司邮箱</td></tr><tr><td>税局开票额度截图</td><td><span class="status">未通过</span></td><td>需含公司名称及实时日期</td></tr><tr><td>网银资料、征信资料等</td><td><span class="status">待审核</span></td><td>详见系统审核记录</td></tr></table></div><div class="panel"><h3>资料包 ZIP 内容</h3><div class="rule"><b>文件名：</b><br>示例科技有限公司_BD20260921001_资料包.zip</div><div class="rule">01_营业执照/　02_开票信息.xlsx<br>03_法人身份证/　04_无欠税证明/<br>05_开票额度截图/　06_网银限额截图/<br>07_网银余额截图/　08_法人征信/<br>09_企业征信/　10_办公室照片及视频/<br>11_水母报告链接.txt<br>+ 客户资料审核情况.xlsx</div></div></div>
+            <div class="rule"><b>导出安全规则：</b>审核表 Excel 不附带敏感原件；资料包 ZIP 含原始图片、PDF、视频及开票信息，仅“敏感资料导出”权限的人员可生成和下载。系统记录导出人、时间、报单编号和下载次数；建议压缩包加密并设置有效期 / 水印。</div>
+          </div></div>
+        </div></div><p class="annotation"><b>导出结果：</b>客户可获得审核情况 Excel；业务人员如需原始材料，可下载对应客户的 ZIP 压缩包。知识产权 / 资质申报只有 3 项文字信息，默认仅导出 Excel 简表，不生成资料包。</p></div>
+      </article>
+    </section>
+
+    <div class="section-title" id="rules"><span>04</span><h2>交互与规则确认清单</h2></div>
+    <section class="flow" style="margin-bottom:20px">
+      <table>
+        <tr><th style="width:26%">事项</th><th>当前低保真方案</th><th style="width:26%">需客户确认</th></tr>
+        <tr><td>三大业务模块</td><td>贸易增量、知识产权、科技资质；后台可维护服务项目和上下架状态。</td><td>模块名称及每个模块首批服务内容。</td></tr>
+        <tr><td>报单状态</td><td>待审核、处理中、已完成、已驳回、已作废；用户端仅显示状态，不显示内部备注。</td><td>是否需要增加“待补充资料”等状态。</td></tr>
+        <tr><td>贸易增量资料</td><td>营业执照图片、开票信息 8 项文字、法人身份证盖章扫描件、无欠税证明、税局开票额度截图、网银限额/余额截图、法人/企业征信、办公室照片视频、水母报告链接，共 11 项。</td><td>每项文件的格式、最大大小、有效期和是否允许多文件上传。</td></tr>
+        <tr><td>知识产权 / 资质申报</td><td>仅填写法人姓名、公司名称、联系电话；不展示贸易增量的资料清单。</td><td>是否需增加“申报项目”或“需求说明”等字段。</td></tr>
+        <tr><td>资料审核</td><td>后台按资料项标记通过 / 未通过 / 缺少材料，填写审核备注并可催补。</td><td>审核状态是否增加“待补充资料”；谁有最终通过权限。</td></tr>
+        <tr><td>客户情况导出</td><td>支持两种导出：审核情况 Excel（客户汇总、资料明细、审核结果、备注）及贸易增量资料包 ZIP（11 项原始资料 + 开票信息表 + 水母链接文本 + 审核表）。</td><td>是否支持一次勾选多个客户生成多个 ZIP；ZIP 是否需要密码、有效期、下载水印。</td></tr>
+        <tr><td>敏感资料保护</td><td>身份证、征信、网银截图、基本户帐号按敏感资料处理：单独告知同意、最小可见权限、操作日志、受控预览与下载限制。</td><td>资料保留期限、可查看角色、是否禁止下载 / 是否需要动态水印。</td></tr>
+        <tr><td>用户 Excel 导入</td><td>原需求保留在“企业与用户 → 用户导入”，与本次“导出客户情况”完全分开。</td><td>同一文件内手机号重复：保留最后一行，还是重复即失败。</td></tr>
+      </table>
+    </section>
+    <p class="sub" style="font-size:12px">说明：本文件为低保真线框原型，灰色块代表图片、Banner 或后续视觉素材；文字、字段和状态可在确认阶段继续调整。</p>
+  </main>
+</body>
+</html>
