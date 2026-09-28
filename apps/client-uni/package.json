@@ -1,0 +1,34 @@
+{
+  "name": "wanqi-client-uni",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:h5": "uni -p h5",
+    "dev:mp-weixin": "uni -p mp-weixin",
+    "build:h5": "uni build -p h5",
+    "build:mp-weixin": "uni build -p mp-weixin",
+    "typecheck": "pnpm typecheck:api",
+    "typecheck:api": "tsc -p tsconfig.api.json --noEmit"
+  },
+  "dependencies": {
+    "@dcloudio/uni-app": "3.0.0-5020620260917001",
+    "@dcloudio/uni-components": "3.0.0-5020620260917001",
+    "@vue/runtime-dom": "3.4.21",
+    "@vue/runtime-core": "3.4.21",
+    "@vue/reactivity": "3.4.21",
+    "@vue/shared": "3.4.21",
+    "@vue/compiler-dom": "3.4.21",
+    "@vue/compiler-sfc": "3.4.21",
+    "@vue/server-renderer": "3.4.21",
+    "@dcloudio/uni-ui": "^1.5.5",
+    "pinia": "^2.3.1",
+    "vue": "3.4.21"
+  },
+  "devDependencies": {
+    "@dcloudio/types": "^3.4.32",
+    "@dcloudio/vite-plugin-uni": "3.0.0-5020620260917001",
+    "typescript": "^5.7.3",
+    "vite": "5.2.8",
+    "vue-tsc": "^2.2.12"
+  }
+}

@@ -1,0 +1,73 @@
+server:
+  port: 8080
+  shutdown: graceful
+spring:
+  application:
+    name: wanqi-shangfutong-api
+  profiles:
+    default: local
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 105MB
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:wqst}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:wqst}
+    password: ${MYSQL_PASSWORD:wqst_dev_password}
+  data:
+    redis:
+      host: ${VALKEY_HOST:localhost}
+      port: ${VALKEY_PORT:6379}
+      timeout: 3s
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    banner: false
+sa-token:
+  token-name: Authorization
+  token-prefix: Bearer
+  timeout: 86400
+  active-timeout: 3600
+  is-concurrent: true
+  is-share: false
+  is-log: false
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when_authorized
+wqst:
+  security:
+    encryption-key: ${DATA_ENCRYPTION_KEY:local-only-32-byte-key-change-me}
+  bootstrap:
+    admin-username: ${BOOTSTRAP_ADMIN_USERNAME:}
+    admin-password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+  wechat:
+    app-id: ${WECHAT_APP_ID:}
+    app-secret: ${WECHAT_APP_SECRET:}
+  s3:
+    endpoint: ${S3_ENDPOINT:http://127.0.0.1:8333}
+    access-key: ${S3_ACCESS_KEY:wqst_local_access}
+    secret-key: ${S3_SECRET_KEY:wqst_local_secret}
+    bucket: ${S3_BUCKET:wqst-private}
+    region: ${S3_REGION:us-east-1}
+  export:
+    link-ttl-minutes: 30
+    worker-threads: 2
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{requestId:-no-request}] %logger{36} - %msg%n"
+  level:
+    com.wqst.api: INFO

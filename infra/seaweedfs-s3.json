@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "wqst-local",
+      "credentials": [
+        { "accessKey": "wqst_local_access", "secretKey": "wqst_local_secret" }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

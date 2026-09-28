@@ -1,0 +1,30 @@
+package com.wqst.api.caseorder;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import com.wqst.api.audit.AuditService;
+import com.wqst.api.caseorder.entity.*;
+import com.wqst.api.caseorder.mapper.*;
+import com.wqst.api.common.BusinessException;
+import com.wqst.api.common.IdempotencyService;
+import com.wqst.api.company.entity.CompanyUserEntity;
+import com.wqst.api.company.mapper.CompanyUserMapper;
+import com.wqst.api.notification.NotificationService;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+class ReviewServiceTest {
+    CaseService cases=mock(CaseService.class);MaterialSubmissionMapper materials=mock(MaterialSubmissionMapper.class);MaterialReviewLogMapper logs=mock(MaterialReviewLogMapper.class);SupplementRequestMapper supplements=mock(SupplementRequestMapper.class);SupplementRequestItemMapper items=mock(SupplementRequestItemMapper.class);CompanyUserMapper memberships=mock(CompanyUserMapper.class);NotificationService notifications=mock(NotificationService.class);IdempotencyService idempotency=mock(IdempotencyService.class);AuditService audit=mock(AuditService.class);ReviewService service;MaterialSubmissionEntity material;ServiceCaseEntity serviceCase;
+    @BeforeEach void setup(){service=new ReviewService(cases,materials,logs,supplements,items,memberships,notifications,idempotency,audit);material=new MaterialSubmissionEntity();material.setId(10L);material.setCaseId(1L);material.setMaterialCode("M1");material.setMaterialName("资料");material.setInputType("FILE");material.setRequired(true);material.setIsSensitive(true);material.setSubmitStatus("SUBMITTED");material.setReviewStatus("PENDING");material.setVersion(3);serviceCase=new ServiceCaseEntity();serviceCase.setId(1L);serviceCase.setCompanyId(2L);serviceCase.setStatus("PENDING_REVIEW");when(cases.requireMaterial(10)).thenReturn(material);when(cases.require(1)).thenReturn(serviceCase);}
+    @Test void rejectsInvalidReviewStatus(){assertThatThrownBy(()->service.review(10,new ReviewService.ReviewCommand("HACKED",null,null,3),9)).isInstanceOf(BusinessException.class).extracting("code").isEqualTo("REVIEW_STATUS_INVALID");}
+    @Test void rejectsStaleVersion(){assertThatThrownBy(()->service.review(10,new ReviewService.ReviewCommand("PASSED",null,null,2),9)).isInstanceOf(BusinessException.class).extracting("code").isEqualTo("OPTIMISTIC_LOCK_CONFLICT");}
+    @Test void recordsSuccessfulReview(){when(materials.updateById(any(MaterialSubmissionEntity.class))).thenReturn(1);CaseService.MaterialView result=service.review(10,new ReviewService.ReviewCommand("PASSED","客户说明","内部说明",3),9);assertThat(result.reviewStatus()).isEqualTo("PASSED");assertThat(result.internalNote()).isEqualTo("内部说明");verify(logs).insert(any(MaterialReviewLogEntity.class));verify(audit).operation(9L,"MATERIAL_REVIEW","MATERIAL",10L,"资料审核结果 PASSED");}
+    @Test void rejectsMaterialFromAnotherCaseInSupplement(){MaterialSubmissionEntity other=new MaterialSubmissionEntity();other.setId(10L);other.setCaseId(99L);when(cases.requireMaterial(10)).thenReturn(other);assertThatThrownBy(()->service.requestTransaction(1,new ReviewService.SupplementCommand(List.of(10L),"请补件"),9)).isInstanceOf(BusinessException.class).extracting("code").isEqualTo("MATERIAL_CASE_MISMATCH");}
+    @Test void createsSupplementAndNotifiesMembers(){when(materials.updateById(any(MaterialSubmissionEntity.class))).thenReturn(1);doAnswer(i->{SupplementRequestEntity r=i.getArgument(0);r.setId(20L);return 1;}).when(supplements).insert(any(SupplementRequestEntity.class));CompanyUserEntity member=new CompanyUserEntity();member.setUserId(30L);when(memberships.findEnabledByCompany(2)).thenReturn(List.of(member));ReviewService.SupplementView result=service.requestTransaction(1,new ReviewService.SupplementCommand(List.of(10L),"请补件"),9);assertThat(result.status()).isEqualTo("OPEN");assertThat(material.getSubmitStatus()).isEqualTo("NOT_SUBMITTED");verify(items).insert(any(SupplementRequestItemEntity.class));verify(notifications).send(30L,2L,1L,"SUPPLEMENT_REQUIRED","报单需要补充资料","请补件");verify(cases).adminTransition(1,"NEED_SUPPLEMENT","请补件",9);}
+    @Test void rejectsReviewInTerminalCase(){serviceCase.setStatus("COMPLETED");assertThatThrownBy(()->service.review(10,new ReviewService.ReviewCommand("PASSED",null,null,3),9)).isInstanceOf(BusinessException.class).extracting("code").isEqualTo("CASE_REVIEW_DENIED");}
+    @Test void marksNotRequiredAsSubmitted(){when(materials.updateById(any(MaterialSubmissionEntity.class))).thenReturn(1);CaseService.MaterialView result=service.review(10,new ReviewService.ReviewCommand("NOT_REQUIRED",null,null,3),9);assertThat(result.submitStatus()).isEqualTo("SUBMITTED");}
+    @Test void detectsConcurrentReviewUpdate(){when(materials.updateById(any(MaterialSubmissionEntity.class))).thenReturn(0);assertThatThrownBy(()->service.review(10,new ReviewService.ReviewCommand("PASSED",null,null,3),9)).isInstanceOf(BusinessException.class).extracting("code").isEqualTo("OPTIMISTIC_LOCK_CONFLICT");}
+    @Test void validatesSupplementItemCollection(){assertThatThrownBy(()->service.requestTransaction(1,new ReviewService.SupplementCommand(List.of(),"补件"),9)).isInstanceOf(BusinessException.class).extracting("code").isEqualTo("SUPPLEMENT_ITEMS_REQUIRED");assertThatThrownBy(()->service.requestTransaction(1,new ReviewService.SupplementCommand(List.of(10L,10L),"补件"),9)).isInstanceOf(BusinessException.class).extracting("code").isEqualTo("SUPPLEMENT_ITEMS_DUPLICATE");}
+    @Test void resolvesEveryOpenSupplement(){SupplementRequestEntity a=new SupplementRequestEntity();a.setId(1L);a.setStatus("OPEN");SupplementRequestEntity b=new SupplementRequestEntity();b.setId(2L);b.setStatus("OPEN");when(supplements.selectList(any())).thenReturn(List.of(a,b));service.resolveOpen(1);assertThat(a.getStatus()).isEqualTo("RESOLVED");assertThat(b.getResolvedAt()).isNotNull();verify(supplements,times(2)).updateById(any(SupplementRequestEntity.class));}
+}

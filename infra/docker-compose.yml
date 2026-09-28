@@ -1,0 +1,58 @@
+name: wqsf
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: wqst-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wqst
+      MYSQL_USER: wqst
+      MYSQL_PASSWORD: wqst_dev_password
+      MYSQL_ROOT_PASSWORD: root_dev_password
+      TZ: Asia/Shanghai
+    ports: ["3306:3306"]
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ../database/001_init.sql:/docker-entrypoint-initdb.d/001_init.sql:ro
+      - ../database/002_full_schema.sql:/docker-entrypoint-initdb.d/002_full_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+  valkey:
+    image: valkey/valkey:8
+    container_name: wqst-valkey
+    restart: unless-stopped
+    command: ["valkey-server", "--appendonly", "yes"]
+    ports: ["6379:6379"]
+    volumes: ["valkey_data:/data"]
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.06
+    container_name: wqst-seaweedfs
+    restart: unless-stopped
+    command: server -s3 -s3.config=/etc/seaweedfs/s3.json -dir=/data
+    ports: ["8333:8333", "9333:9333", "8888:8888"]
+    volumes:
+      - seaweedfs_data:/data
+      - ./seaweedfs-s3.json:/etc/seaweedfs/s3.json:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://wqst-seaweedfs:9333/cluster/status"]
+      interval: 15s
+      timeout: 8s
+      retries: 20
+      start_period: 30s
+volumes:
+  mysql_data:
+    name: wqsf_mysql_data
+  valkey_data:
+    name: wqsf_valkey_data
+  seaweedfs_data:
+    name: wqsf_seaweedfs_data

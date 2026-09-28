@@ -1,0 +1,6 @@
+wqst:
+  auth:
+    dev-client-login-enabled: true
+springdoc:
+  swagger-ui:
+    enabled: true

@@ -1,0 +1,36 @@
+# 依赖
+node_modules/
+**/node_modules/
+
+# 构建与测试产物
+**/dist/
+**/target/
+**/unpackage/
+**/.vite/
+coverage/
+
+# 本地浏览器、IDE 和系统文件
+**/.chrome-*/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# 日志和临时文件
+*.log
+*.tmp
+*.temp
+
+# 本地敏感配置（安全示例可显式放行）
+.env
+.env.*
+!.env.example
+!apps/admin-web/.env.development
+!apps/admin-web/.env.production
+
+# 本地数据与备份
+database/backups/
+*.sql.gz
+*.tar.gz
+*.rdb
+

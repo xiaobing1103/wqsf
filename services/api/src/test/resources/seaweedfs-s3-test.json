@@ -1,0 +1,11 @@
+{
+  "identities": [
+    {
+      "name": "wqst-integration-test",
+      "credentials": [
+        { "accessKey": "wqst_it_access", "secretKey": "wqst_it_secret" }
+      ],
+      "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+    }
+  ]
+}

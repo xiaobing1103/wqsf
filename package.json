@@ -1,0 +1,14 @@
+{
+  "name": "wanqi-shangfutong-workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "api:export": "node scripts/export-openapi.mjs",
+    "api:generate": "orval --config orval.config.ts",
+    "api:sync": "pnpm api:export && pnpm api:generate",
+    "api:check": "node scripts/validate-openapi.mjs openapi/万企商服通_OpenAPI_V1.json"
+  },
+  "devDependencies": {
+    "orval": "^8.37.0"
+  }
+}

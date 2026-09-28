@@ -1,0 +1,83 @@
+CREATE DATABASE IF NOT EXISTS wqst DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE wqst;
+
+CREATE TABLE IF NOT EXISTS company (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  company_name VARCHAR(128) NOT NULL,
+  credit_code VARCHAR(32),
+  contact_name VARCHAR(64),
+  contact_phone VARCHAR(32),
+  province VARCHAR(32), city VARCHAR(32),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_company_credit_code (credit_code)
+) ENGINE=InnoDB COMMENT='企业客户';
+
+CREATE TABLE IF NOT EXISTS service_case (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  case_no VARCHAR(32) NOT NULL,
+  company_id BIGINT NOT NULL,
+  service_type VARCHAR(32) NOT NULL COMMENT 'TRADE_INCREMENT/IP/QUALIFICATION',
+  status VARCHAR(32) NOT NULL DEFAULT 'PENDING_REVIEW',
+  assignee_id BIGINT,
+  submitted_at DATETIME,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_case_no (case_no),
+  KEY idx_case_company (company_id),
+  KEY idx_case_status (status)
+) ENGINE=InnoDB COMMENT='业务报单';
+
+CREATE TABLE IF NOT EXISTS invoice_info (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  case_id BIGINT NOT NULL,
+  company_name VARCHAR(128), tax_no VARCHAR(32), contact_address VARCHAR(255),
+  contact_phone VARCHAR(32), legal_person VARCHAR(64), company_email VARCHAR(128),
+  bank_branch VARCHAR(128), basic_account VARCHAR(64),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_invoice_case (case_id)
+) ENGINE=InnoDB COMMENT='开票信息';
+
+CREATE TABLE IF NOT EXISTS material_submission (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  case_id BIGINT NOT NULL,
+  material_code VARCHAR(64) NOT NULL,
+  material_name VARCHAR(128) NOT NULL,
+  required TINYINT(1) NOT NULL DEFAULT 1,
+  review_status VARCHAR(32) NOT NULL DEFAULT 'PENDING',
+  review_note VARCHAR(500),
+  reviewed_by BIGINT,
+  reviewed_at DATETIME,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uk_case_material (case_id, material_code)
+) ENGINE=InnoDB COMMENT='资料审核项';
+
+CREATE TABLE IF NOT EXISTS file_object (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  case_id BIGINT NOT NULL,
+  material_id BIGINT,
+  original_name VARCHAR(255) NOT NULL,
+  object_key VARCHAR(500) NOT NULL,
+  content_type VARCHAR(128),
+  file_size BIGINT,
+  sha256 CHAR(64),
+  is_sensitive TINYINT(1) NOT NULL DEFAULT 1,
+  created_by BIGINT,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_file_case (case_id)
+) ENGINE=InnoDB COMMENT='私有文件元数据';
+
+CREATE TABLE IF NOT EXISTS export_job (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  case_id BIGINT,
+  export_type VARCHAR(16) NOT NULL COMMENT 'EXCEL/ZIP',
+  status VARCHAR(16) NOT NULL DEFAULT 'PENDING',
+  object_key VARCHAR(500),
+  expires_at DATETIME,
+  download_count INT NOT NULL DEFAULT 0,
+  operator_id BIGINT,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB COMMENT='导出任务';
+

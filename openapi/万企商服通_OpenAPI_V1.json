@@ -1,0 +1,4827 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "万企商服通接口文档",
+    "description": "面向万企商服通小程序和管理后台的统一接口契约。除明确标记为公开的接口外，均需携带 Bearer Token。",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "当前服务地址"
+    }
+  ],
+  "security": [
+    {
+      "BearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "客户企业"
+    },
+    {
+      "name": "后台导入"
+    },
+    {
+      "name": "文件管理"
+    },
+    {
+      "name": "服务目录"
+    },
+    {
+      "name": "认证与会话"
+    },
+    {
+      "name": "审计日志"
+    },
+    {
+      "name": "后台报单"
+    },
+    {
+      "name": "后台产品"
+    },
+    {
+      "name": "后台企业"
+    },
+    {
+      "name": "后台工作台"
+    },
+    {
+      "name": "后台导出"
+    },
+    {
+      "name": "客户通知"
+    },
+    {
+      "name": "后台账号"
+    },
+    {
+      "name": "客户报单"
+    }
+  ],
+  "paths": {
+    "/api/v1/cases/{caseId}/simple-info": {
+      "put": {
+        "tags": [
+          "客户报单"
+        ],
+        "summary": "保存知识产权或资质简表",
+        "description": "保存知识产权或资质简表。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "caseSimple",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimpleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCaseView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{caseId}/materials/{materialId}/text": {
+      "put": {
+        "tags": [
+          "客户报单"
+        ],
+        "summary": "保存文字类资料",
+        "description": "保存文字类资料。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "caseText",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "materialId",
+            "in": "path",
+            "description": "资料项编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TextRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMaterialView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{caseId}/invoice-info": {
+      "put": {
+        "tags": [
+          "客户报单"
+        ],
+        "summary": "保存开票信息",
+        "description": "保存开票信息。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "caseInvoice",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvoiceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseInvoiceView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounts/{userId}/roles": {
+      "put": {
+        "tags": [
+          "后台账号"
+        ],
+        "summary": "修改账号角色",
+        "description": "修改账号角色。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminAccountRoles",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "用户编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RolesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/{id}/read": {
+      "post": {
+        "tags": [
+          "客户通知"
+        ],
+        "summary": "标记通知为已读",
+        "description": "标记通知为已读。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "notificationRead",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "主键编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files": {
+      "get": {
+        "tags": [
+          "文件管理"
+        ],
+        "summary": "查询资料项文件列表",
+        "description": "查询资料项文件列表。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "fileList",
+        "parameters": [
+          {
+            "name": "materialId",
+            "in": "query",
+            "description": "资料项编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListFileView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "文件管理"
+        ],
+        "summary": "上传报单资料文件",
+        "description": "上传报单资料文件。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "fileUpload",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "query",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "materialId",
+            "in": "query",
+            "description": "资料项编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseFileView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}/preview": {
+      "post": {
+        "tags": [
+          "文件管理"
+        ],
+        "summary": "获取文件受控预览地址",
+        "description": "获取文件受控预览地址。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "filePreview",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "文件编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePreviewView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases": {
+      "post": {
+        "tags": [
+          "客户报单"
+        ],
+        "summary": "创建客户报单草稿",
+        "description": "创建客户报单草稿。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "caseCreate",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "接口参数",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCaseView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{caseId}/submit": {
+      "post": {
+        "tags": [
+          "客户报单"
+        ],
+        "summary": "提交或重新提交报单",
+        "description": "提交或重新提交报单。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "caseSubmit",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "接口参数",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCaseView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/wechat/login": {
+      "post": {
+        "tags": [
+          "认证与会话"
+        ],
+        "summary": "微信小程序登录",
+        "description": "微信小程序登录。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "authWechat",
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WechatLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseLoginResult"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "tags": [
+          "认证与会话"
+        ],
+        "summary": "退出当前登录",
+        "description": "退出当前登录。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "authLogout",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/client/dev-login": {
+      "post": {
+        "tags": [
+          "认证与会话"
+        ],
+        "summary": "本地开发客户登录",
+        "description": "本地开发客户登录。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "authDevLogin",
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DevLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseLoginResult"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/auth/admin/login": {
+      "post": {
+        "tags": [
+          "认证与会话"
+        ],
+        "summary": "后台账号登录",
+        "description": "后台账号登录。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "authAdminLogin",
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AdminLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseLoginResult"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/admin/templates/{templateId}/publish": {
+      "post": {
+        "tags": [
+          "后台产品"
+        ],
+        "summary": "发布资料模板版本",
+        "description": "发布资料模板版本。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminProductPublishTemplate",
+        "parameters": [
+          {
+            "name": "templateId",
+            "in": "path",
+            "description": "模板编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTemplateView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/templates/{sourceTemplateId}/versions": {
+      "post": {
+        "tags": [
+          "后台产品"
+        ],
+        "summary": "创建资料模板版本",
+        "description": "创建资料模板版本。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminProductCreateVersion",
+        "parameters": [
+          {
+            "name": "sourceTemplateId",
+            "in": "path",
+            "description": "来源模板编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TemplateVersionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTemplateView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/products": {
+      "get": {
+        "tags": [
+          "后台产品"
+        ],
+        "summary": "查询后台产品列表",
+        "description": "查询后台产品列表。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminProductList",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListProductAdminView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "后台产品"
+        ],
+        "summary": "创建服务产品",
+        "description": "创建服务产品。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminProductCreate",
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseProductAdminView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/products/{productId}/unpublish": {
+      "post": {
+        "tags": [
+          "后台产品"
+        ],
+        "summary": "下架服务产品",
+        "description": "下架服务产品。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminProductUnpublish",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "产品编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseProductAdminView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/products/{productId}/publish": {
+      "post": {
+        "tags": [
+          "后台产品"
+        ],
+        "summary": "发布服务产品",
+        "description": "发布服务产品。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminProductPublish",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "产品编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseProductAdminView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/materials/{materialId}/review": {
+      "post": {
+        "tags": [
+          "后台报单"
+        ],
+        "summary": "审核单项资料",
+        "description": "审核单项资料。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCaseReview",
+        "parameters": [
+          {
+            "name": "materialId",
+            "in": "path",
+            "description": "资料项编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMaterialView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/imports": {
+      "post": {
+        "tags": [
+          "后台导入"
+        ],
+        "summary": "创建企业 Excel 导入任务",
+        "description": "创建企业 Excel 导入任务。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "importCreate",
+        "parameters": [
+          {
+            "name": "dryRun",
+            "in": "query",
+            "description": "是否仅校验不写入",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "接口参数",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseJobView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/imports/{jobId}/error-report": {
+      "post": {
+        "tags": [
+          "后台导入"
+        ],
+        "summary": "获取导入错误报告",
+        "description": "获取导入错误报告。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "importError",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "任务编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTemplateDownload"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exports/{jobId}/download": {
+      "post": {
+        "tags": [
+          "后台导出"
+        ],
+        "summary": "获取导出文件下载地址",
+        "description": "获取导出文件下载地址。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "exportDownload",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "任务编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDownloadView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exports/review-excel": {
+      "post": {
+        "tags": [
+          "后台导出"
+        ],
+        "summary": "创建审核表 Excel 导出任务",
+        "description": "创建审核表 Excel 导出任务。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "exportExcel",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "接口参数",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseExportJobView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exports/material-zip": {
+      "post": {
+        "tags": [
+          "后台导出"
+        ],
+        "summary": "创建贸易增量 ZIP 导出任务",
+        "description": "创建贸易增量 ZIP 导出任务。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "exportZip",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "接口参数",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ZipRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseExportJobView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/companies": {
+      "get": {
+        "tags": [
+          "后台企业"
+        ],
+        "summary": "分页查询企业客户",
+        "description": "分页查询企业客户。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCompanyList",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "搜索关键词",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "业务状态",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseCompanyView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "后台企业"
+        ],
+        "summary": "创建企业客户",
+        "description": "创建企业客户。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCompanyCreate",
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCompanyView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/companies/{companyId}/members": {
+      "post": {
+        "tags": [
+          "后台企业"
+        ],
+        "summary": "添加或更新企业成员",
+        "description": "添加或更新企业成员。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCompanyAddMember",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "企业编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MemberRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/cases/{caseId}/supplement-request": {
+      "post": {
+        "tags": [
+          "后台报单"
+        ],
+        "summary": "发起客户补件",
+        "description": "发起客户补件。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCaseSupplement",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "接口参数",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SupplementRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseSupplementView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/cases/{caseId}/status": {
+      "post": {
+        "tags": [
+          "后台报单"
+        ],
+        "summary": "变更报单状态",
+        "description": "变更报单状态。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCaseStatus",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCaseView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/cases/{caseId}/assign": {
+      "post": {
+        "tags": [
+          "后台报单"
+        ],
+        "summary": "分配报单经办人",
+        "description": "分配报单经办人。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCaseAssign",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCaseView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounts": {
+      "get": {
+        "tags": [
+          "后台账号"
+        ],
+        "summary": "查询后台账号列表",
+        "description": "查询后台账号列表。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminAccountList",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListAccountView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "后台账号"
+        ],
+        "summary": "创建后台或客户账号",
+        "description": "创建后台或客户账号。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminAccountCreate",
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/products/{productId}": {
+      "patch": {
+        "tags": [
+          "后台产品"
+        ],
+        "summary": "修改服务产品",
+        "description": "修改服务产品。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminProductUpdate",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "产品编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseProductAdminView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/services/catalog": {
+      "get": {
+        "tags": [
+          "服务目录"
+        ],
+        "summary": "查询小程序服务目录",
+        "description": "查询小程序服务目录。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "catalogCatalog",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListModuleView"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/products/{productId}/material-template": {
+      "get": {
+        "tags": [
+          "服务目录"
+        ],
+        "summary": "查询产品资料模板",
+        "description": "查询产品资料模板。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "catalogTemplate",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "description": "产品编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTemplateView"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/api/v1/notifications/my": {
+      "get": {
+        "tags": [
+          "客户通知"
+        ],
+        "summary": "分页查询我的通知",
+        "description": "分页查询我的通知。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "notificationMine",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseNotificationEntity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/companies/{companyId}": {
+      "get": {
+        "tags": [
+          "客户企业"
+        ],
+        "summary": "查询当前用户企业详情",
+        "description": "查询当前用户企业详情。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "companyDetail",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "企业编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCompanyView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/companies/my": {
+      "get": {
+        "tags": [
+          "客户企业"
+        ],
+        "summary": "查询当前用户所属企业",
+        "description": "查询当前用户所属企业。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "companyMine",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListCompanyView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{caseId}": {
+      "get": {
+        "tags": [
+          "客户报单"
+        ],
+        "summary": "查询我的报单详情",
+        "description": "查询我的报单详情。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "caseDetail",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCaseView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/{caseId}/timeline": {
+      "get": {
+        "tags": [
+          "客户报单"
+        ],
+        "summary": "查询报单进度时间线",
+        "description": "查询报单进度时间线。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "caseTimeline",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListTimelineView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/cases/my": {
+      "get": {
+        "tags": [
+          "客户报单"
+        ],
+        "summary": "分页查询我的报单",
+        "description": "分页查询我的报单。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "caseMine",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "业务状态",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseCaseSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "认证与会话"
+        ],
+        "summary": "获取当前登录用户",
+        "description": "获取当前登录用户。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "authMe",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCurrentUser"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit/operations": {
+      "get": {
+        "tags": [
+          "审计日志"
+        ],
+        "summary": "查询操作日志",
+        "description": "查询操作日志。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "auditOperations",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseOperationLogEntity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit/file-access": {
+      "get": {
+        "tags": [
+          "审计日志"
+        ],
+        "summary": "查询文件访问日志",
+        "description": "查询文件访问日志。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "auditFiles",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseFileAccessLogEntity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/audit/downloads": {
+      "get": {
+        "tags": [
+          "审计日志"
+        ],
+        "summary": "查询下载日志",
+        "description": "查询下载日志。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "auditDownloads",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseDownloadLogEntity"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/imports/{jobId}": {
+      "get": {
+        "tags": [
+          "后台导入"
+        ],
+        "summary": "查询企业导入任务",
+        "description": "查询企业导入任务。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "importGet",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "任务编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseJobView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/imports/template": {
+      "get": {
+        "tags": [
+          "后台导入"
+        ],
+        "summary": "获取企业导入模板",
+        "description": "获取企业导入模板。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "importTemplate",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseTemplateDownload"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/exports/{jobId}": {
+      "get": {
+        "tags": [
+          "后台导出"
+        ],
+        "summary": "查询导出任务",
+        "description": "查询导出任务。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "exportGet",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "path",
+            "description": "任务编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseExportJobView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/dashboard": {
+      "get": {
+        "tags": [
+          "后台工作台"
+        ],
+        "summary": "查询后台工作台汇总",
+        "description": "查询后台工作台汇总。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "dashboardDashboard",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseDashboardView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/cases": {
+      "get": {
+        "tags": [
+          "后台报单"
+        ],
+        "summary": "分页查询后台报单",
+        "description": "分页查询后台报单。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCaseList",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码，从 1 开始",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页数量",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 20
+            }
+          },
+          {
+            "name": "keyword",
+            "in": "query",
+            "description": "搜索关键词",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "业务状态",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "serviceType",
+            "in": "query",
+            "description": "服务类型",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "assigneeId",
+            "in": "query",
+            "description": "经办人编号",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponsePageResponseCaseSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/cases/{caseId}": {
+      "get": {
+        "tags": [
+          "后台报单"
+        ],
+        "summary": "查询后台报单详情",
+        "description": "查询后台报单详情。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCaseDetail",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCaseView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/files/{fileId}": {
+      "delete": {
+        "tags": [
+          "文件管理"
+        ],
+        "summary": "删除报单资料文件",
+        "description": "删除报单资料文件。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "fileDelete",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "path",
+            "description": "文件编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SimpleRequest": {
+        "type": "object",
+        "properties": {
+          "legalPersonName": {
+            "type": "string",
+            "description": "法人姓名"
+          },
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "contactPhone": {
+            "type": "string",
+            "description": "联系电话",
+            "pattern": "^[0-9+ -]{7,20}$"
+          },
+          "consent": {
+            "type": "boolean",
+            "description": "是否同意提交"
+          }
+        },
+        "required": [
+          "companyName",
+          "contactPhone",
+          "legalPersonName"
+        ]
+      },
+      "ApiResponseCaseView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CaseView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "CaseView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "caseNo": {
+            "type": "string",
+            "description": "报单业务编号"
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "企业编号"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "产品编号"
+          },
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "serviceType": {
+            "type": "string",
+            "description": "服务类型"
+          },
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "caseMonth": {
+            "type": "string",
+            "description": "报单月份"
+          },
+          "assigneeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "经办人编号"
+          },
+          "applicantUserId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "legalPersonName": {
+            "type": "string",
+            "description": "法人姓名"
+          },
+          "contactPhoneMask": {
+            "type": "string",
+            "description": "脱敏联系电话"
+          },
+          "progress": {
+            "$ref": "#/components/schemas/Progress",
+            "description": "接口字段"
+          },
+          "materials": {
+            "type": "array",
+            "description": "资料项及完成度",
+            "items": {
+              "$ref": "#/components/schemas/MaterialView"
+            }
+          },
+          "invoiceInfo": {
+            "$ref": "#/components/schemas/InvoiceView",
+            "description": "接口字段"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "提交时间"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "完成时间"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
+          }
+        }
+      },
+      "InvoiceView": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "taxNoMask": {
+            "type": "string",
+            "description": "脱敏纳税人识别号"
+          },
+          "contactAddress": {
+            "type": "string",
+            "description": "联系地址"
+          },
+          "contactPhoneMask": {
+            "type": "string",
+            "description": "脱敏联系电话"
+          },
+          "legalPerson": {
+            "type": "string",
+            "description": "法定代表人"
+          },
+          "companyEmail": {
+            "type": "string",
+            "description": "公司邮箱"
+          },
+          "bankBranch": {
+            "type": "string",
+            "description": "开户行网点"
+          },
+          "basicAccountMask": {
+            "type": "string",
+            "description": "脱敏基本户账号"
+          }
+        }
+      },
+      "MaterialView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "materialCode": {
+            "type": "string",
+            "description": "资料项编码"
+          },
+          "materialName": {
+            "type": "string",
+            "description": "资料项名称"
+          },
+          "inputType": {
+            "type": "string",
+            "description": "录入类型"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "是否必填"
+          },
+          "sensitive": {
+            "type": "boolean",
+            "description": "是否敏感"
+          },
+          "textValue": {
+            "type": "string",
+            "description": "文字或链接内容"
+          },
+          "submitStatus": {
+            "type": "string",
+            "description": "提交状态"
+          },
+          "reviewStatus": {
+            "type": "string",
+            "description": "审核状态"
+          },
+          "clientVisibleNote": {
+            "type": "string",
+            "description": "客户可见说明"
+          },
+          "internalNote": {
+            "type": "string",
+            "description": "内部备注"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
+          }
+        }
+      },
+      "Progress": {
+        "type": "object",
+        "properties": {
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总记录数"
+          },
+          "completed": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "requiredRemaining": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          }
+        }
+      },
+      "TextRequest": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "文字输入内容"
+          }
+        },
+        "required": [
+          "value"
+        ]
+      },
+      "ApiResponseMaterialView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/MaterialView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "InvoiceRequest": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "taxNo": {
+            "type": "string",
+            "description": "纳税人识别号"
+          },
+          "contactAddress": {
+            "type": "string",
+            "description": "联系地址"
+          },
+          "contactPhone": {
+            "type": "string",
+            "description": "联系电话",
+            "pattern": "^[0-9+ -]{7,20}$"
+          },
+          "legalPerson": {
+            "type": "string",
+            "description": "法定代表人"
+          },
+          "companyEmail": {
+            "type": "string",
+            "description": "公司邮箱"
+          },
+          "bankBranch": {
+            "type": "string",
+            "description": "开户行网点"
+          },
+          "basicAccount": {
+            "type": "string",
+            "description": "基本户账号"
+          }
+        },
+        "required": [
+          "bankBranch",
+          "basicAccount",
+          "companyEmail",
+          "companyName",
+          "contactAddress",
+          "contactPhone",
+          "legalPerson",
+          "taxNo"
+        ]
+      },
+      "ApiResponseInvoiceView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/InvoiceView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "RolesRequest": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "description": "角色编码列表",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "roles"
+        ]
+      },
+      "AccountView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "accountType": {
+            "type": "string",
+            "description": "账号类型"
+          },
+          "username": {
+            "type": "string",
+            "description": "登录用户名"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "用户显示名称"
+          },
+          "phoneMask": {
+            "type": "string",
+            "description": "脱敏手机号"
+          },
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "roles": {
+            "type": "array",
+            "description": "角色编码列表",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "description": "权限编码列表",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lastLoginAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "接口字段"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          }
+        }
+      },
+      "ApiResponseAccountView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AccountView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "ApiResponseVoid": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "type": "object",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "ApiResponseFileView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FileView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "FileView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "caseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "报单编号"
+          },
+          "materialId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "资料项编号"
+          },
+          "originalName": {
+            "type": "string",
+            "description": "原文件名"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "文件媒体类型"
+          },
+          "extension": {
+            "type": "string",
+            "description": "文件扩展名"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "文件大小，单位字节"
+          },
+          "sha256": {
+            "type": "string",
+            "description": "文件摘要"
+          },
+          "sensitive": {
+            "type": "boolean",
+            "description": "是否敏感"
+          },
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          }
+        }
+      },
+      "ApiResponsePreviewView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PreviewView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "PreviewView": {
+        "type": "object",
+        "properties": {
+          "previewUrl": {
+            "type": "string",
+            "description": "短时有效预览地址"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "失效时间"
+          }
+        }
+      },
+      "CreateRequest": {
+        "type": "object",
+        "properties": {
+          "companyId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "企业编号"
+          },
+          "productId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "产品编号"
+          },
+          "serviceType": {
+            "type": "string",
+            "description": "服务类型",
+            "pattern": "TRADE_INCREMENT|IP|QUALIFICATION"
+          },
+          "caseMonth": {
+            "type": "string",
+            "description": "报单月份",
+            "pattern": "^$|^\\d{4}-(0[1-9]|1[0-2])$"
+          }
+        }
+      },
+      "WechatLoginRequest": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "微信临时登录凭证"
+          }
+        },
+        "required": [
+          "code"
+        ]
+      },
+      "ApiResponseLoginResult": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LoginResult",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "LoginResult": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "访问令牌"
+          },
+          "tokenType": {
+            "type": "string",
+            "description": "令牌类型"
+          },
+          "expiresIn": {
+            "type": "integer",
+            "format": "int64",
+            "description": "令牌有效秒数"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserBrief",
+            "description": "接口字段"
+          }
+        }
+      },
+      "UserBrief": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "用户显示名称"
+          },
+          "phoneMask": {
+            "type": "string",
+            "description": "脱敏手机号"
+          }
+        }
+      },
+      "DevLoginRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "用户编号"
+          }
+        }
+      },
+      "AdminLoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "登录用户名"
+          },
+          "password": {
+            "type": "string",
+            "description": "登录密码"
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ]
+      },
+      "ApiResponseTemplateView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TemplateView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "ItemView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "itemCode": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "itemName": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "inputType": {
+            "type": "string",
+            "description": "录入类型"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "是否必填"
+          },
+          "sensitive": {
+            "type": "boolean",
+            "description": "是否敏感"
+          },
+          "allowedExtensions": {
+            "type": "array",
+            "description": "接口字段",
+            "items": {
+              "type": "string"
+            }
+          },
+          "maxFileSizeMb": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "maxFileCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "helpText": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          }
+        }
+      },
+      "TemplateView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "templateCode": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "templateName": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "versionNo": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "items": {
+            "type": "array",
+            "description": "当前页数据",
+            "items": {
+              "$ref": "#/components/schemas/ItemView"
+            }
+          }
+        }
+      },
+      "TemplateItemRequest": {
+        "type": "object",
+        "properties": {
+          "itemCode": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "itemName": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "inputType": {
+            "type": "string",
+            "description": "录入类型"
+          },
+          "required": {
+            "type": "boolean",
+            "description": "是否必填"
+          },
+          "sensitive": {
+            "type": "boolean",
+            "description": "是否敏感"
+          },
+          "allowedExtensions": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "maxFileSizeMb": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "maxFileCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "helpText": {
+            "type": "string",
+            "description": "接口字段"
+          }
+        },
+        "required": [
+          "inputType",
+          "itemCode",
+          "itemName",
+          "maxFileCount"
+        ]
+      },
+      "TemplateVersionRequest": {
+        "type": "object",
+        "properties": {
+          "templateName": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "items": {
+            "type": "array",
+            "description": "当前页数据",
+            "items": {
+              "$ref": "#/components/schemas/TemplateItemRequest"
+            }
+          }
+        },
+        "required": [
+          "items",
+          "templateName"
+        ]
+      },
+      "ProductRequest": {
+        "type": "object",
+        "properties": {
+          "moduleId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "productName": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "description": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "templateId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "模板编号"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
+          }
+        },
+        "required": [
+          "moduleId",
+          "productCode",
+          "productName",
+          "sortOrder",
+          "templateId"
+        ]
+      },
+      "ApiResponseProductAdminView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ProductAdminView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "ProductAdminView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "moduleId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "productName": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "description": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "templateId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "模板编号"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
+          }
+        }
+      },
+      "ReviewRequest": {
+        "type": "object",
+        "properties": {
+          "reviewStatus": {
+            "type": "string",
+            "description": "审核状态"
+          },
+          "clientVisibleNote": {
+            "type": "string",
+            "description": "客户可见说明"
+          },
+          "internalNote": {
+            "type": "string",
+            "description": "内部备注"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
+          }
+        },
+        "required": [
+          "reviewStatus",
+          "version"
+        ]
+      },
+      "ApiResponseJobView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/JobView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "JobView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "jobNo": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "dryRun": {
+            "type": "boolean",
+            "description": "是否仅校验不写入"
+          },
+          "totalRows": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "successRows": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "skippedRows": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "failedRows": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "errorReportFileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "完成时间"
+          }
+        }
+      },
+      "ApiResponseTemplateDownload": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TemplateDownload",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "TemplateDownload": {
+        "type": "object",
+        "properties": {
+          "downloadUrl": {
+            "type": "string",
+            "description": "短时有效下载地址"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "失效时间"
+          }
+        }
+      },
+      "ApiResponseDownloadView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DownloadView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "DownloadView": {
+        "type": "object",
+        "properties": {
+          "downloadUrl": {
+            "type": "string",
+            "description": "短时有效下载地址"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "失效时间"
+          }
+        }
+      },
+      "ExportReviewRequest": {
+        "type": "object",
+        "properties": {
+          "caseIds": {
+            "type": "array",
+            "description": "报单编号列表",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "required": [
+          "caseIds"
+        ]
+      },
+      "ApiResponseExportJobView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/ExportJobView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "ExportJobView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "caseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "报单编号"
+          },
+          "exportType": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "errorCode": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "失效时间"
+          },
+          "downloadCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "接口字段"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "完成时间"
+          }
+        }
+      },
+      "ZipRequest": {
+        "type": "object",
+        "properties": {
+          "caseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "报单编号"
+          },
+          "includeSensitive": {
+            "type": "boolean",
+            "description": "是否包含敏感资料"
+          }
+        }
+      },
+      "CompanyRequest": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "creditCode": {
+            "type": "string",
+            "description": "统一社会信用代码"
+          },
+          "contactName": {
+            "type": "string",
+            "description": "联系人姓名"
+          },
+          "contactPhone": {
+            "type": "string",
+            "description": "联系电话",
+            "pattern": "^$|^[0-9+ -]{7,20}$"
+          },
+          "legalPerson": {
+            "type": "string",
+            "description": "法定代表人"
+          },
+          "province": {
+            "type": "string",
+            "description": "省份"
+          },
+          "city": {
+            "type": "string",
+            "description": "城市"
+          },
+          "companyEmail": {
+            "type": "string",
+            "description": "公司邮箱"
+          },
+          "detailAddress": {
+            "type": "string",
+            "description": "详细地址"
+          }
+        },
+        "required": [
+          "companyName"
+        ]
+      },
+      "ApiResponseCompanyView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CompanyView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "CompanyView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "creditCodeMask": {
+            "type": "string",
+            "description": "脱敏统一社会信用代码"
+          },
+          "contactName": {
+            "type": "string",
+            "description": "联系人姓名"
+          },
+          "contactPhoneMask": {
+            "type": "string",
+            "description": "脱敏联系电话"
+          },
+          "legalPerson": {
+            "type": "string",
+            "description": "法定代表人"
+          },
+          "province": {
+            "type": "string",
+            "description": "省份"
+          },
+          "city": {
+            "type": "string",
+            "description": "城市"
+          },
+          "companyEmail": {
+            "type": "string",
+            "description": "公司邮箱"
+          },
+          "detailAddress": {
+            "type": "string",
+            "description": "详细地址"
+          },
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "memberRole": {
+            "type": "string",
+            "description": "企业成员角色"
+          }
+        }
+      },
+      "MemberRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "用户编号"
+          },
+          "memberRole": {
+            "type": "string",
+            "description": "企业成员角色"
+          }
+        },
+        "required": [
+          "memberRole"
+        ]
+      },
+      "SupplementRequest": {
+        "type": "object",
+        "properties": {
+          "materialIds": {
+            "type": "array",
+            "description": "资料项编号列表",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "clientMessage": {
+            "type": "string",
+            "description": "客户补件说明"
+          }
+        },
+        "required": [
+          "clientMessage",
+          "materialIds"
+        ]
+      },
+      "ApiResponseSupplementView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SupplementView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "SupplementView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "requestNo": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "caseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "报单编号"
+          },
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "materialIds": {
+            "type": "array",
+            "description": "资料项编号列表",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "clientMessage": {
+            "type": "string",
+            "description": "客户补件说明"
+          }
+        }
+      },
+      "StatusRequest": {
+        "type": "object",
+        "properties": {
+          "targetStatus": {
+            "type": "string",
+            "description": "目标状态"
+          },
+          "note": {
+            "type": "string",
+            "description": "状态说明"
+          }
+        },
+        "required": [
+          "targetStatus"
+        ]
+      },
+      "AssignRequest": {
+        "type": "object",
+        "properties": {
+          "assigneeId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "经办人编号"
+          }
+        }
+      },
+      "ApiResponseListModuleView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "type": "array",
+            "description": "业务数据",
+            "items": {
+              "$ref": "#/components/schemas/ModuleView"
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "ModuleView": {
+        "type": "object",
+        "properties": {
+          "moduleCode": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "moduleName": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "description": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "products": {
+            "type": "array",
+            "description": "接口字段",
+            "items": {
+              "$ref": "#/components/schemas/ProductView"
+            }
+          }
+        }
+      },
+      "ProductView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "productCode": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "productName": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "description": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "materialCount": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          }
+        }
+      },
+      "ApiResponsePageResponseNotificationEntity": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseNotificationEntity",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "NotificationEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "userId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "用户编号"
+          },
+          "companyId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "企业编号"
+          },
+          "caseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "报单编号"
+          },
+          "notificationType": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "title": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "content": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "接口字段"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          }
+        }
+      },
+      "PageResponseNotificationEntity": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "当前页数据",
+            "items": {
+              "$ref": "#/components/schemas/NotificationEntity"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64",
+            "description": "页码，从 1 开始"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "每页数量"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总记录数"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总页数"
+          }
+        }
+      },
+      "ApiResponseListFileView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "type": "array",
+            "description": "业务数据",
+            "items": {
+              "$ref": "#/components/schemas/FileView"
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "ApiResponseListCompanyView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "type": "array",
+            "description": "业务数据",
+            "items": {
+              "$ref": "#/components/schemas/CompanyView"
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "ApiResponseListTimelineView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "type": "array",
+            "description": "业务数据",
+            "items": {
+              "$ref": "#/components/schemas/TimelineView"
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "TimelineView": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "note": {
+            "type": "string",
+            "description": "状态说明"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "description": "接口字段"
+          }
+        }
+      },
+      "ApiResponsePageResponseCaseSummary": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseCaseSummary",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "CaseSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "caseNo": {
+            "type": "string",
+            "description": "报单业务编号"
+          },
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "serviceType": {
+            "type": "string",
+            "description": "服务类型"
+          },
+          "status": {
+            "type": "string",
+            "description": "业务状态"
+          },
+          "caseMonth": {
+            "type": "string",
+            "description": "报单月份"
+          },
+          "materials": {
+            "$ref": "#/components/schemas/Progress",
+            "description": "资料项及完成度"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          }
+        }
+      },
+      "PageResponseCaseSummary": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "当前页数据",
+            "items": {
+              "$ref": "#/components/schemas/CaseSummary"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64",
+            "description": "页码，从 1 开始"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "每页数量"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总记录数"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总页数"
+          }
+        }
+      },
+      "ApiResponseCurrentUser": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CurrentUser",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "CurrentUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "用户显示名称"
+          },
+          "accountType": {
+            "type": "string",
+            "description": "账号类型"
+          },
+          "roles": {
+            "type": "array",
+            "description": "角色编码列表",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "description": "权限编码列表",
+            "items": {
+              "type": "string"
+            }
+          },
+          "phoneMask": {
+            "type": "string",
+            "description": "脱敏手机号"
+          }
+        }
+      },
+      "ApiResponsePageResponseOperationLogEntity": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseOperationLogEntity",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "OperationLogEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "operatorId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "operationCode": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "businessType": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "businessId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "summary": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          }
+        }
+      },
+      "PageResponseOperationLogEntity": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "当前页数据",
+            "items": {
+              "$ref": "#/components/schemas/OperationLogEntity"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64",
+            "description": "页码，从 1 开始"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "每页数量"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总记录数"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总页数"
+          }
+        }
+      },
+      "ApiResponsePageResponseFileAccessLogEntity": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseFileAccessLogEntity",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "FileAccessLogEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "fileId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "文件编号"
+          },
+          "caseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "报单编号"
+          },
+          "accessType": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "operatorId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "result": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          }
+        }
+      },
+      "PageResponseFileAccessLogEntity": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "当前页数据",
+            "items": {
+              "$ref": "#/components/schemas/FileAccessLogEntity"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64",
+            "description": "页码，从 1 开始"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "每页数量"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总记录数"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总页数"
+          }
+        }
+      },
+      "ApiResponsePageResponseDownloadLogEntity": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseDownloadLogEntity",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "DownloadLogEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "exportJobId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "operatorId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "result": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "userAgent": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "创建时间"
+          }
+        }
+      },
+      "PageResponseDownloadLogEntity": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "当前页数据",
+            "items": {
+              "$ref": "#/components/schemas/DownloadLogEntity"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64",
+            "description": "页码，从 1 开始"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "每页数量"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总记录数"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总页数"
+          }
+        }
+      },
+      "ApiResponseListProductAdminView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "type": "array",
+            "description": "业务数据",
+            "items": {
+              "$ref": "#/components/schemas/ProductAdminView"
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "ApiResponseDashboardView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/DashboardView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "DashboardView": {
+        "type": "object",
+        "properties": {
+          "enabledCompanies": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "caseStatuses": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "description": "接口字段"
+          },
+          "pendingImports": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          },
+          "pendingExports": {
+            "type": "integer",
+            "format": "int64",
+            "description": "接口字段"
+          }
+        }
+      },
+      "ApiResponsePageResponseCompanyView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseCompanyView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "PageResponseCompanyView": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "当前页数据",
+            "items": {
+              "$ref": "#/components/schemas/CompanyView"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int64",
+            "description": "页码，从 1 开始"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int64",
+            "description": "每页数量"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总记录数"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int64",
+            "description": "总页数"
+          }
+        }
+      },
+      "ApiResponseListAccountView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "type": "array",
+            "description": "业务数据",
+            "items": {
+              "$ref": "#/components/schemas/AccountView"
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "description": "登录接口返回的访问令牌",
+        "scheme": "bearer",
+        "bearerFormat": "Sa-Token"
+      }
+    }
+  }
+}
