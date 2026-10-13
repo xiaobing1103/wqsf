@@ -8,7 +8,6 @@ node_modules/
 **/unpackage/
 **/.vite/
 coverage/
-docs
 # 本地浏览器、IDE 和系统文件
 **/.chrome-*/
 .idea/

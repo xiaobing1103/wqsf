@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TekMark Card</title>
+  <!-- 发信前替换 owner.first_name、full_name、job_title、background_url、avatar_url、profile_url、vcard_url。 -->
+  <style>
+    @media screen and (max-width:600px) {
+      .email-frame { width:100% !important; max-width:100% !important; }
+      .email-pad { padding-right:20px !important; padding-left:20px !important; }
+      .email-heading { font-size:24px !important; line-height:30px !important; }
+      .email-intro { font-size:12px !important; line-height:19px !important; }
+      .email-cta-heading { font-size:24px !important; line-height:30px !important; }
+      .email-cta-copy { font-size:11px !important; line-height:17px !important; }
+      .email-column { display:block !important; width:100% !important; box-sizing:border-box !important; padding:0 0 18px !important; }
+      .email-nav-column { width:33% !important; word-break:break-word !important; }
+      .email-nav-column div, .email-nav-column a { font-size:11px !important; line-height:19px !important; }
+    }
+  </style>
+</head>
+<body style="margin:0;padding:0;background-color:#ffffff;color:#080808;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border-collapse:collapse;background-color:#ffffff;">
+    <tr><td align="center" valign="top" style="padding:0;">
+      <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+      <table class="email-frame" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;max-width:600px;border-collapse:collapse;background-color:#ffffff;">
+        <tr><td><img src="https://s3.tkhub.ca/web/assets/email/HeaderImg.png" width="100%" alt="TekMark — First impressions, solved" style="display:block;width:100%;max-width:600px;height:auto;border:0;"></td></tr>
+        <tr><td class="email-pad" align="center" style="padding:28px 30px 0;">
+          <div class="email-heading" style="color:#080808;font-size:35px;line-height:41px;font-weight:800;text-align:center;">Keep the conversation<br>going-</div>
+          <div class="email-intro" style="padding-top:12px;color:#111111;font-size:16px;line-height:25px;text-align:center;">You just connected with {{ owner.first_name }}.<br>Here’s their info — save it so you don’t lose it.</div>
+        </td></tr>
+        <tr><td class="email-pad" style="padding:38px 30px 0;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border:1px solid #e5e6e8;border-radius:24px;border-collapse:separate;background-color:#f7f8fa;">
+            <tr><td align="center" height="220" bgcolor="#203145" background="{{ owner.background_url }}" style="height:220px;padding:0;background-color:#203145;background-image:url('{{ owner.background_url }}');background-position:center center;background-repeat:no-repeat;background-size:cover;border-radius:23px 23px 0 0;font-size:1px;line-height:1px;">&nbsp;</td></tr>
+            <tr><td align="center" bgcolor="#f7f8fa" style="padding:0 20px;background-color:#f7f8fa;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td align="center" width="112" height="112" bgcolor="#899bab" background="{{ owner.avatar_url }}" style="width:112px;height:112px;padding:0;text-align:center;border:3px solid #087ff5;border-radius:60px;background-color:#899bab;background-image:url('{{ owner.avatar_url }}');background-position:center center;background-repeat:no-repeat;background-size:cover;font-size:1px;line-height:1px;">&nbsp;</td></tr></table>
+            </td></tr>
+            <tr><td align="center" bgcolor="#f7f8fa" style="padding:22px 30px 0;background-color:#f7f8fa;">
+              <div style="color:#080808;font-size:21px;line-height:29px;font-weight:700;text-align:center;">{{ owner.full_name }}</div>
+              <div style="padding-top:5px;color:#080808;font-size:16px;line-height:24px;text-align:center;">{{ owner.job_title }}</div>
+            </td></tr>
+            <tr><td bgcolor="#f7f8fa" style="padding:30px 30px 0;background-color:#f7f8fa;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center" bgcolor="#087ff5" height="51" style="height:51px;background-color:#087ff5;border-radius:3px;">
+                <a href="{{ owner.profile_url }}" style="display:block;padding:16px 8px;color:#ffffff;font-size:15px;line-height:19px;font-weight:700;letter-spacing:1px;text-align:center;text-decoration:none;">VIEW FULL PROFILE →</a>
+              </td></tr></table>
+            </td></tr>
+            <tr><td align="center" bgcolor="#f7f8fa" style="padding:18px 20px 28px;background-color:#f7f8fa;border-radius:0 0 23px 23px;">
+              <a href="{{ owner.vcard_url }}" style="color:#087ff5;font-size:13px;line-height:19px;text-decoration:underline;">or download contact card</a>
+            </td></tr>
+          </table>
+        </td></tr>
+        <tr><td height="42" style="height:42px;font-size:1px;line-height:42px;">&nbsp;</td></tr>
+        <tr><td><img src="https://s3.tkhub.ca/web/assets/email/FrameCardImg.png" width="100%" alt="Custom card designs" style="display:block;width:100%;max-width:600px;height:auto;border:0;"></td></tr>
+        <tr><td class="email-pad" style="padding:0 30px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border-collapse:separate;border-radius:24px;background-color:#000000;"><tr><td align="center" bgcolor="#000000" style="padding:55px 25px 42px;background-color:#000000;border-radius:24px;color:#ffffff;">
+            <div class="email-cta-heading" style="color:#ffffff;font-size:35px;line-height:42px;font-weight:900;text-align:center;">Want a card like this?</div>
+            <div class="email-cta-copy" style="padding-top:16px;color:#f0f0f0;font-size:14px;line-height:21px;text-align:center;">One card. One tap. Every contact saved.<br>No more paper business cards — upgrade to a<br>smart NFC card that works forever.</div>
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="80%" align="center" style="width:80%;max-width:403px;margin:22px auto 0;"><tr><td align="center" bgcolor="#087ff5" height="53" style="height:53px;background-color:#087ff5;border-radius:4px;">
+              <a href="https://tekmarkcard.com/" style="display:block;padding:16px 8px;color:#ffffff;font-size:16px;line-height:21px;font-weight:700;letter-spacing:1px;text-align:center;text-decoration:none;">GET YOUR OWN CARD</a>
+            </td></tr></table>
+            <div style="padding-top:20px;color:#858585;font-size:12px;line-height:19px;text-align:center;">✓ No subscription · Lifetime access · Ships in 72 hours</div>
+          </td></tr></table>
+        </td></tr>
+        <tr><td height="38" style="height:38px;font-size:1px;line-height:38px;">&nbsp;</td></tr>
+        <tr><td bgcolor="#0c0c0c" style="padding:0;background-color:#0c0c0c;">
+          <img src="https://s3.tkhub.ca/web/assets/email/middleImg.png" width="100%" alt="TekMark" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border-collapse:collapse;">
+            <tr><td class="email-pad" style="padding:28px 30px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+              <td class="email-column" width="65%" valign="middle" style="width:65%;padding:0 16px 0 0;vertical-align:middle;">
+                <div style="color:#ffffff;font-size:18px;line-height:24px;font-weight:700;">Tek<span style="color:#087ff5;">Mark</span> Card</div>
+                <div style="padding-top:10px;color:#d5d5d5;font-size:13px;line-height:20px;">Smart digital business cards powered by NFC. Share your contact, links, and profile with a single tap — no app needed.</div>
+              </td>
+              <td class="email-column" width="35%" align="center" valign="middle" style="width:35%;vertical-align:middle;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center" bgcolor="#087ff5" height="44" style="height:44px;background-color:#087ff5;border-radius:4px;">
+                <a href="https://tekmarkcard.com/" style="display:block;padding:12px 4px;color:#ffffff;font-size:13px;line-height:20px;font-weight:700;text-align:center;text-decoration:none;">Shop cards</a>
+              </td></tr></table></td>
+            </tr></table></td></tr>
+            <tr><td class="email-pad" style="padding:30px 30px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
+              <td class="email-nav-column" width="33%" valign="top" style="width:33%;padding:0 8px 0 0;vertical-align:top;"><div style="color:#ffffff;font-size:12px;line-height:18px;font-weight:700;">Products</div><div style="padding-top:17px;font-size:14px;line-height:30px;">
+                <a href="https://tekmarkcard.com/" style="color:#e9e9e9;text-decoration:none;">Metal card</a><br>
+                <a href="https://tekmarkcard.com/pages/platform" style="color:#e9e9e9;text-decoration:none;">Carbon Fiber</a><br>
+                <a href="https://tekmarkcard.com/products/carbon-fiber-digital-business-card" style="color:#e9e9e9;text-decoration:none;">Wood</a><br>
+                <a href="https://tekmarkcard.com/products/digital-table-tent" style="color:#e9e9e9;text-decoration:none;">Table tent</a>
+              </div></td>
+              <td class="email-nav-column" width="34%" valign="top" style="width:34%;padding:0 8px 0 0;vertical-align:top;"><div style="color:#ffffff;font-size:12px;line-height:18px;font-weight:700;">Support</div><div style="padding-top:17px;font-size:14px;line-height:30px;">
+                <a href="https://tekmarkcard.com/pages/contact" style="color:#e9e9e9;text-decoration:none;">Contact us</a><br>
+                <a href="https://tekmarkcard.com/policies/refund-policy" style="color:#e9e9e9;text-decoration:none;">Design &amp; Refund Policy</a><br>
+                <a href="https://tekmarkcard.com/policies/shipping-policy" style="color:#e9e9e9;text-decoration:none;">Shipping policy</a>
+              </div></td>
+              <td class="email-nav-column" width="33%" valign="top" style="width:33%;vertical-align:top;"><div style="color:#ffffff;font-size:12px;line-height:18px;font-weight:700;">Legal</div><div style="padding-top:17px;font-size:14px;line-height:30px;">
+                <a href="https://tekmarkcard.com/policies/privacy-policy" style="color:#e9e9e9;text-decoration:none;">Privacy policy</a><br>
+                <a href="https://tekmarkcard.com/policies/terms-of-service" style="color:#e9e9e9;text-decoration:none;">Terms of service</a>
+              </div></td>
+            </tr></table></td></tr>
+            <tr><td style="padding:32px 30px 0;color:#e9e9e9;font-size:13px;line-height:20px;">© 2026 TekMark Card. All rights reserved.</td></tr>
+            <tr><td style="padding:12px 30px 0;color:#e9e9e9;font-size:13px;line-height:20px;">PO BOX 9990 EE 500 952 RPO CACHET CENTRE Markham, Ontario L6C 0V3</td></tr>
+            <tr><td style="padding:18px 30px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td style="padding:0 16px 0 0;"><a href="#instagram" aria-label="Instagram"><img src="https://s3.tkhub.ca/web/assets/email/insgramIcon.png" width="26" height="26" alt="Instagram" style="display:block;width:26px;height:26px;border:0;"></a></td>
+              <td style="padding:0 16px 0 0;"><a href="#facebook" aria-label="Facebook"><img src="https://s3.tkhub.ca/web/assets/email/FacebookIcon.png" width="26" height="26" alt="Facebook" style="display:block;width:26px;height:26px;border:0;"></a></td>
+              <td><a href="#tiktok" aria-label="TikTok"><img src="https://s3.tkhub.ca/web/assets/email/TiktokIcon.png" width="26" height="26" alt="TikTok" style="display:block;width:26px;height:26px;border:0;"></a></td>
+            </tr></table></td></tr>
+            <tr><td style="padding:32px 30px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td height="1" bgcolor="#292929" style="height:1px;font-size:1px;line-height:1px;background-color:#292929;">&nbsp;</td></tr></table></td></tr>
+            <tr><td style="padding:28px 30px 36px;color:#777777;font-size:12px;line-height:18px;"><a href="#unsubscribe" style="color:#777777;text-decoration:underline;">Unsubscribe</a>&nbsp;·&nbsp;<span style="text-decoration:underline;">Manage Preferences</span></td></tr>
+          </table>
+        </td></tr>
+      </table>
+      <!--[if mso]></td></tr></table><![endif]-->
+    </td></tr>
+  </table>
+</body>
+</html>
