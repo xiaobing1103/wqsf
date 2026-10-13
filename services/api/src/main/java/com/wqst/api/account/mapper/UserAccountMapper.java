@@ -15,6 +15,9 @@ public interface UserAccountMapper extends BaseMapper<UserAccountEntity> {
     @Select("SELECT * FROM user_account WHERE username=#{username} AND deleted_at IS NULL LIMIT 1")
     UserAccountEntity findByUsername(String username);
 
+    @Select("SELECT * FROM user_account WHERE wechat_openid=#{openId} AND deleted_at IS NULL LIMIT 1")
+    UserAccountEntity findByWechatOpenid(String openId);
+
     @Select("SELECT r.role_code FROM role r JOIN user_role ur ON ur.role_id=r.id WHERE ur.user_id=#{userId} AND r.status='ENABLED'")
     List<String> findRoles(long userId);
 

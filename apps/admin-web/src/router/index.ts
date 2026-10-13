@@ -51,6 +51,12 @@ const router = createRouter({
       component: AdminLayout,
       meta: { requiresAuth: true, permission: "product:view" },
     },
+    {
+      path: "/team",
+      name: "team",
+      component: AdminLayout,
+      meta: { requiresAuth: true, role: "SUPER_ADMIN" },
+    },
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],
 });
@@ -77,6 +83,8 @@ router.beforeEach(async (to) => {
     const permission = to.meta.permission as string | undefined;
     if (permission && !auth.hasPermission(permission))
       return { name: "forbidden" };
+    const role = to.meta.role as string | undefined;
+    if (role && !auth.hasRole(role)) return { name: "forbidden" };
   }
 
   return true;

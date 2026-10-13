@@ -65,9 +65,7 @@ POST /api/v1/auth/wechat/login
 
 ```json
 {
-  "code": "wx-login-code",
-    "nickname": "测试联系人",
-  "avatarUrl": "https://example.invalid/avatar.png"
+  "code": "wx-login-code"
 }
 ```
 
@@ -76,7 +74,8 @@ POST /api/v1/auth/wechat/login
 ```json
 {
   "token": "client-token",
-  "expiresAt": "2026-09-24T16:30:00+08:00",
+  "tokenType": "Bearer",
+  "expiresIn": 86400,
   "user": {
     "id": 10001,
     "displayName": "测试联系人",
@@ -85,9 +84,42 @@ POST /api/v1/auth/wechat/login
 }
 ```
 
-后端必须通过微信服务端接口校验 `code`，不能把 `code` 当作用户身份。
+后端通过微信 `jscode2session` 校验一次性 `code` 并取得 OpenID/UnionID；`session_key` 不保存、不返回。只允许已绑定且启用的 CLIENT 账号登录，未绑定时返回 `409 WECHAT_ACCOUNT_UNBOUND`，不会自动创建无企业关系账号。
 
-### 2.2 后台登录
+### 2.2 客户账号密码登录与首次绑定
+
+```http
+POST /api/v1/auth/client/login
+```
+
+普通账号登录：
+
+```json
+{
+  "username": "client_demo",
+  "password": "由管理员发放的客户密码",
+  "bindWechat": false
+}
+```
+
+在正式微信小程序中首次绑定：
+
+```json
+{
+  "username": "client_demo",
+  "password": "由管理员发放的客户密码",
+  "bindWechat": true,
+  "wechatCode": "uni.login-新取得的一次性-code"
+}
+```
+
+- 只允许 `account_type=CLIENT` 且状态为 `ENABLED` 的账号；管理员账号不能从该接口登录。
+- 密码错误统一返回 `AUTH_INVALID_CREDENTIALS`，不暴露用户名是否存在。
+- 管理员和客户密码登录分别计数；同一用户名 15 分钟内失败 5 次后返回 `429 AUTH_RATE_LIMITED`。
+- `bindWechat=true` 时必须提供新取得的 code。微信或客户账号已绑定其他对象时拒绝覆盖，分别返回 `WECHAT_ALREADY_BOUND` 或 `ACCOUNT_WECHAT_ALREADY_BOUND`。
+- 绑定与登录成功后更新 `last_login_at`，密码只保存 BCrypt 哈希。
+
+### 2.3 后台登录
 
 ```http
 POST /api/v1/auth/admin/login
@@ -104,11 +136,26 @@ POST /api/v1/auth/admin/login
 
 响应包含后台用户、角色编码和权限编码。密码错误不得说明是用户名不存在还是密码错误。
 
-### 2.3 当前用户
+### 2.4 当前用户与退出
 
 ```http
 GET /api/v1/auth/me
+POST /api/v1/auth/logout
 ```
+
+`/auth/me` 同时识别后台和客户端登录场景；客户端退出后前端还必须清除企业、目录、草稿和幂等键缓存。
+
+### 2.5 微信登录错误码
+
+| 错误码 | HTTP | 含义 |
+| --- | --- | --- |
+| `WECHAT_AUTH_NOT_CONFIGURED` | 503 | 后端未配置正式 AppID/AppSecret |
+| `WECHAT_CODE_INVALID` | 401 | code 无效、过期或微信返回业务错误 |
+| `WECHAT_AUTH_UNAVAILABLE` | 503 | 微信服务或网络暂时不可用 |
+| `WECHAT_ACCOUNT_UNBOUND` | 409 | 当前微信尚未绑定客户账号 |
+| `WECHAT_CODE_REQUIRED` | 400 | 选择绑定但未提交微信 code |
+| `WECHAT_ALREADY_BOUND` | 409 | 当前微信已绑定其他客户账号 |
+| `ACCOUNT_WECHAT_ALREADY_BOUND` | 409 | 当前客户账号已绑定其他微信 |
 
 ## 3. 企业客户接口
 
@@ -147,6 +194,47 @@ GET /api/v1/admin/companies?page=1&pageSize=20&keyword=示例&status=ENABLED
 ```
 
 需要 `company:view` 权限。
+
+### 3.4 后台企业维护
+
+```http
+GET    /api/v1/admin/companies/{companyId}
+POST   /api/v1/admin/companies
+PATCH  /api/v1/admin/companies/{companyId}
+DELETE /api/v1/admin/companies/{companyId}?version={version}
+```
+
+- 查询、新增和编辑需要 `company:view`；删除仅允许 `SUPER_ADMIN`。
+- 新增和编辑会写入操作日志，响应中的统一社会信用代码和联系电话始终为脱敏值。
+- 编辑请求必须携带当前 `version`。统一社会信用代码或联系电话传空值时保持原值，避免前端回填脱敏值覆盖数据库原文。
+- 删除是软删除：企业设为停用、写入 `deleted_at` 并停用企业成员关系，不删除历史报单、文件或日志。
+- 企业存在 `DRAFT`、`PENDING_REVIEW`、`NEED_SUPPLEMENT` 或 `PROCESSING` 报单时返回 `409 COMPANY_ACTIVE_CASE_EXISTS`。
+- 版本过期时返回 `409 OPTIMISTIC_LOCK_CONFLICT`，前端应重新读取详情后再操作。
+
+### 3.5 后台企业客户账号
+
+```http
+GET  /api/v1/admin/companies/{companyId}/client-accounts
+POST /api/v1/admin/companies/{companyId}/client-accounts
+PUT  /api/v1/admin/companies/{companyId}/client-accounts/{userId}/password
+```
+
+创建请求：
+
+```json
+{
+  "username": "client_demo",
+  "password": "至少 8 位的初始密码",
+  "displayName": "演示客户联系人",
+  "phone": "",
+  "memberRole": "CONTACT"
+}
+```
+
+- 需要 `company:view`，创建账号时固定为 `CLIENT` 角色并立即关联指定企业。
+- `memberRole` 只允许 `OWNER`、`CONTACT` 或 `VIEWER`。
+- 重置密码前必须校验该用户确为当前企业成员，创建和重置均写操作审计；响应不返回密码或哈希。
+- 通用管理员密码重置为 `PUT /api/v1/admin/accounts/{userId}/password`，仅允许 `SUPER_ADMIN`，ADMIN 密码至少 12 位，CLIENT 密码至少 8 位。
 
 ## 4. 产品和资料模板接口
 
@@ -266,6 +354,21 @@ Idempotency-Key: create-case-unique-key
 ```http
 GET /api/v1/cases/my?page=1&pageSize=20&status=NEED_SUPPLEMENT
 ```
+
+`status` 可不传、传一个状态，或使用英文逗号传多个状态；多个状态按“任一匹配”筛选，并继续使用同一套服务端分页。例如小程序“处理中”同时包含待审核和实际办理中：
+
+```http
+GET /api/v1/cases/my?page=1&pageSize=20&status=PENDING_REVIEW,PROCESSING
+```
+
+当前小程序列表口径：
+
+| 页面分类 | `status` 参数 |
+| --- | --- |
+| 全部报单 | 不传 |
+| 处理中 | `PENDING_REVIEW,PROCESSING` |
+| 待补资料 | `NEED_SUPPLEMENT` |
+| 已完成 | `COMPLETED` |
 
 ### 5.3 报单详情
 
@@ -462,6 +565,28 @@ POST /api/v1/admin/cases/{caseId}/status
 
 服务端必须依据状态机判断是否允许流转，不能由前端自由指定任意状态。
 
+### 7.6 线下凭证交接状态
+
+```http
+GET /api/v1/admin/cases/{caseId}/credential-handover
+PUT /api/v1/admin/cases/{caseId}/credential-handover
+```
+
+需要 `case:credential-handover` 权限，仅适用于贸易增量报单。首次查询尚未登记的报单时返回三个 `PENDING` 状态和 `version=0`。
+
+更新请求：
+
+```json
+{
+  "onlineBankingStatus": "HANDED_OVER",
+  "uShieldStatus": "VERIFIED",
+  "transactionAuthorizationStatus": "NOT_REQUIRED",
+  "version": 0
+}
+```
+
+允许状态为 `PENDING`、`HANDED_OVER`、`VERIFIED`、`RETURNED`、`NOT_REQUIRED`。响应额外包含最近经办管理员 `handledBy`、登记时间 `handledAt` 和乐观锁版本号。该接口只登记线下交接结果，不接收网银密码、U 盾密码、交易密码、验证码、文件或自由备注；小程序没有对应接口。
+
 ## 8. Excel 导入接口
 
 ### 8.1 获取导入模板
@@ -620,8 +745,15 @@ GET  /api/v1/admin/dashboard
 GET  /api/v1/admin/accounts
 POST /api/v1/admin/accounts
 PUT  /api/v1/admin/accounts/{userId}/roles
+PUT  /api/v1/admin/accounts/{userId}/password
+GET  /api/v1/admin/companies/{companyId}
 POST /api/v1/admin/companies
+PATCH /api/v1/admin/companies/{companyId}
+DELETE /api/v1/admin/companies/{companyId}?version={version}
 POST /api/v1/admin/companies/{companyId}/members
+GET  /api/v1/admin/companies/{companyId}/client-accounts
+POST /api/v1/admin/companies/{companyId}/client-accounts
+PUT  /api/v1/admin/companies/{companyId}/client-accounts/{userId}/password
 GET  /api/v1/admin/cases/{caseId}
 PUT  /api/v1/cases/{caseId}/materials/{materialId}/text
 GET  /api/v1/files?materialId={materialId}
@@ -632,7 +764,7 @@ GET  /api/v1/audit/file-access
 GET  /api/v1/audit/downloads
 ```
 
-后台账号管理只允许 `SUPER_ADMIN`；工作台需要 `dashboard:view`；审计查询需要 `audit:view`。本地客户端开发登录允许请求体 `{}`，此时使用 `local` Profile 自动创建的模拟账号；`prod` Profile 中该接口不可用。
+后台账号管理只允许 `SUPER_ADMIN`；企业客户账号入口需要 `company:view` 并校验企业成员关系；工作台需要 `dashboard:view`；审计查询需要 `audit:view`。本地客户端开发登录允许请求体 `{}`，此时使用 `local` Profile 自动创建的模拟账号；`prod` Profile 中该接口不可用。
 
 ## 15. OpenAPI 中文契约与前端代码生成
 
@@ -644,7 +776,33 @@ OpenAPI：   http://127.0.0.1:8080/v3/api-docs
 JSON 快照： openapi/万企商服通_OpenAPI_V1.json
 ```
 
-当前契约版本为 `1.0.0`，包含 50 个路径、54 个操作。接口标题、分组、操作摘要、响应说明和主要字段说明均使用中文；`operationId` 保留稳定的英文命名，便于 TypeScript 生成器生成可维护的函数名，例如 `caseCreate`、`adminCaseList`、`exportZip`。
+当前契约版本为 `1.0.0`，包含 58 个路径、66 个操作。接口标题、分组、操作摘要、响应说明和主要字段说明均使用中文；`operationId` 保留稳定的英文命名，便于 TypeScript 生成器生成可维护的函数名，例如 `authClientLogin`、`adminCompanyCreateClientAccount`、`categoryMatchRecommend`、`caseCreate`、`exportZip`。
+
+## 16. 营业执照 OCR 与品类匹配
+
+```http
+POST /api/v1/category-match/recognize
+Content-Type: multipart/form-data
+Authorization: Bearer <CLIENT_TOKEN>
+```
+
+- 表单字段名为 `file`，只接受 JPG/JPEG/PNG，最大 10MB，并校验扩展名、MIME 与文件头。
+- 图片仅在请求内读取并发送至腾讯云 `BizLicenseOCR`，不写入文件表、对象存储或报单。
+- 成功返回 `companyName`、`businessScope`、`establishedDate`、`creditCode`、`registeredCapital` 和上游 `providerRequestId`。
+- `OCR_NOT_CONFIGURED`（503）表示服务端未配置腾讯云凭据；`OCR_NO_BIZ_LICENSE`（422）表示未识别出营业执照；`OCR_SERVICE_UNAVAILABLE`（502）表示腾讯云暂时不可用。
+
+```http
+POST /api/v1/category-match/recommend
+Content-Type: application/json
+Authorization: Bearer <CLIENT_TOKEN>
+
+{
+  "companyName": "星澜数字科技（测试）有限公司",
+  "businessScope": "软件开发；信息技术咨询服务；电子产品销售"
+}
+```
+
+`businessScope` 必填且不超过 5000 字，`companyName` 可选且不超过 128 字。响应返回 `industryCount`、`categoryCount` 和按 `industries[].categories[]` 分组的 `categoryCode/categoryName/matchedKeywords/score/reason`。该分数是可解释的规则匹配分数，不是机器学习概率；零命中时返回空数组，不返回虚假推荐。
 
 统一响应仍然是：
 

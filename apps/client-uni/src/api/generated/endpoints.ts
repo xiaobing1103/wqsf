@@ -7,11 +7,15 @@
  */
 import type {
   AdminCaseListParams,
+  AdminCompanyDeleteParams,
   AdminCompanyListParams,
   AdminLoginRequest,
   ApiResponseAccountView,
+  ApiResponseBusinessLicenseView,
   ApiResponseCaseView,
+  ApiResponseCategoryMatchView,
   ApiResponseCompanyView,
+  ApiResponseCredentialHandoverView,
   ApiResponseCurrentUser,
   ApiResponseDashboardView,
   ApiResponseDownloadView,
@@ -44,8 +48,15 @@ import type {
   AuditFilesParams,
   AuditOperationsParams,
   CaseMineParams,
+  CategoryMatchRecognizeBody,
+  CategoryMatchRequest,
+  ClientAccountRequest,
+  ClientLoginRequest,
+  ClientPasswordRequest,
   CompanyRequest,
+  CompanyUpdateRequest,
   CreateRequest,
+  CredentialHandoverRequest,
   DevLoginRequest,
   ExportReviewRequest,
   FileListParams,
@@ -56,6 +67,7 @@ import type {
   InvoiceRequest,
   MemberRequest,
   NotificationMineParams,
+  PasswordRequest,
   ProductRequest,
   ReviewRequest,
   RolesRequest,
@@ -69,6 +81,18 @@ import type {
 } from './models';
 
 import { uniGeneratedRequest } from '../generated-client';
+
+const createUniQueryParams = () => {
+  const entries: string[] = [];
+  return {
+    append(key: string, value: string) {
+      entries.push(`${encodeURIComponent(key)}=${encodeURIComponent(value)}`);
+    },
+    toString() {
+      return entries.join('&');
+    },
+  };
+};
 
 export const getCaseSimpleUrl = (caseId: number,) => {
 
@@ -87,7 +111,7 @@ export const caseSimple = async (caseId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -129,7 +153,7 @@ export const caseText = async (caseId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -169,7 +193,7 @@ export const caseInvoice = async (caseId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -192,6 +216,113 @@ return uniGeneratedRequest<ApiResponseInvoiceView>(getCaseInvoiceUrl(caseId),
 
 
 
+export const getAdminCompanyResetClientPasswordUrl = (companyId: number,
+    userId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}/client-accounts/${userId}/password`
+}
+
+/**
+ * 重置企业客户登录密码。响应统一使用 ApiResponse 结构。
+ * @summary 重置企业客户登录密码
+ */
+export const adminCompanyResetClientPassword = async (companyId: number,
+    userId: number,
+    clientPasswordRequest: ClientPasswordRequest, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseAccountView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return uniGeneratedRequest<ApiResponseAccountView>(getAdminCompanyResetClientPasswordUrl(companyId,userId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(clientPasswordRequest)
+  }
+);}
+
+
+
+export const getAdminCaseCredentialHandoverUrl = (caseId: number,) => {
+
+
+
+
+  return `/api/v1/admin/cases/${caseId}/credential-handover`
+}
+
+/**
+ * 查询线下凭证交接状态。响应统一使用 ApiResponse 结构。
+ * @summary 查询线下凭证交接状态
+ */
+export const adminCaseCredentialHandover = async (caseId: number, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseCredentialHandoverView> => {
+
+  return uniGeneratedRequest<ApiResponseCredentialHandoverView>(getAdminCaseCredentialHandoverUrl(caseId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export const getAdminCaseUpdateCredentialHandoverUrl = (caseId: number,) => {
+
+
+
+
+  return `/api/v1/admin/cases/${caseId}/credential-handover`
+}
+
+/**
+ * 登记线下凭证交接状态。响应统一使用 ApiResponse 结构。
+ * @summary 登记线下凭证交接状态
+ */
+export const adminCaseUpdateCredentialHandover = async (caseId: number,
+    credentialHandoverRequest: CredentialHandoverRequest, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseCredentialHandoverView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return uniGeneratedRequest<ApiResponseCredentialHandoverView>(getAdminCaseUpdateCredentialHandoverUrl(caseId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(credentialHandoverRequest)
+  }
+);}
+
+
+
 export const getAdminAccountRolesUrl = (userId: number,) => {
 
 
@@ -209,7 +340,7 @@ export const adminAccountRoles = async (userId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -227,6 +358,46 @@ return uniGeneratedRequest<ApiResponseAccountView>(getAdminAccountRolesUrl(userI
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
     body: JSON.stringify(rolesRequest)
+  }
+);}
+
+
+
+export const getAdminAccountPasswordUrl = (userId: number,) => {
+
+
+
+
+  return `/api/v1/admin/accounts/${userId}/password`
+}
+
+/**
+ * 重置账号登录密码。响应统一使用 ApiResponse 结构。
+ * @summary 重置账号登录密码
+ */
+export const adminAccountPassword = async (userId: number,
+    passwordRequest: PasswordRequest, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseAccountView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return uniGeneratedRequest<ApiResponseAccountView>(getAdminAccountPasswordUrl(userId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(passwordRequest)
   }
 );}
 
@@ -258,7 +429,7 @@ export const notificationRead = async (id: number, options?: Parameters<typeof u
 
 
 export const getFileListUrl = (params: FileListParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 
@@ -290,7 +461,7 @@ export const fileList = async (params: FileListParams, options?: Parameters<type
 
 
 export const getFileUploadUrl = (params: FileUploadParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 
@@ -351,6 +522,74 @@ export const filePreview = async (fileId: number, options?: Parameters<typeof un
 
 
 
+export const getCategoryMatchRecommendUrl = () => {
+
+
+
+
+  return `/api/v1/category-match/recommend`
+}
+
+/**
+ * 根据经营范围推荐可做品类。响应统一使用 ApiResponse 结构。
+ * @summary 根据经营范围推荐可做品类
+ */
+export const categoryMatchRecommend = async (categoryMatchRequest: CategoryMatchRequest, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseCategoryMatchView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return uniGeneratedRequest<ApiResponseCategoryMatchView>(getCategoryMatchRecommendUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(categoryMatchRequest)
+  }
+);}
+
+
+
+export const getCategoryMatchRecognizeUrl = () => {
+
+
+
+
+  return `/api/v1/category-match/recognize`
+}
+
+/**
+ * 识别营业执照企业信息与经营范围。响应统一使用 ApiResponse 结构。
+ * @summary 识别营业执照企业信息与经营范围
+ */
+export const categoryMatchRecognize = async (categoryMatchRecognizeBody?: CategoryMatchRecognizeBody, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseBusinessLicenseView> => {
+    const formData = new FormData();
+if(categoryMatchRecognizeBody?.file !== undefined) {
+ formData.append(`file`, categoryMatchRecognizeBody.file);
+ }
+
+  return uniGeneratedRequest<ApiResponseBusinessLicenseView>(getCategoryMatchRecognizeUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
+  }
+);}
+
+
+
 export const getCaseCreateUrl = () => {
 
 
@@ -367,7 +606,7 @@ export const caseCreate = async (createRequest: CreateRequest, options?: Paramet
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -431,7 +670,7 @@ export const authWechat = async (wechatLoginRequest: WechatLoginRequest, options
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -479,6 +718,45 @@ export const authLogout = async ( options?: Parameters<typeof uniGeneratedReques
 
 
 
+export const getAuthClientLoginUrl = () => {
+
+
+
+
+  return `/api/v1/auth/client/login`
+}
+
+/**
+ * 客户账号密码登录。响应统一使用 ApiResponse 结构。
+ * @summary 客户账号密码登录
+ */
+export const authClientLogin = async (clientLoginRequest: ClientLoginRequest, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseLoginResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return uniGeneratedRequest<ApiResponseLoginResult>(getAuthClientLoginUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(clientLoginRequest)
+  }
+);}
+
+
+
 export const getAuthDevLoginUrl = () => {
 
 
@@ -495,7 +773,7 @@ export const authDevLogin = async (devLoginRequest: DevLoginRequest, options?: P
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -534,7 +812,7 @@ export const authAdminLogin = async (adminLoginRequest: AdminLoginRequest, optio
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -599,7 +877,7 @@ export const adminProductCreateVersion = async (sourceTemplateId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -663,7 +941,7 @@ export const adminProductCreate = async (productRequest: ProductRequest, options
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -753,7 +1031,7 @@ export const adminCaseReview = async (materialId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -777,7 +1055,7 @@ return uniGeneratedRequest<ApiResponseMaterialView>(getAdminCaseReviewUrl(materi
 
 
 export const getImportCreateUrl = (params?: ImportCreateParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 
@@ -879,7 +1157,7 @@ export const exportExcel = async (exportReviewRequest: ExportReviewRequest, opti
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -918,7 +1196,7 @@ export const exportZip = async (zipRequest: ZipRequest, options?: Parameters<typ
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -942,7 +1220,7 @@ return uniGeneratedRequest<ApiResponseExportJobView>(getExportZipUrl(),
 
 
 export const getAdminCompanyListUrl = (params?: AdminCompanyListParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 
@@ -989,7 +1267,7 @@ export const adminCompanyCreate = async (companyRequest: CompanyRequest, options
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -1029,7 +1307,7 @@ export const adminCompanyAddMember = async (companyId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -1052,6 +1330,71 @@ return uniGeneratedRequest<ApiResponseVoid>(getAdminCompanyAddMemberUrl(companyI
 
 
 
+export const getAdminCompanyClientAccountsUrl = (companyId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}/client-accounts`
+}
+
+/**
+ * 查询企业客户登录账号。响应统一使用 ApiResponse 结构。
+ * @summary 查询企业客户登录账号
+ */
+export const adminCompanyClientAccounts = async (companyId: number, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseListAccountView> => {
+
+  return uniGeneratedRequest<ApiResponseListAccountView>(getAdminCompanyClientAccountsUrl(companyId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export const getAdminCompanyCreateClientAccountUrl = (companyId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}/client-accounts`
+}
+
+/**
+ * 创建并关联企业客户登录账号。响应统一使用 ApiResponse 结构。
+ * @summary 创建并关联企业客户登录账号
+ */
+export const adminCompanyCreateClientAccount = async (companyId: number,
+    clientAccountRequest: ClientAccountRequest, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseAccountView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return uniGeneratedRequest<ApiResponseAccountView>(getAdminCompanyCreateClientAccountUrl(companyId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(clientAccountRequest)
+  }
+);}
+
+
+
 export const getAdminCaseSupplementUrl = (caseId: number,) => {
 
 
@@ -1069,7 +1412,7 @@ export const adminCaseSupplement = async (caseId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -1109,7 +1452,7 @@ export const adminCaseStatus = async (caseId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -1149,7 +1492,7 @@ export const adminCaseAssign = async (caseId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -1213,7 +1556,7 @@ export const adminAccountCreate = async (createRequest: CreateRequest, options?:
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -1253,7 +1596,7 @@ export const adminProductUpdate = async (productId: number,
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
-    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
     if (Symbol.iterator in h) {
       return Object.fromEntries(
         Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
@@ -1271,6 +1614,105 @@ return uniGeneratedRequest<ApiResponseProductAdminView>(getAdminProductUpdateUrl
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
     body: JSON.stringify(productRequest)
+  }
+);}
+
+
+
+export const getAdminCompanyDetailUrl = (companyId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}`
+}
+
+/**
+ * 查询企业客户详情。响应统一使用 ApiResponse 结构。
+ * @summary 查询企业客户详情
+ */
+export const adminCompanyDetail = async (companyId: number, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseCompanyView> => {
+
+  return uniGeneratedRequest<ApiResponseCompanyView>(getAdminCompanyDetailUrl(companyId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export const getAdminCompanyDeleteUrl = (companyId: number,
+    params: AdminCompanyDeleteParams,) => {
+  const normalizedParams = createUniQueryParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/admin/companies/${companyId}?${stringifiedParams}` : `/api/v1/admin/companies/${companyId}`
+}
+
+/**
+ * 软删除企业客户。响应统一使用 ApiResponse 结构。
+ * @summary 软删除企业客户
+ */
+export const adminCompanyDelete = async (companyId: number,
+    params: AdminCompanyDeleteParams, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseVoid> => {
+
+  return uniGeneratedRequest<ApiResponseVoid>(getAdminCompanyDeleteUrl(companyId,params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+export const getAdminCompanyUpdateUrl = (companyId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}`
+}
+
+/**
+ * 修改企业客户资料。响应统一使用 ApiResponse 结构。
+ * @summary 修改企业客户资料
+ */
+export const adminCompanyUpdate = async (companyId: number,
+    companyUpdateRequest: CompanyUpdateRequest, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseCompanyView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return uniGeneratedRequest<ApiResponseCompanyView>(getAdminCompanyUpdateUrl(companyId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(companyUpdateRequest)
   }
 );}
 
@@ -1327,7 +1769,7 @@ export const catalogTemplate = async (productId: number, options?: Parameters<ty
 
 
 export const getNotificationMineUrl = (params?: NotificationMineParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 
@@ -1459,7 +1901,7 @@ export const caseTimeline = async (caseId: number, options?: Parameters<typeof u
 
 
 export const getCaseMineUrl = (params?: CaseMineParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 
@@ -1516,7 +1958,7 @@ export const authMe = async ( options?: Parameters<typeof uniGeneratedRequest>[1
 
 
 export const getAuditOperationsUrl = (params?: AuditOperationsParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 
@@ -1548,7 +1990,7 @@ export const auditOperations = async (params?: AuditOperationsParams, options?: 
 
 
 export const getAuditFilesUrl = (params?: AuditFilesParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 
@@ -1580,7 +2022,7 @@ export const auditFiles = async (params?: AuditFilesParams, options?: Parameters
 
 
 export const getAuditDownloadsUrl = (params?: AuditDownloadsParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 
@@ -1712,7 +2154,7 @@ export const dashboardDashboard = async ( options?: Parameters<typeof uniGenerat
 
 
 export const getAdminCaseListUrl = (params?: AdminCaseListParams,) => {
-  const normalizedParams = new URLSearchParams();
+  const normalizedParams = createUniQueryParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
 

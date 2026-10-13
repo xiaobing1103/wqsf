@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -97,11 +98,12 @@ class BackendIntegrationIT {
     @Test
     @Order(1)
     void databaseScriptsSeedsConstraintsAndRollbackWork() {
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='wqst'", Integer.class)).isEqualTo(26);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='wqst'", Integer.class)).isEqualTo(28);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM service_module", Integer.class)).isEqualTo(3);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM service_product", Integer.class)).isEqualTo(3);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM material_template", Integer.class)).isEqualTo(3);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM material_template_item", Integer.class)).isEqualTo(17);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM business_category_rule WHERE status='ENABLED'", Integer.class)).isEqualTo(19);
 
         String rollbackCode = "ROLLBACK_" + UUID.randomUUID().toString().substring(0, 8);
         new TransactionTemplate(transactionManager).executeWithoutResult(status -> {
@@ -116,6 +118,21 @@ class BackendIntegrationIT {
 
     @Test
     @Order(2)
+    void clientCanMatchBusinessScopeAgainstSeededCategoryRules() throws Exception {
+        String clientToken = token(postJson("/api/v1/auth/client/dev-login", "{}", null, null));
+        JsonNode matched = data(postJson("/api/v1/category-match/recommend", """
+                {"companyName":"集成测试数字科技企业","businessScope":"软件开发；信息技术咨询服务；电子产品销售"}
+                """, clientToken, null));
+
+        assertThat(matched.path("categoryCount").asInt()).isGreaterThanOrEqualTo(1);
+        JsonNode digitalIndustry = findBy(matched.path("industries"), "industryCode", "DIGITAL");
+        JsonNode softwareCategory = findBy(digitalIndustry.path("categories"), "categoryCode", "SOFTWARE_SERVICE");
+        assertThat(softwareCategory.path("matchedKeywords")).anySatisfy(keyword ->
+                assertThat(keyword.asText()).isEqualTo("软件开发"));
+    }
+
+    @Test
+    @Order(3)
     void completeDraftSupplementImportAndExportWorkflow() throws Exception {
         String clientToken = token(postJson("/api/v1/auth/client/dev-login", "{}", null, null));
         JsonNode company = data(getJson("/api/v1/companies/my", clientToken)).get(0);
@@ -155,6 +172,13 @@ class BackendIntegrationIT {
 
         String adminToken = token(postJson("/api/v1/auth/admin/login",
                 "{\"username\":\"" + ADMIN_USERNAME + "\",\"password\":\"" + ADMIN_PASSWORD + "\"}", null, null));
+        verifyTeamAccounts(adminToken);
+        verifyCompanyMaintenance(adminToken);
+        JsonNode handover = data(getJson("/api/v1/admin/cases/" + caseId + "/credential-handover", adminToken));
+        assertThat(handover.path("version").asInt()).isZero();
+        JsonNode savedHandover = data(putJson("/api/v1/admin/cases/" + caseId + "/credential-handover",
+                "{\"onlineBankingStatus\":\"HANDED_OVER\",\"uShieldStatus\":\"VERIFIED\",\"transactionAuthorizationStatus\":\"NOT_REQUIRED\",\"version\":0}", adminToken));
+        assertThat(savedHandover.path("uShieldStatus").asText()).isEqualTo("VERIFIED");
         data(postJson("/api/v1/admin/cases/" + caseId + "/supplement-request",
                 "{\"materialIds\":[" + supplementedMaterialId + "],\"clientMessage\":\"请重新上传清晰文件\"}",
                 adminToken, "it-supplement"));
@@ -176,6 +200,75 @@ class BackendIntegrationIT {
         awaitJob("/api/v1/admin/exports/" + zipJob, adminToken, 20_000);
         JsonNode download = data(postJson("/api/v1/admin/exports/" + zipJob + "/download", "", adminToken, null));
         assertThat(download.path("downloadUrl").asText()).startsWith("http");
+    }
+
+    private void verifyTeamAccounts(String adminToken) throws Exception {
+        JsonNode account = data(postJson("/api/v1/admin/accounts", """
+                {"accountType":"ADMIN","username":"integration_operator","password":"Integration-Operator-2026",
+                 "displayName":"集成测试运营","phone":"13600000000","roles":["OPERATIONS"]}
+                """, adminToken, null));
+        assertThat(account.path("permissions")).anySatisfy(permission ->
+                assertThat(permission.asText()).isEqualTo("case:assign"));
+
+        JsonNode updated = data(putJson("/api/v1/admin/accounts/" + account.path("id").asLong() + "/roles",
+                "{\"roles\":[\"REVIEWER\"]}", adminToken));
+        assertThat(updated.path("roles")).anySatisfy(role -> assertThat(role.asText()).isEqualTo("REVIEWER"));
+        assertThat(updated.path("permissions")).anySatisfy(permission ->
+                assertThat(permission.asText()).isEqualTo("case:review"));
+
+        JsonNode accounts = data(getJson("/api/v1/admin/accounts", adminToken));
+        assertThat(findBy(accounts, "username", "integration_operator").path("displayName").asText())
+                .isEqualTo("集成测试运营");
+    }
+
+    private void verifyCompanyMaintenance(String adminToken) throws Exception {
+        JsonNode created = data(postJson("/api/v1/admin/companies", """
+                {"companyName":"集成维护测试企业","creditCode":"91430100MAINTAIN001","contactName":"测试联系人",
+                 "contactPhone":"13500000000","legalPerson":"测试法人","province":"湖南省","city":"长沙市",
+                 "companyEmail":"maintain@example.invalid","detailAddress":"集成测试地址"}
+                """, adminToken, null));
+        long companyId = created.path("id").asLong();
+        assertThat(created.path("version").asInt()).isZero();
+        assertThat(data(getJson("/api/v1/admin/companies/" + companyId, adminToken)).path("contactPhoneMask").asText())
+                .contains("****");
+
+        String updateBody = """
+                {"companyName":"集成维护测试企业（已编辑）","creditCode":"","contactName":"新联系人",
+                 "contactPhone":"","legalPerson":"测试法人","province":"湖南省","city":"长沙市",
+                 "companyEmail":"maintain@example.invalid","detailAddress":"更新后的测试地址","version":%d}
+                """.formatted(created.path("version").asInt());
+        JsonNode updated = data(parse(mvc.perform(patch("/api/v1/admin/companies/{companyId}", companyId)
+                .contentType(MediaType.APPLICATION_JSON).content(updateBody)
+                .header("Authorization", bearer(adminToken))).andExpect(status().isOk()).andReturn()));
+        assertThat(updated.path("companyName").asText()).endsWith("（已编辑）");
+
+        String clientUsername = "company_client_" + companyId;
+        String clientPassword = "Client-Login-2026!";
+        JsonNode clientAccount = data(postJson("/api/v1/admin/companies/" + companyId + "/client-accounts", """
+                {"username":"%s","password":"%s","displayName":"集成客户用户","phone":"13400000000","memberRole":"OWNER"}
+                """.formatted(clientUsername, clientPassword), adminToken, null));
+        assertThat(clientAccount.path("accountType").asText()).isEqualTo("CLIENT");
+        assertThat(data(getJson("/api/v1/admin/companies/" + companyId + "/client-accounts", adminToken))).hasSize(1);
+
+        String clientLoginToken = token(postJson("/api/v1/auth/client/login", """
+                {"username":"%s","password":"%s","bindWechat":false}
+                """.formatted(clientUsername, clientPassword), null, null));
+        assertThat(data(getJson("/api/v1/companies/my", clientLoginToken)).get(0).path("id").asLong()).isEqualTo(companyId);
+
+        String resetPassword = "Client-Reset-2026!";
+        data(putJson("/api/v1/admin/companies/" + companyId + "/client-accounts/" + clientAccount.path("id").asLong() + "/password",
+                "{\"password\":\"" + resetPassword + "\"}", adminToken));
+        token(postJson("/api/v1/auth/client/login", """
+                {"username":"%s","password":"%s","bindWechat":false}
+                """.formatted(clientUsername, resetPassword), null, null));
+
+        mvc.perform(delete("/api/v1/admin/companies/{companyId}", companyId)
+                        .param("version", updated.path("version").asText())
+                        .header("Authorization", bearer(adminToken)))
+                .andExpect(status().isOk());
+        mvc.perform(get("/api/v1/admin/companies/{companyId}", companyId)
+                        .header("Authorization", bearer(adminToken)))
+                .andExpect(status().isNotFound());
     }
 
     private void verifyCrossCompanyAccessDenied(String adminToken, String ownerToken, long caseId) throws Exception {
@@ -266,7 +359,9 @@ class BackendIntegrationIT {
                 .withUsername("wqst")
                 .withPassword("wqst_it_password")
                 .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "001_init.sql")), "/docker-entrypoint-initdb.d/001_init.sql")
-                .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "002_full_schema.sql")), "/docker-entrypoint-initdb.d/002_full_schema.sql");
+                .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "002_full_schema.sql")), "/docker-entrypoint-initdb.d/002_full_schema.sql")
+                .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "003_credential_handover.sql")), "/docker-entrypoint-initdb.d/003_credential_handover.sql")
+                .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "004_category_match.sql")), "/docker-entrypoint-initdb.d/004_category_match.sql");
     }
 
     private static String projectFile(String directory, String name) {

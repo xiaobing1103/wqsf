@@ -1,8 +1,14 @@
-const API_BASE_URL = (((import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_API_BASE_URL)
-  || "http://127.0.0.1:8080/api/v1").replace(/\/$/, "");
+let defaultApiBaseUrl = "http://127.0.0.1:8080/api/v1";
+// #ifdef H5
+defaultApiBaseUrl = "/api/v1";
+// #endif
+export const API_BASE_URL = (((import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_API_BASE_URL)
+  || defaultApiBaseUrl).replace(/\/$/, "");
 export const CLIENT_TOKEN_STORAGE_KEY = "wqst_client_token";
+export const CLIENT_AUTH_EXPIRED_EVENT = "wqst:client-auth-expired";
 
 type UniRequestOptions = RequestInit & { body?: unknown };
+type HeadersLike = { forEach(callback: (value: string, key: string) => void): void };
 
 /** Orval 生成函数使用的 uni.request 适配器；文件上传请调用 upload.ts。 */
 export const uniGeneratedRequest = <T>(url: string, options: UniRequestOptions = {}): Promise<T> => {
@@ -11,7 +17,9 @@ export const uniGeneratedRequest = <T>(url: string, options: UniRequestOptions =
   }
   const headers: Record<string, string> = {};
   if (Array.isArray(options.headers)) options.headers.forEach(([key, value]) => { headers[key] = value; });
-  else if (options.headers instanceof Headers) options.headers.forEach((value, key) => { headers[key] = value; });
+  else if (isHeadersLike(options.headers)) {
+    options.headers.forEach((value, key) => { headers[key] = value; });
+  }
   else if (options.headers) Object.assign(headers, options.headers);
   headers.Accept ??= "application/json";
   headers["X-Request-Id"] ??= `uni-${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -21,19 +29,23 @@ export const uniGeneratedRequest = <T>(url: string, options: UniRequestOptions =
   return new Promise<T>((resolve, reject) => {
     uni.request({
       url: `${API_BASE_URL}${normalizeGeneratedUrl(url)}`,
-      method: (options.method || "GET") as UniRequestOptions["method"],
+      method: (options.method || "GET") as UniNamespace.RequestOptions["method"],
       header: headers,
       data: body as string | ArrayBuffer | Record<string, unknown>,
-      success: (response) => {
+      success: (response: UniNamespace.RequestSuccessCallbackResult) => {
         const payload = response.data as { success?: boolean; code?: string; message?: string; data?: unknown };
         if (response.statusCode < 200 || response.statusCode >= 300 || payload?.success === false) {
+          if (response.statusCode === 401 && !isPublicOperation(url)) {
+            uni.removeStorageSync(CLIENT_TOKEN_STORAGE_KEY);
+            uni.$emit(CLIENT_AUTH_EXPIRED_EVENT);
+          }
           reject(new Error(payload?.message || `请求失败（${response.statusCode}）`));
           return;
         }
         resolve(response.data as T);
       },
-      fail: (error) => reject(new Error(error.errMsg || "无法连接后端服务")),
-    } as Uni.RequestOptions);
+      fail: (error: UniNamespace.GeneralCallbackResult) => reject(new Error(error.errMsg || "无法连接后端服务")),
+    } as UniNamespace.RequestOptions);
   });
 };
 
@@ -43,6 +55,7 @@ function normalizeGeneratedUrl(url: string) {
 
 function isPublicOperation(url: string) {
   return url === "/api/v1/auth/admin/login"
+    || url === "/api/v1/auth/client/login"
     || url === "/api/v1/auth/client/dev-login"
     || url === "/api/v1/auth/wechat/login"
     || url === "/api/v1/services/catalog"
@@ -51,6 +64,10 @@ function isPublicOperation(url: string) {
 
 function safelyParse(value: string): unknown {
   try { return JSON.parse(value); } catch { return value; }
+}
+
+function isHeadersLike(value: unknown): value is HeadersLike {
+  return Boolean(value && typeof value === "object" && "forEach" in value && typeof value.forEach === "function");
 }
 
 export type ErrorType<Error> = Error;

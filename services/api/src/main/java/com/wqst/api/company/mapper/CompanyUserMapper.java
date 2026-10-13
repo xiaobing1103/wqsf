@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 @Mapper
 public interface CompanyUserMapper extends BaseMapper<CompanyUserEntity> {
@@ -17,4 +18,7 @@ public interface CompanyUserMapper extends BaseMapper<CompanyUserEntity> {
 
     @Select("SELECT COUNT(1) FROM company_user WHERE company_id=#{companyId} AND user_id=#{userId} AND status='ENABLED'")
     int hasAccess(@Param("companyId") long companyId, @Param("userId") long userId);
+
+    @Update("UPDATE company_user SET status='DISABLED', updated_at=NOW(3) WHERE company_id=#{companyId} AND status<>'DISABLED'")
+    int disableByCompanyId(long companyId);
 }

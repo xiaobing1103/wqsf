@@ -66,6 +66,11 @@ wqst:
   export:
     link-ttl-minutes: 30
     worker-threads: 2
+  ocr:
+    secret-id: ${TENCENTCLOUD_SECRET_ID:}
+    secret-key: ${TENCENTCLOUD_SECRET_KEY:}
+    region: ${TENCENTCLOUD_OCR_REGION:ap-guangzhou}
+    endpoint: ${TENCENTCLOUD_OCR_ENDPOINT:ocr.tencentcloudapi.com}
 logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{requestId:-no-request}] %logger{36} - %msg%n"

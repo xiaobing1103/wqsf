@@ -1,4 +1,55 @@
 {
-  "pages": [{ "path": "pages/index/index", "style": { "navigationStyle": "custom" } }],
-  "globalStyle": { "navigationBarTextStyle": "black", "navigationBarTitleText": "万企商服通", "navigationBarBackgroundColor": "#f5f6f8", "backgroundColor": "#f5f6f8" }
+  "pages": [
+    {
+      "path": "pages/auth/login",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "客户登录" }
+    },
+    {
+      "path": "pages/home/index",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "万企商服通" }
+    },
+    {
+      "path": "pages/service/select",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "选择服务" }
+    },
+    {
+      "path": "pages/category/match",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "品类匹配" }
+    },
+    {
+      "path": "pages/case/materials",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "贸易增量报单" }
+    },
+    {
+      "path": "pages/case/invoice",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "补充资料" }
+    },
+    {
+      "path": "pages/case/list",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "报单列表" }
+    },
+    {
+      "path": "pages/service/simple",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "服务咨询" }
+    },
+    {
+      "path": "pages/company/profile",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "企业资料" }
+    },
+    {
+      "path": "pages/notification/index",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "消息通知" }
+    },
+    {
+      "path": "pages/mine/index",
+      "style": { "navigationStyle": "default", "navigationBarTitleText": "我的" }
+    }
+  ],
+  "globalStyle": {
+    "navigationStyle": "default",
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "万企商服通",
+    "navigationBarBackgroundColor": "#F4F7F7",
+    "backgroundColor": "#F4F7F7"
+  }
 }

@@ -33,6 +33,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -107,12 +108,18 @@ public class CaseService {
     public PageResponse<CaseSummary> mine(long userId, int page, int size, String status) {
         List<Long> companyIds = memberships.findEnabledByUser(userId).stream().map(CompanyUserEntity::getCompanyId).distinct().toList();
         if (companyIds.isEmpty()) return PageResponse.of(List.of(), page, size, 0);
+        List<String> statuses = statusFilter(status);
         LambdaQueryWrapper<ServiceCaseEntity> q = new LambdaQueryWrapper<ServiceCaseEntity>()
                 .in(ServiceCaseEntity::getCompanyId, companyIds).isNull(ServiceCaseEntity::getDeletedAt)
-                .eq(StringUtils.hasText(status), ServiceCaseEntity::getStatus, status)
+                .in(!statuses.isEmpty(), ServiceCaseEntity::getStatus, statuses)
                 .orderByDesc(ServiceCaseEntity::getCreatedAt).orderByDesc(ServiceCaseEntity::getId);
         Page<ServiceCaseEntity> result = cases.selectPage(Page.of(page, size), q);
         return PageResponse.of(result.getRecords().stream().map(this::summary).toList(), page, size, result.getTotal());
+    }
+
+    static List<String> statusFilter(String status) {
+        if (!StringUtils.hasText(status)) return List.of();
+        return Arrays.stream(status.split(",")).map(String::trim).filter(StringUtils::hasText).distinct().toList();
     }
 
     public CaseView clientDetail(long id, long userId) {

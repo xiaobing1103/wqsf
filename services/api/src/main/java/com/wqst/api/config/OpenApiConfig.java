@@ -32,6 +32,7 @@ public class OpenApiConfig {
             Map.entry("AuthController", "认证与会话"),
             Map.entry("AdminCaseController", "后台报单"),
             Map.entry("CaseController", "客户报单"),
+            Map.entry("CategoryMatchController", "品类匹配"),
             Map.entry("AdminProductController", "后台产品"),
             Map.entry("CatalogController", "服务目录"),
             Map.entry("AdminCompanyController", "后台企业"),
@@ -44,7 +45,7 @@ public class OpenApiConfig {
 
     private static final Map<String, String> SUMMARIES = summaries();
     private static final Set<String> PUBLIC_OPERATIONS = Set.of(
-            "authAdminLogin", "authDevLogin", "authWechat", "catalogCatalog", "catalogTemplate");
+            "authAdminLogin", "authClientLogin", "authDevLogin", "authWechat", "catalogCatalog", "catalogTemplate");
 
     private static final Map<String, String> FIELD_DESCRIPTIONS = Map.ofEntries(
             Map.entry("id", "主键编号"), Map.entry("userId", "用户编号"), Map.entry("companyId", "企业编号"),
@@ -52,6 +53,7 @@ public class OpenApiConfig {
             Map.entry("jobId", "任务编号"), Map.entry("templateId", "模板编号"),
             Map.entry("sourceTemplateId", "来源模板编号"), Map.entry("username", "登录用户名"),
             Map.entry("password", "登录密码"),
+            Map.entry("bindWechat", "是否同时绑定当前微信"), Map.entry("wechatCode", "微信临时登录凭证"),
             Map.entry("token", "访问令牌"), Map.entry("tokenType", "令牌类型"),
             Map.entry("expiresIn", "令牌有效秒数"), Map.entry("expiresAt", "失效时间"),
             Map.entry("displayName", "用户显示名称"), Map.entry("accountType", "账号类型"),
@@ -90,7 +92,19 @@ public class OpenApiConfig {
             Map.entry("timestamp", "响应时间"), Map.entry("items", "当前页数据"),
             Map.entry("total", "总记录数"), Map.entry("totalPages", "总页数"),
             Map.entry("createdAt", "创建时间"), Map.entry("updatedAt", "更新时间"),
-            Map.entry("completedAt", "完成时间"), Map.entry("submittedAt", "提交时间"));
+            Map.entry("completedAt", "完成时间"), Map.entry("submittedAt", "提交时间"),
+            Map.entry("onlineBankingStatus", "网银凭证线下交接状态"),
+            Map.entry("uShieldStatus", "U 盾线下交接状态"),
+            Map.entry("transactionAuthorizationStatus", "交易授权凭证线下交接状态"),
+            Map.entry("handledBy", "最近经办管理员编号"), Map.entry("handledAt", "最近登记时间"),
+            Map.entry("businessScope", "营业执照经营范围"), Map.entry("establishedDate", "成立日期"),
+            Map.entry("registeredCapital", "注册资本"), Map.entry("providerRequestId", "OCR 服务请求编号"),
+            Map.entry("recognized", "是否识别成功"), Map.entry("industryCode", "行业编码"),
+            Map.entry("industryName", "行业名称"), Map.entry("industryCount", "匹配行业数量"),
+            Map.entry("categoryCode", "品类编码"), Map.entry("categoryName", "品类名称"),
+            Map.entry("categoryCount", "匹配品类数量"), Map.entry("industries", "按行业分组的推荐品类"),
+            Map.entry("categories", "推荐品类列表"), Map.entry("matchedKeywords", "命中的经营范围关键词"),
+            Map.entry("score", "规则匹配分数"), Map.entry("reason", "推荐原因"));
 
     @Bean
     OpenAPI wanqiOpenApi() {
@@ -167,7 +181,9 @@ public class OpenApiConfig {
             case "403" -> "没有操作权限";
             case "404" -> "业务数据不存在";
             case "409" -> "业务状态冲突";
+            case "422" -> "图片无法识别";
             case "429" -> "请求过于频繁";
+            case "502" -> "OCR 上游服务暂时不可用";
             case "500" -> "服务内部错误";
             case "503" -> "依赖服务暂时不可用";
             default -> "接口响应";
@@ -179,10 +195,12 @@ public class OpenApiConfig {
         values.put("AdminAccountController#list", "查询后台账号列表");
         values.put("AdminAccountController#create", "创建后台或客户账号");
         values.put("AdminAccountController#roles", "修改账号角色");
+        values.put("AdminAccountController#password", "重置账号登录密码");
         values.put("AuditController#operations", "查询操作日志");
         values.put("AuditController#files", "查询文件访问日志");
         values.put("AuditController#downloads", "查询下载日志");
         values.put("AuthController#adminLogin", "后台账号登录");
+        values.put("AuthController#clientLogin", "客户账号密码登录");
         values.put("AuthController#devLogin", "本地开发客户登录");
         values.put("AuthController#wechat", "微信小程序登录");
         values.put("AuthController#me", "获取当前登录用户");
@@ -193,6 +211,8 @@ public class OpenApiConfig {
         values.put("AdminCaseController#status", "变更报单状态");
         values.put("AdminCaseController#review", "审核单项资料");
         values.put("AdminCaseController#supplement", "发起客户补件");
+        values.put("AdminCaseController#credentialHandover", "查询线下凭证交接状态");
+        values.put("AdminCaseController#updateCredentialHandover", "登记线下凭证交接状态");
         values.put("CaseController#create", "创建客户报单草稿");
         values.put("CaseController#mine", "分页查询我的报单");
         values.put("CaseController#detail", "查询我的报单详情");
@@ -201,6 +221,8 @@ public class OpenApiConfig {
         values.put("CaseController#text", "保存文字类资料");
         values.put("CaseController#submit", "提交或重新提交报单");
         values.put("CaseController#timeline", "查询报单进度时间线");
+        values.put("CategoryMatchController#recognize", "识别营业执照企业信息与经营范围");
+        values.put("CategoryMatchController#recommend", "根据经营范围推荐可做品类");
         values.put("AdminProductController#list", "查询后台产品列表");
         values.put("AdminProductController#create", "创建服务产品");
         values.put("AdminProductController#update", "修改服务产品");
@@ -211,8 +233,14 @@ public class OpenApiConfig {
         values.put("CatalogController#catalog", "查询小程序服务目录");
         values.put("CatalogController#template", "查询产品资料模板");
         values.put("AdminCompanyController#list", "分页查询企业客户");
+        values.put("AdminCompanyController#detail", "查询企业客户详情");
         values.put("AdminCompanyController#create", "创建企业客户");
+        values.put("AdminCompanyController#update", "修改企业客户资料");
+        values.put("AdminCompanyController#delete", "软删除企业客户");
         values.put("AdminCompanyController#addMember", "添加或更新企业成员");
+        values.put("AdminCompanyController#clientAccounts", "查询企业客户登录账号");
+        values.put("AdminCompanyController#createClientAccount", "创建并关联企业客户登录账号");
+        values.put("AdminCompanyController#resetClientPassword", "重置企业客户登录密码");
         values.put("CompanyController#mine", "查询当前用户所属企业");
         values.put("CompanyController#detail", "查询当前用户企业详情");
         values.put("DashboardController#dashboard", "查询后台工作台汇总");

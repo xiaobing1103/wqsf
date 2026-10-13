@@ -9,6 +9,7 @@ import com.wqst.api.caseorder.AdminCaseController;
 import com.wqst.api.caseorder.CaseController;
 import com.wqst.api.catalog.AdminProductController;
 import com.wqst.api.catalog.CatalogController;
+import com.wqst.api.categorymatch.CategoryMatchController;
 import com.wqst.api.company.AdminCompanyController;
 import com.wqst.api.company.CompanyController;
 import com.wqst.api.dashboard.DashboardController;
@@ -32,7 +33,7 @@ class OpenApiConfigTest {
     private static final List<Class<?>> CONTROLLERS = List.of(
             AdminAccountController.class, AuditController.class, AuthController.class,
             AdminCaseController.class, CaseController.class, AdminProductController.class,
-            CatalogController.class, AdminCompanyController.class, CompanyController.class,
+            CatalogController.class, CategoryMatchController.class, AdminCompanyController.class, CompanyController.class,
             DashboardController.class, ExportController.class, FileController.class,
             ImportController.class, NotificationController.class);
 
@@ -62,7 +63,7 @@ class OpenApiConfigTest {
                 count++;
             }
         }
-        assertThat(count).isEqualTo(54);
+        assertThat(count).isEqualTo(66);
     }
 
     private boolean isEndpoint(Method method) {

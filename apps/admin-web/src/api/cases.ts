@@ -5,6 +5,8 @@ import {
   adminCaseReview,
   adminCaseStatus,
   adminCaseSupplement,
+  adminCaseCredentialHandover,
+  adminCaseUpdateCredentialHandover,
 } from "./generated/endpoints";
 import type {
   AdminCaseListParams,
@@ -15,6 +17,8 @@ import type {
   SupplementRequest,
   MaterialView,
   PageResponseCaseSummary,
+  CredentialHandoverRequest,
+  CredentialHandoverView,
 } from "./generated/models";
 import { unwrapResponse } from "./unwrap";
 
@@ -44,4 +48,16 @@ export function requestSupplement(caseId: number, request: SupplementRequest) {
   return adminCaseSupplement(caseId, request, {
     headers: { "Idempotency-Key": `admin-supplement-${caseId}-${Date.now()}` },
   }).then((response) => unwrapResponse(response));
+}
+
+export function getCredentialHandover(caseId: number) {
+  return adminCaseCredentialHandover(caseId).then((response) =>
+    unwrapResponse<CredentialHandoverView>(response),
+  );
+}
+
+export function saveCredentialHandover(caseId: number, request: CredentialHandoverRequest) {
+  return adminCaseUpdateCredentialHandover(caseId, request).then((response) =>
+    unwrapResponse<CredentialHandoverView>(response),
+  );
 }

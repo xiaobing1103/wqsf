@@ -31,4 +31,6 @@ export interface CompanyView {
   status?: string;
   /** 企业成员角色 */
   memberRole?: string;
+  /** 乐观锁版本号 */
+  version?: number;
 }

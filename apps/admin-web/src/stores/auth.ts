@@ -19,6 +19,8 @@ export const useAuthStore = defineStore("auth", {
     isAuthenticated: (state) => Boolean(state.token && state.user),
     hasPermission: (state) => (permission: string) =>
       Boolean(state.user?.permissions.includes(permission)),
+    hasRole: (state) => (role: string) =>
+      Boolean(state.user?.roles.includes(role)),
   },
   actions: {
     async login(payload: AdminLoginPayload) {

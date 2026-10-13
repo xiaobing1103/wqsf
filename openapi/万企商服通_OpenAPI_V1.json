@@ -18,46 +18,49 @@
   ],
   "tags": [
     {
-      "name": "客户企业"
+      "name": "后台账号"
     },
     {
-      "name": "后台导入"
+      "name": "客户报单"
     },
     {
       "name": "文件管理"
     },
     {
-      "name": "服务目录"
+      "name": "后台报单"
     },
     {
       "name": "认证与会话"
     },
     {
-      "name": "审计日志"
+      "name": "后台导入"
     },
     {
-      "name": "后台报单"
-    },
-    {
-      "name": "后台产品"
+      "name": "服务目录"
     },
     {
       "name": "后台企业"
     },
     {
-      "name": "后台工作台"
+      "name": "后台导出"
     },
     {
-      "name": "后台导出"
+      "name": "后台工作台"
     },
     {
       "name": "客户通知"
     },
     {
-      "name": "后台账号"
+      "name": "品类匹配"
     },
     {
-      "name": "客户报单"
+      "name": "后台产品"
+    },
+    {
+      "name": "客户企业"
+    },
+    {
+      "name": "审计日志"
     }
   ],
   "paths": {
@@ -206,6 +209,138 @@
         }
       }
     },
+    "/api/v1/admin/companies/{companyId}/client-accounts/{userId}/password": {
+      "put": {
+        "tags": [
+          "后台企业"
+        ],
+        "summary": "重置企业客户登录密码",
+        "description": "重置企业客户登录密码。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCompanyResetClientPassword",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "企业编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "用户编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientPasswordRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/cases/{caseId}/credential-handover": {
+      "get": {
+        "tags": [
+          "后台报单"
+        ],
+        "summary": "查询线下凭证交接状态",
+        "description": "查询线下凭证交接状态。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCaseCredentialHandover",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCredentialHandoverView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "后台报单"
+        ],
+        "summary": "登记线下凭证交接状态",
+        "description": "登记线下凭证交接状态。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCaseUpdateCredentialHandover",
+        "parameters": [
+          {
+            "name": "caseId",
+            "in": "path",
+            "description": "报单编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialHandoverRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCredentialHandoverView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/accounts/{userId}/roles": {
       "put": {
         "tags": [
@@ -232,6 +367,51 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RolesRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounts/{userId}/password": {
+      "put": {
+        "tags": [
+          "后台账号"
+        ],
+        "summary": "重置账号登录密码",
+        "description": "重置账号登录密码。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminAccountPassword",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "用户编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordRequest"
               }
             }
           },
@@ -414,6 +594,80 @@
         }
       }
     },
+    "/api/v1/category-match/recommend": {
+      "post": {
+        "tags": [
+          "品类匹配"
+        ],
+        "summary": "根据经营范围推荐可做品类",
+        "description": "根据经营范围推荐可做品类。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "categoryMatchRecommend",
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryMatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCategoryMatchView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/category-match/recognize": {
+      "post": {
+        "tags": [
+          "品类匹配"
+        ],
+        "summary": "识别营业执照企业信息与经营范围",
+        "description": "识别营业执照企业信息与经营范围。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "categoryMatchRecognize",
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseBusinessLicenseView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/cases": {
       "post": {
         "tags": [
@@ -555,6 +809,40 @@
             }
           }
         }
+      }
+    },
+    "/api/v1/auth/client/login": {
+      "post": {
+        "tags": [
+          "认证与会话"
+        ],
+        "summary": "客户账号密码登录",
+        "description": "客户账号密码登录。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "authClientLogin",
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseLoginResult"
+                }
+              }
+            }
+          }
+        },
+        "security": []
       }
     },
     "/api/v1/auth/client/dev-login": {
@@ -1228,6 +1516,83 @@
         }
       }
     },
+    "/api/v1/admin/companies/{companyId}/client-accounts": {
+      "get": {
+        "tags": [
+          "后台企业"
+        ],
+        "summary": "查询企业客户登录账号",
+        "description": "查询企业客户登录账号。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCompanyClientAccounts",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "企业编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListAccountView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "后台企业"
+        ],
+        "summary": "创建并关联企业客户登录账号",
+        "description": "创建并关联企业客户登录账号。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCompanyCreateClientAccount",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "企业编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ClientAccountRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseAccountView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/cases/{caseId}/supplement-request": {
       "post": {
         "tags": [
@@ -1463,6 +1828,125 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseProductAdminView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/companies/{companyId}": {
+      "get": {
+        "tags": [
+          "后台企业"
+        ],
+        "summary": "查询企业客户详情",
+        "description": "查询企业客户详情。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCompanyDetail",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "企业编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCompanyView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "后台企业"
+        ],
+        "summary": "软删除企业客户",
+        "description": "软删除企业客户。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCompanyDelete",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "企业编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "description": "乐观锁版本号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "后台企业"
+        ],
+        "summary": "修改企业客户资料",
+        "description": "修改企业客户资料。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "adminCompanyUpdate",
+        "parameters": [
+          {
+            "name": "companyId",
+            "in": "path",
+            "description": "企业编号",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseCompanyView"
                 }
               }
             }
@@ -2566,19 +3050,18 @@
           }
         }
       },
-      "RolesRequest": {
+      "ClientPasswordRequest": {
         "type": "object",
         "properties": {
-          "roles": {
-            "type": "array",
-            "description": "角色编码列表",
-            "items": {
-              "type": "string"
-            }
+          "password": {
+            "type": "string",
+            "description": "登录密码",
+            "maxLength": 128,
+            "minLength": 8
           }
         },
         "required": [
-          "roles"
+          "password"
         ]
       },
       "AccountView": {
@@ -2664,6 +3147,140 @@
             "description": "响应时间"
           }
         }
+      },
+      "CredentialHandoverRequest": {
+        "type": "object",
+        "properties": {
+          "onlineBankingStatus": {
+            "type": "string",
+            "description": "网银凭证线下交接状态"
+          },
+          "uShieldStatus": {
+            "type": "string",
+            "description": "U 盾线下交接状态"
+          },
+          "transactionAuthorizationStatus": {
+            "type": "string",
+            "description": "交易授权凭证线下交接状态"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
+          }
+        },
+        "required": [
+          "onlineBankingStatus",
+          "transactionAuthorizationStatus",
+          "uShieldStatus",
+          "version"
+        ]
+      },
+      "ApiResponseCredentialHandoverView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CredentialHandoverView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "CredentialHandoverView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "主键编号"
+          },
+          "caseId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "报单编号"
+          },
+          "onlineBankingStatus": {
+            "type": "string",
+            "description": "网银凭证线下交接状态"
+          },
+          "uShieldStatus": {
+            "type": "string",
+            "description": "U 盾线下交接状态"
+          },
+          "transactionAuthorizationStatus": {
+            "type": "string",
+            "description": "交易授权凭证线下交接状态"
+          },
+          "handledBy": {
+            "type": "integer",
+            "format": "int64",
+            "description": "最近经办管理员编号"
+          },
+          "handledAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "最近登记时间"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "更新时间"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
+          }
+        }
+      },
+      "RolesRequest": {
+        "type": "object",
+        "properties": {
+          "roles": {
+            "type": "array",
+            "description": "角色编码列表",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "roles"
+        ]
+      },
+      "PasswordRequest": {
+        "type": "object",
+        "properties": {
+          "password": {
+            "type": "string",
+            "description": "登录密码",
+            "maxLength": 128,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "password"
+        ]
       },
       "ApiResponseVoid": {
         "type": "object",
@@ -2823,6 +3440,198 @@
           }
         }
       },
+      "CategoryMatchRequest": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "description": "公司名称",
+            "maxLength": 128,
+            "minLength": 0
+          },
+          "businessScope": {
+            "type": "string",
+            "description": "营业执照经营范围",
+            "maxLength": 5000,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "businessScope"
+        ]
+      },
+      "ApiResponseCategoryMatchView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CategoryMatchView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "CategoryMatchView": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "businessScope": {
+            "type": "string",
+            "description": "营业执照经营范围"
+          },
+          "industryCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "匹配行业数量"
+          },
+          "categoryCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "匹配品类数量"
+          },
+          "industries": {
+            "type": "array",
+            "description": "按行业分组的推荐品类",
+            "items": {
+              "$ref": "#/components/schemas/IndustryMatchView"
+            }
+          }
+        }
+      },
+      "CategoryRecommendationView": {
+        "type": "object",
+        "properties": {
+          "categoryCode": {
+            "type": "string",
+            "description": "品类编码"
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "品类名称"
+          },
+          "matchedKeywords": {
+            "type": "array",
+            "description": "命中的经营范围关键词",
+            "items": {
+              "type": "string"
+            }
+          },
+          "score": {
+            "type": "integer",
+            "format": "int32",
+            "description": "规则匹配分数"
+          },
+          "reason": {
+            "type": "string",
+            "description": "推荐原因"
+          }
+        }
+      },
+      "IndustryMatchView": {
+        "type": "object",
+        "properties": {
+          "industryCode": {
+            "type": "string",
+            "description": "行业编码"
+          },
+          "industryName": {
+            "type": "string",
+            "description": "行业名称"
+          },
+          "categories": {
+            "type": "array",
+            "description": "推荐品类列表",
+            "items": {
+              "$ref": "#/components/schemas/CategoryRecommendationView"
+            }
+          }
+        }
+      },
+      "ApiResponseBusinessLicenseView": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BusinessLicenseView",
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "BusinessLicenseView": {
+        "type": "object",
+        "properties": {
+          "recognized": {
+            "type": "boolean",
+            "description": "是否识别成功"
+          },
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "businessScope": {
+            "type": "string",
+            "description": "营业执照经营范围"
+          },
+          "establishedDate": {
+            "type": "string",
+            "description": "成立日期"
+          },
+          "creditCode": {
+            "type": "string",
+            "description": "统一社会信用代码"
+          },
+          "registeredCapital": {
+            "type": "string",
+            "description": "注册资本"
+          },
+          "providerRequestId": {
+            "type": "string",
+            "description": "OCR 服务请求编号"
+          }
+        }
+      },
       "CreateRequest": {
         "type": "object",
         "properties": {
@@ -2929,6 +3738,37 @@
             "description": "脱敏手机号"
           }
         }
+      },
+      "ClientLoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "登录用户名",
+            "maxLength": 64,
+            "minLength": 0
+          },
+          "password": {
+            "type": "string",
+            "description": "登录密码",
+            "maxLength": 128,
+            "minLength": 0
+          },
+          "bindWechat": {
+            "type": "boolean",
+            "description": "是否同时绑定当前微信"
+          },
+          "wechatCode": {
+            "type": "string",
+            "description": "微信临时登录凭证",
+            "maxLength": 256,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "password",
+          "username"
+        ]
       },
       "DevLoginRequest": {
         "type": "object",
@@ -3700,6 +4540,11 @@
           "memberRole": {
             "type": "string",
             "description": "企业成员角色"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
           }
         }
       },
@@ -3718,6 +4563,44 @@
         },
         "required": [
           "memberRole"
+        ]
+      },
+      "ClientAccountRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "登录用户名",
+            "maxLength": 64,
+            "minLength": 0
+          },
+          "password": {
+            "type": "string",
+            "description": "登录密码",
+            "maxLength": 128,
+            "minLength": 8
+          },
+          "displayName": {
+            "type": "string",
+            "description": "用户显示名称",
+            "maxLength": 64,
+            "minLength": 0
+          },
+          "phone": {
+            "type": "string",
+            "description": "联系电话",
+            "pattern": "^$|^[0-9+ -]{7,20}$"
+          },
+          "memberRole": {
+            "type": "string",
+            "description": "企业成员角色"
+          }
+        },
+        "required": [
+          "displayName",
+          "memberRole",
+          "password",
+          "username"
         ]
       },
       "SupplementRequest": {
@@ -3831,6 +4714,57 @@
             "description": "经办人编号"
           }
         }
+      },
+      "CompanyUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "description": "公司名称"
+          },
+          "creditCode": {
+            "type": "string",
+            "description": "统一社会信用代码"
+          },
+          "contactName": {
+            "type": "string",
+            "description": "联系人姓名"
+          },
+          "contactPhone": {
+            "type": "string",
+            "description": "联系电话",
+            "pattern": "^$|^[0-9+ -]{7,20}$"
+          },
+          "legalPerson": {
+            "type": "string",
+            "description": "法定代表人"
+          },
+          "province": {
+            "type": "string",
+            "description": "省份"
+          },
+          "city": {
+            "type": "string",
+            "description": "城市"
+          },
+          "companyEmail": {
+            "type": "string",
+            "description": "公司邮箱"
+          },
+          "detailAddress": {
+            "type": "string",
+            "description": "详细地址"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
+          }
+        },
+        "required": [
+          "companyName",
+          "version"
+        ]
       },
       "ApiResponseListModuleView": {
         "type": "object",

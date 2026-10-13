@@ -1,5 +1,11 @@
+import type { FileView } from './generated/models'
+
+let defaultApiBaseUrl = "http://127.0.0.1:8080/api/v1";
+// #ifdef H5
+defaultApiBaseUrl = "/api/v1";
+// #endif
 const API_BASE_URL = (((import.meta as ImportMeta & { env?: Record<string, string> }).env?.VITE_API_BASE_URL)
-  || "http://127.0.0.1:8080/api/v1").replace(/\/$/, "");
+  || defaultApiBaseUrl).replace(/\/$/, "");
 export const CLIENT_TOKEN_STORAGE_KEY = "wqst_client_token";
 
 export type UploadMaterialOptions = {
@@ -10,7 +16,7 @@ export type UploadMaterialOptions = {
 };
 
 /** 小程序文件必须通过 uni.uploadFile 发送，避免把本地临时路径当作 JSON。 */
-export function uploadMaterialFile(options: UploadMaterialOptions): Promise<unknown> {
+export function uploadMaterialFile(options: UploadMaterialOptions): Promise<FileView> {
   const token = uni.getStorageSync(CLIENT_TOKEN_STORAGE_KEY);
   return new Promise((resolve, reject) => {
     uni.uploadFile({
@@ -31,7 +37,8 @@ export function uploadMaterialFile(options: UploadMaterialOptions): Promise<unkn
           reject(new Error(payload.message || `上传失败（${response.statusCode}）`));
           return;
         }
-        resolve(payload.data);
+        if (!payload.data) { reject(new Error("上传响应缺少文件信息")); return; }
+        resolve(payload.data as FileView);
       },
       fail: (error) => reject(new Error(error.errMsg || "文件上传失败")),
     });

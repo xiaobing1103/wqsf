@@ -6,8 +6,10 @@
     "strict": true,
     "jsx": "preserve",
     "sourceMap": true,
+    "skipLibCheck": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "types": ["@dcloudio/types"]
-  }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue"]
 }

@@ -2,6 +2,8 @@ package com.wqst.api.company;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wqst.api.caseorder.entity.ServiceCaseEntity;
+import com.wqst.api.caseorder.mapper.ServiceCaseMapper;
 import com.wqst.api.common.BusinessException;
 import com.wqst.api.common.CryptoService;
 import com.wqst.api.common.PageResponse;
@@ -9,6 +11,7 @@ import com.wqst.api.company.entity.CompanyEntity;
 import com.wqst.api.company.entity.CompanyUserEntity;
 import com.wqst.api.company.mapper.CompanyMapper;
 import com.wqst.api.company.mapper.CompanyUserMapper;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import org.springframework.http.HttpStatus;
@@ -20,11 +23,13 @@ import org.springframework.util.StringUtils;
 public class CompanyService {
     private final CompanyMapper companies;
     private final CompanyUserMapper memberships;
+    private final ServiceCaseMapper cases;
     private final CryptoService crypto;
 
-    public CompanyService(CompanyMapper companies, CompanyUserMapper memberships, CryptoService crypto) {
+    public CompanyService(CompanyMapper companies, CompanyUserMapper memberships, ServiceCaseMapper cases, CryptoService crypto) {
         this.companies = companies;
         this.memberships = memberships;
+        this.cases = cases;
         this.crypto = crypto;
     }
 
@@ -40,6 +45,15 @@ public class CompanyService {
         String role = memberships.findEnabledByUser(userId).stream()
                 .filter(it -> Objects.equals(it.getCompanyId(), companyId)).map(CompanyUserEntity::getMemberRole).findFirst().orElse("VIEWER");
         return view(require(companyId), role);
+    }
+
+    public List<Long> enabledMemberUserIds(long companyId) {
+        require(companyId);
+        return memberships.findEnabledByCompany(companyId).stream().map(CompanyUserEntity::getUserId).toList();
+    }
+
+    public CompanyView adminDetail(long companyId) {
+        return view(require(companyId), null);
     }
 
     public PageResponse<CompanyView> adminList(int page, int pageSize, String keyword, String status) {
@@ -71,6 +85,50 @@ public class CompanyService {
         c.setStatus("ENABLED");
         companies.insert(c);
         return view(c, null);
+    }
+
+    @Transactional
+    public CompanyView update(long companyId, UpdateCompany command) {
+        CompanyEntity c = require(companyId);
+        requireVersion(c, command.version());
+        if (StringUtils.hasText(command.creditCode())) {
+            String creditCode = command.creditCode().trim();
+            long duplicateCount = companies.selectCount(new LambdaQueryWrapper<CompanyEntity>()
+                    .eq(CompanyEntity::getCreditCode, creditCode)
+                    .ne(CompanyEntity::getId, companyId)
+                    .isNull(CompanyEntity::getDeletedAt));
+            if (duplicateCount > 0) {
+                throw new BusinessException("COMPANY_CREDIT_CODE_EXISTS", "统一社会信用代码已存在", HttpStatus.CONFLICT);
+            }
+            c.setCreditCode(creditCode);
+        }
+        c.setCompanyName(command.companyName().trim());
+        c.setContactName(trimToNull(command.contactName()));
+        c.setLegalPerson(trimToNull(command.legalPerson()));
+        if (StringUtils.hasText(command.contactPhone())) applyPhone(c, command.contactPhone().trim());
+        c.setProvince(trimToNull(command.province()));
+        c.setCity(trimToNull(command.city()));
+        c.setCompanyEmail(trimToNull(command.companyEmail()));
+        c.setDetailAddress(trimToNull(command.detailAddress()));
+        if (companies.updateById(c) == 0) throw optimisticConflict();
+        return view(require(companyId), null);
+    }
+
+    @Transactional
+    public void softDelete(long companyId, int version) {
+        CompanyEntity c = require(companyId);
+        requireVersion(c, version);
+        long unfinishedCases = cases.selectCount(new LambdaQueryWrapper<ServiceCaseEntity>()
+                .eq(ServiceCaseEntity::getCompanyId, companyId)
+                .isNull(ServiceCaseEntity::getDeletedAt)
+                .notIn(ServiceCaseEntity::getStatus, List.of("COMPLETED", "CANCELED")));
+        if (unfinishedCases > 0) {
+            throw new BusinessException("COMPANY_ACTIVE_CASE_EXISTS", "企业存在未完成报单，不能删除", HttpStatus.CONFLICT);
+        }
+        c.setStatus("DISABLED");
+        c.setDeletedAt(LocalDateTime.now());
+        if (companies.updateById(c) == 0) throw optimisticConflict();
+        memberships.disableByCompanyId(companyId);
     }
 
     @Transactional
@@ -113,7 +171,15 @@ public class CompanyService {
     private CompanyView view(CompanyEntity c, String memberRole) {
         return new CompanyView(c.getId(), c.getCompanyName(), maskCreditCode(c.getCreditCode()), c.getContactName(),
                 c.getContactPhoneMask(), c.getLegalPerson(), c.getProvince(), c.getCity(), c.getCompanyEmail(),
-                c.getDetailAddress(), c.getStatus(), memberRole);
+                c.getDetailAddress(), c.getStatus(), memberRole, c.getVersion());
+    }
+
+    private void requireVersion(CompanyEntity company, Integer expectedVersion) {
+        if (expectedVersion == null || !Objects.equals(company.getVersion(), expectedVersion)) throw optimisticConflict();
+    }
+
+    private BusinessException optimisticConflict() {
+        return new BusinessException("OPTIMISTIC_LOCK_CONFLICT", "企业资料已被更新，请刷新后重试", HttpStatus.CONFLICT);
     }
 
     private String maskCreditCode(String value) {
@@ -125,7 +191,10 @@ public class CompanyService {
 
     public record CompanyView(Long id, String companyName, String creditCodeMask, String contactName,
                               String contactPhoneMask, String legalPerson, String province, String city,
-                              String companyEmail, String detailAddress, String status, String memberRole) {}
+                              String companyEmail, String detailAddress, String status, String memberRole, Integer version) {}
     public record CreateCompany(String companyName, String creditCode, String contactName, String contactPhone,
                                 String legalPerson, String province, String city, String companyEmail, String detailAddress) {}
+    public record UpdateCompany(String companyName, String creditCode, String contactName, String contactPhone,
+                                String legalPerson, String province, String city, String companyEmail,
+                                String detailAddress, Integer version) {}
 }

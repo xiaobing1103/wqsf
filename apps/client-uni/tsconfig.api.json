@@ -6,7 +6,7 @@
     "strict": true,
     "skipLibCheck": true,
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "types": []
+    "types": ["@dcloudio/types"]
   },
-  "include": ["src/api/generated/**/*.ts", "src/api/generated-client.ts", "src/api/upload.ts", "src/api/uni-shim.d.ts"]
+  "include": ["src/api/generated/**/*.ts", "src/api/generated-client.ts", "src/api/upload.ts"]
 }

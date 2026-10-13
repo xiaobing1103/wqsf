@@ -7,11 +7,15 @@
  */
 import type {
   AdminCaseListParams,
+  AdminCompanyDeleteParams,
   AdminCompanyListParams,
   AdminLoginRequest,
   ApiResponseAccountView,
+  ApiResponseBusinessLicenseView,
   ApiResponseCaseView,
+  ApiResponseCategoryMatchView,
   ApiResponseCompanyView,
+  ApiResponseCredentialHandoverView,
   ApiResponseCurrentUser,
   ApiResponseDashboardView,
   ApiResponseDownloadView,
@@ -44,8 +48,15 @@ import type {
   AuditFilesParams,
   AuditOperationsParams,
   CaseMineParams,
+  CategoryMatchRecognizeBody,
+  CategoryMatchRequest,
+  ClientAccountRequest,
+  ClientLoginRequest,
+  ClientPasswordRequest,
   CompanyRequest,
+  CompanyUpdateRequest,
   CreateRequest,
+  CredentialHandoverRequest,
   DevLoginRequest,
   ExportReviewRequest,
   FileListParams,
@@ -56,6 +67,7 @@ import type {
   InvoiceRequest,
   MemberRequest,
   NotificationMineParams,
+  PasswordRequest,
   ProductRequest,
   ReviewRequest,
   RolesRequest,
@@ -192,6 +204,113 @@ return adminGeneratedRequest<ApiResponseInvoiceView>(getCaseInvoiceUrl(caseId),
 
 
 
+export const getAdminCompanyResetClientPasswordUrl = (companyId: number,
+    userId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}/client-accounts/${userId}/password`
+}
+
+/**
+ * 重置企业客户登录密码。响应统一使用 ApiResponse 结构。
+ * @summary 重置企业客户登录密码
+ */
+export const adminCompanyResetClientPassword = async (companyId: number,
+    userId: number,
+    clientPasswordRequest: ClientPasswordRequest, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseAccountView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return adminGeneratedRequest<ApiResponseAccountView>(getAdminCompanyResetClientPasswordUrl(companyId,userId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(clientPasswordRequest)
+  }
+);}
+
+
+
+export const getAdminCaseCredentialHandoverUrl = (caseId: number,) => {
+
+
+
+
+  return `/api/v1/admin/cases/${caseId}/credential-handover`
+}
+
+/**
+ * 查询线下凭证交接状态。响应统一使用 ApiResponse 结构。
+ * @summary 查询线下凭证交接状态
+ */
+export const adminCaseCredentialHandover = async (caseId: number, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseCredentialHandoverView> => {
+
+  return adminGeneratedRequest<ApiResponseCredentialHandoverView>(getAdminCaseCredentialHandoverUrl(caseId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export const getAdminCaseUpdateCredentialHandoverUrl = (caseId: number,) => {
+
+
+
+
+  return `/api/v1/admin/cases/${caseId}/credential-handover`
+}
+
+/**
+ * 登记线下凭证交接状态。响应统一使用 ApiResponse 结构。
+ * @summary 登记线下凭证交接状态
+ */
+export const adminCaseUpdateCredentialHandover = async (caseId: number,
+    credentialHandoverRequest: CredentialHandoverRequest, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseCredentialHandoverView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return adminGeneratedRequest<ApiResponseCredentialHandoverView>(getAdminCaseUpdateCredentialHandoverUrl(caseId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(credentialHandoverRequest)
+  }
+);}
+
+
+
 export const getAdminAccountRolesUrl = (userId: number,) => {
 
 
@@ -227,6 +346,46 @@ return adminGeneratedRequest<ApiResponseAccountView>(getAdminAccountRolesUrl(use
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
     body: JSON.stringify(rolesRequest)
+  }
+);}
+
+
+
+export const getAdminAccountPasswordUrl = (userId: number,) => {
+
+
+
+
+  return `/api/v1/admin/accounts/${userId}/password`
+}
+
+/**
+ * 重置账号登录密码。响应统一使用 ApiResponse 结构。
+ * @summary 重置账号登录密码
+ */
+export const adminAccountPassword = async (userId: number,
+    passwordRequest: PasswordRequest, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseAccountView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return adminGeneratedRequest<ApiResponseAccountView>(getAdminAccountPasswordUrl(userId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(passwordRequest)
   }
 );}
 
@@ -346,6 +505,74 @@ export const filePreview = async (fileId: number, options?: Parameters<typeof ad
     method: 'POST'
 
 
+  }
+);}
+
+
+
+export const getCategoryMatchRecommendUrl = () => {
+
+
+
+
+  return `/api/v1/category-match/recommend`
+}
+
+/**
+ * 根据经营范围推荐可做品类。响应统一使用 ApiResponse 结构。
+ * @summary 根据经营范围推荐可做品类
+ */
+export const categoryMatchRecommend = async (categoryMatchRequest: CategoryMatchRequest, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseCategoryMatchView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return adminGeneratedRequest<ApiResponseCategoryMatchView>(getCategoryMatchRecommendUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(categoryMatchRequest)
+  }
+);}
+
+
+
+export const getCategoryMatchRecognizeUrl = () => {
+
+
+
+
+  return `/api/v1/category-match/recognize`
+}
+
+/**
+ * 识别营业执照企业信息与经营范围。响应统一使用 ApiResponse 结构。
+ * @summary 识别营业执照企业信息与经营范围
+ */
+export const categoryMatchRecognize = async (categoryMatchRecognizeBody?: CategoryMatchRecognizeBody, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseBusinessLicenseView> => {
+    const formData = new FormData();
+if(categoryMatchRecognizeBody?.file !== undefined) {
+ formData.append(`file`, categoryMatchRecognizeBody.file);
+ }
+
+  return adminGeneratedRequest<ApiResponseBusinessLicenseView>(getCategoryMatchRecognizeUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body: formData
   }
 );}
 
@@ -474,6 +701,45 @@ export const authLogout = async ( options?: Parameters<typeof adminGeneratedRequ
     method: 'POST'
 
 
+  }
+);}
+
+
+
+export const getAuthClientLoginUrl = () => {
+
+
+
+
+  return `/api/v1/auth/client/login`
+}
+
+/**
+ * 客户账号密码登录。响应统一使用 ApiResponse 结构。
+ * @summary 客户账号密码登录
+ */
+export const authClientLogin = async (clientLoginRequest: ClientLoginRequest, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseLoginResult> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return adminGeneratedRequest<ApiResponseLoginResult>(getAuthClientLoginUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(clientLoginRequest)
   }
 );}
 
@@ -1052,6 +1318,71 @@ return adminGeneratedRequest<ApiResponseVoid>(getAdminCompanyAddMemberUrl(compan
 
 
 
+export const getAdminCompanyClientAccountsUrl = (companyId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}/client-accounts`
+}
+
+/**
+ * 查询企业客户登录账号。响应统一使用 ApiResponse 结构。
+ * @summary 查询企业客户登录账号
+ */
+export const adminCompanyClientAccounts = async (companyId: number, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseListAccountView> => {
+
+  return adminGeneratedRequest<ApiResponseListAccountView>(getAdminCompanyClientAccountsUrl(companyId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export const getAdminCompanyCreateClientAccountUrl = (companyId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}/client-accounts`
+}
+
+/**
+ * 创建并关联企业客户登录账号。响应统一使用 ApiResponse 结构。
+ * @summary 创建并关联企业客户登录账号
+ */
+export const adminCompanyCreateClientAccount = async (companyId: number,
+    clientAccountRequest: ClientAccountRequest, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseAccountView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return adminGeneratedRequest<ApiResponseAccountView>(getAdminCompanyCreateClientAccountUrl(companyId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(clientAccountRequest)
+  }
+);}
+
+
+
 export const getAdminCaseSupplementUrl = (caseId: number,) => {
 
 
@@ -1271,6 +1602,105 @@ return adminGeneratedRequest<ApiResponseProductAdminView>(getAdminProductUpdateU
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
     body: JSON.stringify(productRequest)
+  }
+);}
+
+
+
+export const getAdminCompanyDetailUrl = (companyId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}`
+}
+
+/**
+ * 查询企业客户详情。响应统一使用 ApiResponse 结构。
+ * @summary 查询企业客户详情
+ */
+export const adminCompanyDetail = async (companyId: number, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseCompanyView> => {
+
+  return adminGeneratedRequest<ApiResponseCompanyView>(getAdminCompanyDetailUrl(companyId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export const getAdminCompanyDeleteUrl = (companyId: number,
+    params: AdminCompanyDeleteParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/v1/admin/companies/${companyId}?${stringifiedParams}` : `/api/v1/admin/companies/${companyId}`
+}
+
+/**
+ * 软删除企业客户。响应统一使用 ApiResponse 结构。
+ * @summary 软删除企业客户
+ */
+export const adminCompanyDelete = async (companyId: number,
+    params: AdminCompanyDeleteParams, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseVoid> => {
+
+  return adminGeneratedRequest<ApiResponseVoid>(getAdminCompanyDeleteUrl(companyId,params),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+export const getAdminCompanyUpdateUrl = (companyId: number,) => {
+
+
+
+
+  return `/api/v1/admin/companies/${companyId}`
+}
+
+/**
+ * 修改企业客户资料。响应统一使用 ApiResponse 结构。
+ * @summary 修改企业客户资料
+ */
+export const adminCompanyUpdate = async (companyId: number,
+    companyUpdateRequest: CompanyUpdateRequest, options?: Parameters<typeof adminGeneratedRequest>[1]): Promise<ApiResponseCompanyView> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return adminGeneratedRequest<ApiResponseCompanyView>(getAdminCompanyUpdateUrl(companyId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(companyUpdateRequest)
   }
 );}
 

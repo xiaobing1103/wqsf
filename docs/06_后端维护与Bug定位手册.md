@@ -23,7 +23,7 @@
 
 | 前端功能或接口前缀 | Controller 入口 | 主要业务逻辑 | 数据库/外部服务 |
 | --- | --- | --- | --- |
-| `/api/v1/auth` | `auth/AuthController.java` | `auth/AuthService.java` | `user_account`、Valkey、Sa-Token |
+| `/api/v1/auth` | `auth/AuthController.java` | `auth/AuthService.java`、`auth/WechatAuthClient.java` | `user_account`、Valkey、Sa-Token、微信 `jscode2session` |
 | 后台账号与角色 | `account/AdminAccountController.java` | `account/AccountService.java` | `user_account`、`role`、`permission` |
 | `/api/v1/companies` | `company/CompanyController.java` | `company/CompanyService.java` | `company`、`company_user` |
 | 服务和产品 | `catalog/CatalogController.java`、`AdminProductController.java` | `catalog/CatalogService.java` | 服务模块、产品、模板三组表 |
@@ -105,11 +105,28 @@
 
 ZIP 仍必须保持 01–11 目录和 `审核表.xlsx`，除非需求文档明确改变。
 
+### 3.7 修改线下凭证交接
+
+- 数据库迁移：`database/003_credential_handover.sql`
+- 后台接口：`caseorder/AdminCaseController.java`
+- 业务逻辑：`caseorder/CredentialHandoverService.java`
+- 实体和 Mapper：`caseorder/entity/CredentialHandoverEntity.java`、`caseorder/mapper/CredentialHandoverMapper.java`
+- 管理后台：`apps/admin-web/src/api/cases.ts`、`layouts/AdminLayout.vue`
+
+该模块只能保存交接状态、经办管理员、时间和版本号。不得新增密码、密文、文件或自由备注字段；真实凭证只能线下交接或进入独立的企业级密钥保险库。
+
 ## 4. 常见错误怎么排查
 
 | HTTP/错误码 | 常见原因 | 优先检查 |
 | --- | --- | --- |
 | 401 `AUTH_REQUIRED` | Token 缺失、过期或登录场景不一致 | 请求头、`AuthService`、前端 Token 存储 |
+| 401 `AUTH_INVALID_CREDENTIALS` | 用户名/密码不匹配、账号类型不对或账号未启用 | `user_account`、`AuthService.clientLogin/adminLogin`；不要向用户区分具体原因 |
+| 429 `AUTH_RATE_LIMITED` | 同一登录场景和用户名 15 分钟内失败至少 5 次 | Valkey 的 `wqst:auth:fail:{admin/client}:*`，等待过期；不要直接绕过限流 |
+| 409 `WECHAT_ACCOUNT_UNBOUND` | 微信已换取 OpenID，但没有关联 CLIENT 账号 | 先由管理员发放客户账号，再通过账号密码登录并勾选绑定 |
+| 409 `WECHAT_ALREADY_BOUND` | 当前 OpenID 已绑定其他客户账号 | `user_account.wechat_openid`，确认客户要使用哪个账号 |
+| 409 `ACCOUNT_WECHAT_ALREADY_BOUND` | 当前客户账号已有不同 OpenID | `user_account.wechat_openid`；当前设计不允许前端直接换绑 |
+| 401 `WECHAT_CODE_INVALID` | 微信 code 已使用、过期或微信返回业务错误 | 小程序必须在本次操作前重新调用 `uni.login` |
+| 503 `WECHAT_AUTH_NOT_CONFIGURED` / `WECHAT_AUTH_UNAVAILABLE` | 未配置 AppID/AppSecret，或微信服务/网络不可用 | 环境变量、`WechatAuthClient`、微信服务状态和后端日志 |
 | 403 `AUTH_PERMISSION_DENIED` | 角色缺权限 | Controller 权限注解、角色权限种子 |
 | 403 `COMPANY_SCOPE_DENIED` | 当前客户不属于该企业 | `company_user`、`requireClientAccess` |
 | 400 `MATERIAL_REQUIRED` | 必填资料未提交 | 报单详情的 `missingItems`、资料状态 |
@@ -129,10 +146,11 @@ ZIP 仍必须保持 01–11 目录和 `审核表.xlsx`，除非需求文档明�
 ```powershell
 cd services/api
 $env:DOCKER_HOST = "npipe:////./pipe/dockerDesktopLinuxEngine"
+$env:JAVA_TOOL_OPTIONS = "-Djdk.net.unixdomain.tmpdir=C:\Windows\Temp"
 .\mvnw.cmd "-Dapi.version=1.40" clean verify
 ```
 
-成功时必须同时看到 `54` 个单元测试和 `2` 个集成测试均为 `Skipped: 0`。只看到 `BUILD SUCCESS` 不代表集成测试实际运行，应同时检查 `target/failsafe-reports/`。
+当前基线成功时必须同时看到 `67` 个单元测试和 `3` 个集成测试均为 `Skipped: 0`。其中品类匹配集成用例会验证 001–004 脚本、19 条规则以及客户 Token 调用推荐接口；只看到 `BUILD SUCCESS` 不代表集成测试实际运行，应同时检查 `target/failsafe-reports/`。
 
 基础设施：
 

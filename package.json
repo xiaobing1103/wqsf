@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "api:export": "node scripts/export-openapi.mjs",
-    "api:generate": "orval --config orval.config.ts",
+    "api:generate": "orval --config orval.config.ts && node scripts/patch-uni-generated.mjs",
     "api:sync": "pnpm api:export && pnpm api:generate",
     "api:check": "node scripts/validate-openapi.mjs openapi/万企商服通_OpenAPI_V1.json"
   },

@@ -6,6 +6,7 @@ import com.wqst.api.common.SecuritySupport;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import org.springframework.web.bind.annotation.*;
 @RestController @RequestMapping("/api/v1/admin/accounts")
@@ -15,6 +16,8 @@ public class AdminAccountController {
     @GetMapping @SaCheckRole("SUPER_ADMIN") ApiResponse<List<AccountService.AccountView>> list(){security.adminId();StpUtil.checkRole("SUPER_ADMIN");return ApiResponse.ok(service.list());}
     @PostMapping @SaCheckRole("SUPER_ADMIN") ApiResponse<AccountService.AccountView> create(@Valid @RequestBody CreateRequest r){security.adminId();StpUtil.checkRole("SUPER_ADMIN");return ApiResponse.created(service.create(new AccountService.CreateAccount(r.accountType(),r.username(),r.password(),r.displayName(),r.phone(),r.roles())));}
     @PutMapping("/{userId}/roles") @SaCheckRole("SUPER_ADMIN") ApiResponse<AccountService.AccountView> roles(@PathVariable long userId,@Valid @RequestBody RolesRequest r){security.adminId();StpUtil.checkRole("SUPER_ADMIN");return ApiResponse.ok(service.roles(userId,r.roles()));}
+    @PutMapping("/{userId}/password") @SaCheckRole("SUPER_ADMIN") ApiResponse<AccountService.AccountView> password(@PathVariable long userId,@Valid @RequestBody PasswordRequest r){security.adminId();StpUtil.checkRole("SUPER_ADMIN");return ApiResponse.ok(service.resetPassword(userId,r.password()));}
     public record CreateRequest(@NotBlank String accountType,String username,String password,@NotBlank String displayName,String phone,@NotEmpty List<@NotBlank String> roles){}
     public record RolesRequest(@NotEmpty List<@NotBlank String> roles){}
+    public record PasswordRequest(@NotBlank @Size(max=128) String password){}
 }
