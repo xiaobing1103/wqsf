@@ -98,7 +98,7 @@ class BackendIntegrationIT {
     @Test
     @Order(1)
     void databaseScriptsSeedsConstraintsAndRollbackWork() {
-        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='wqst'", Integer.class)).isEqualTo(28);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='wqst'", Integer.class)).isEqualTo(29);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM service_module", Integer.class)).isEqualTo(3);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM service_product", Integer.class)).isEqualTo(3);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM material_template", Integer.class)).isEqualTo(3);
@@ -114,6 +114,72 @@ class BackendIntegrationIT {
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM service_module WHERE module_code=?", Integer.class, rollbackCode)).isZero();
         assertThatThrownBy(() -> jdbc.update("INSERT INTO service_module(module_code,module_name,sort_order,status) VALUES (?,?,?,?)",
                 "TRADE_INCREMENT", "重复模块", 99, "ENABLED")).isInstanceOf(DataIntegrityViolationException.class);
+    }
+
+    @Test
+    @Order(0)
+    void capabilityFlagsPermissionsAndServerGateWork() throws Exception {
+        JsonNode flags = data(getJson("/api/v1/client/capabilities", null));
+        assertThat(flags.size()).isEqualTo(7);
+        assertThat(flags.path("tradeApplicationEnabled").asBoolean()).isFalse();
+        assertThat(data(getJson("/api/v1/services/catalog", null)).size()).isZero();
+        String client = token(postJson("/api/v1/auth/client/dev-login", "{}", null, null));
+        mvc.perform(put("/api/v1/admin/client-capabilities/categoryMatchEnabled")
+                .header("Authorization", "Bearer " + client).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"enabled\":false,\"version\":0,\"reason\":\"无权限测试\"}")).andExpect(status().isUnauthorized());
+        long companyId=data(getJson("/api/v1/companies/my", client)).get(0).path("id").asLong();
+        long productId=jdbc.queryForObject("SELECT id FROM service_product WHERE product_code='TRADE_INCREMENT_SERVICE'", Long.class);
+        mvc.perform(post("/api/v1/cases").header("Authorization", "Bearer " + client)
+                .header("Idempotency-Key", UUID.randomUUID().toString()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"companyId\":" + companyId + ",\"productId\":" + productId + ",\"serviceType\":\"TRADE_INCREMENT\",\"caseMonth\":\"2026-10\"}"))
+                .andExpect(status().isForbidden());
+        String admin=token(postJson("/api/v1/auth/admin/login", "{\"username\":\"" + ADMIN_USERNAME + "\",\"password\":\"" + ADMIN_PASSWORD + "\"}", null, null));
+        assertThat(data(getJson("/api/v1/admin/client-capabilities", admin)).size()).isEqualTo(7);
+        jdbc.update("INSERT INTO role(role_code,role_name,status) VALUES('CAPABILITY_TEST_OPERATOR','开关权限回归普通管理员','ENABLED')");
+        jdbc.update("INSERT INTO role_permission(role_id,permission_id) SELECT r.id,p.id FROM role r CROSS JOIN permission p WHERE r.role_code='CAPABILITY_TEST_OPERATOR' AND p.permission_code IN ('product:view','product:edit')");
+        JsonNode operator = data(postJson("/api/v1/admin/accounts", """
+                {"accountType":"ADMIN","username":"capability_operator","password":"Capability-Operator-2026",
+                 "displayName":"权限回归普通管理员","phone":"13600000001","roles":["CAPABILITY_TEST_OPERATOR"]}
+                """, admin, null));
+        assertThat(operator.path("permissions")).anySatisfy(permission -> assertThat(permission.asText()).isEqualTo("product:edit"));
+        String operatorToken = token(postJson("/api/v1/auth/admin/login", """
+                {"username":"capability_operator","password":"Capability-Operator-2026"}
+                """, null, null));
+        mvc.perform(get("/api/v1/admin/client-capabilities").header("Authorization", "Bearer " + operatorToken))
+                .andExpect(status().isForbidden());
+        mvc.perform(put("/api/v1/admin/client-capabilities/categoryMatchEnabled").header("Authorization", "Bearer " + operatorToken)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"enabled\":false,\"version\":0,\"reason\":\"普通管理员越权测试\"}"))
+                .andExpect(status().isForbidden());
+        assertThat(jdbc.queryForObject("SELECT enabled FROM client_capability WHERE capability_key='categoryMatchEnabled'", Integer.class)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT version FROM client_capability WHERE capability_key='categoryMatchEnabled'", Integer.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM operation_log WHERE operation_code='CAPABILITY_UPDATE'", Integer.class)).isZero();
+        mvc.perform(put("/api/v1/admin/client-capabilities/categoryMatchEnabled").header("Authorization", "Bearer " + admin)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"enabled\":false,\"version\":0,\"reason\":\"集成测试临时关闭\"}"))
+                .andExpect(status().isOk());
+        mvc.perform(post("/api/v1/category-match/recommend").header("Authorization", "Bearer " + client)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"businessScope\":\"软件开发\"}"))
+                .andExpect(status().isForbidden());
+        mvc.perform(put("/api/v1/admin/client-capabilities/categoryMatchEnabled").header("Authorization", "Bearer " + admin)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"enabled\":true,\"version\":0,\"reason\":\"过期版本测试\"}"))
+                .andExpect(status().isConflict());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM operation_log WHERE operation_code='CAPABILITY_UPDATE'", Integer.class)).isEqualTo(1);
+        // 七项均经超级管理员真实API开启/关闭，不注入部署允许清单。
+        for (String key : com.wqst.api.capability.CapabilityService.KEYS) {
+            int version = jdbc.queryForObject("SELECT version FROM client_capability WHERE capability_key=?", Integer.class, key);
+            putJson("/api/v1/admin/client-capabilities/" + key,
+                    "{\"enabled\":true,\"version\":" + version + ",\"reason\":\"临时库全开回归\"}", admin);
+        }
+        JsonNode allEnabled = data(getJson("/api/v1/client/capabilities", null));
+        for (String key : com.wqst.api.capability.CapabilityService.KEYS) assertThat(allEnabled.path(key).asBoolean()).isTrue();
+        for (String key : com.wqst.api.capability.CapabilityService.KEYS) {
+            int version = jdbc.queryForObject("SELECT version FROM client_capability WHERE capability_key=?", Integer.class, key);
+            putJson("/api/v1/admin/client-capabilities/" + key,
+                    "{\"enabled\":false,\"version\":" + version + ",\"reason\":\"临时库全关回归\"}", admin);
+        }
+        JsonNode allDisabled = data(getJson("/api/v1/client/capabilities", null));
+        for (String key : com.wqst.api.capability.CapabilityService.KEYS) assertThat(allDisabled.path(key).asBoolean()).isFalse();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM operation_log WHERE operation_code='CAPABILITY_UPDATE'", Integer.class)).isEqualTo(15);
+        jdbc.update("UPDATE client_capability SET enabled=1 WHERE capability_key='categoryMatchEnabled'");
     }
 
     @Test
@@ -134,6 +200,8 @@ class BackendIntegrationIT {
     @Test
     @Order(3)
     void completeDraftSupplementImportAndExportWorkflow() throws Exception {
+        // 仅临时集成测试库开放合成数据流程；不会更改本地或生产配置。
+        jdbc.update("UPDATE client_capability SET enabled=1");
         String clientToken = token(postJson("/api/v1/auth/client/dev-login", "{}", null, null));
         JsonNode company = data(getJson("/api/v1/companies/my", clientToken)).get(0);
         JsonNode catalog = data(getJson("/api/v1/services/catalog", null));
@@ -146,6 +214,17 @@ class BackendIntegrationIT {
         JsonNode created = data(postJson("/api/v1/cases", createBody, clientToken, "it-create-case"));
         long caseId = created.path("id").asLong();
         assertThat(created.path("materials")).hasSize(11);
+        jdbc.update("UPDATE client_capability SET enabled=0 WHERE capability_key='tradeApplicationEnabled'");
+        assertThat(data(getJson("/api/v1/cases/" + caseId, clientToken)).path("id").asLong()).isEqualTo(caseId);
+        mvc.perform(post("/api/v1/cases/" + caseId + "/submit").header("Authorization", "Bearer " + clientToken)
+                .header("Idempotency-Key", UUID.randomUUID().toString())).andExpect(status().isForbidden());
+        mvc.perform(put("/api/v1/cases/" + caseId + "/materials/999/text").header("Authorization", "Bearer " + clientToken)
+                .contentType(MediaType.APPLICATION_JSON).content("{\"value\":\"https://example.invalid\"}"))
+                .andExpect(status().isForbidden());
+        mvc.perform(multipart("/api/v1/files").file(new MockMultipartFile("file","test.png","image/png",new byte[]{1}))
+                .param("caseId",Long.toString(caseId)).param("materialId","999").header("Authorization","Bearer " + clientToken))
+                .andExpect(status().isForbidden());
+        jdbc.update("UPDATE client_capability SET enabled=1 WHERE capability_key='tradeApplicationEnabled'");
 
         String invoice = """
                 {"companyName":"集成测试企业","taxNo":"91430100INTEGRATION1","contactAddress":"测试地址",
@@ -187,6 +266,14 @@ class BackendIntegrationIT {
                 .andExpect(status().isOk());
         upload(caseId, supplementedMaterialId, clientToken);
         data(postJson("/api/v1/cases/" + caseId + "/submit", "", clientToken, "it-submit-second"));
+        mvc.perform(post("/api/v1/admin/cases/{caseId}/status", caseId).header("Authorization", bearer(adminToken))
+                .contentType(MediaType.APPLICATION_JSON).content("{\"targetStatus\":\"PROCESSING\"}"))
+                .andExpect(status().isConflict());
+        JsonNode reviewDetail = data(getJson("/api/v1/admin/cases/" + caseId, adminToken));
+        for (JsonNode material : reviewDetail.path("materials")) {
+            data(postJson("/api/v1/admin/materials/" + material.path("id").asLong() + "/review",
+                    "{\"reviewStatus\":\"PASSED\",\"version\":" + material.path("version").asInt() + "}", adminToken, null));
+        }
         data(postJson("/api/v1/admin/cases/" + caseId + "/status", "{\"targetStatus\":\"PROCESSING\",\"note\":\"开始办理\"}", adminToken, null));
         JsonNode completed = data(postJson("/api/v1/admin/cases/" + caseId + "/status", "{\"targetStatus\":\"COMPLETED\",\"note\":\"办理完成\"}", adminToken, null));
         assertThat(completed.path("status").asText()).isEqualTo("COMPLETED");
@@ -361,7 +448,8 @@ class BackendIntegrationIT {
                 .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "001_init.sql")), "/docker-entrypoint-initdb.d/001_init.sql")
                 .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "002_full_schema.sql")), "/docker-entrypoint-initdb.d/002_full_schema.sql")
                 .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "003_credential_handover.sql")), "/docker-entrypoint-initdb.d/003_credential_handover.sql")
-                .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "004_category_match.sql")), "/docker-entrypoint-initdb.d/004_category_match.sql");
+                .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "004_category_match.sql")), "/docker-entrypoint-initdb.d/004_category_match.sql")
+                .withCopyFileToContainer(MountableFile.forHostPath(projectFile("database", "006_client_capabilities.sql")), "/docker-entrypoint-initdb.d/006_client_capabilities.sql");
     }
 
     private static String projectFile(String directory, String name) {

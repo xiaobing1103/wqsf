@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import AppIcon from '../../components/AppIcon.vue'
 import CaseProgress from '../../components/CaseProgress.vue'
+import CaseTimeNotice from '../../components/CaseTimeNotice.vue'
 import MaterialItem from '../../components/MaterialItem.vue'
 import type { MaterialView } from '../../api/generated/models'
 import { errorMessage } from '../../api/response'
@@ -39,7 +40,7 @@ async function loadCase() {
 }
 
 function openMaterial(material: MaterialView) {
-  if (!caseDraftStore.caseDetail?.id || !caseDraftStore.isEditable) return
+  if (!caseDraftStore.caseDetail?.id) return
   const tab = material.inputType === 'FORM_GROUP' ? 'invoice' : 'files'
   uni.navigateTo({ url: `/pages/case/invoice?caseId=${caseDraftStore.caseDetail.id}&tab=${tab}&materialId=${material.id || ''}` })
 }
@@ -82,7 +83,7 @@ async function submitForReview() {
 }
 
 function saveDraftNotice() {
-  uni.showToast({ title: '草稿已自动保存', icon: 'none' })
+  uni.showModal({ title: '草稿保存说明', content: '已点击保存或上传成功的资料已保存在服务器；输入框中尚未保存的内容不会自动保存。完成资料后请点击提交审核。', showCancel: false })
 }
 
 function openMine() {
@@ -128,7 +129,7 @@ onShow(() => {
         </view>
       </view>
 
-      <view v-if="!caseDraftStore.isEditable" class="readonly-note">该报单已进入审核流程，当前资料为只读状态。</view>
+      <CaseTimeNotice :detail="caseDraftStore.caseDetail" />
 
       <view class="materials-list">
         <MaterialItem
@@ -136,13 +137,12 @@ onShow(() => {
           :key="material.id || material.materialCode"
           :material="material"
           :index="index"
-          :disabled="!caseDraftStore.isEditable"
           @open="openMaterial"
         />
       </view>
 
       <view class="materials-actions">
-        <button class="draft-button" @click="saveDraftNotice">保存草稿</button>
+        <button v-if="caseDraftStore.isEditable" class="draft-button" @click="saveDraftNotice">已保存资料说明</button>
         <button v-if="caseDraftStore.isEditable" class="submit-button" :disabled="caseDraftStore.submitting" @click="submitForReview">
           {{ caseDraftStore.submitting ? '正在提交…' : missingMaterials.length ? `继续补充（${missingMaterials.length}）` : '提交审核' }}
           <AppIcon class="action-icon" type="right" :size="17" />

@@ -18,28 +18,31 @@
   ],
   "tags": [
     {
-      "name": "后台账号"
+      "name": "后台导入"
     },
     {
-      "name": "客户报单"
-    },
-    {
-      "name": "文件管理"
+      "name": "后台产品"
     },
     {
       "name": "后台报单"
     },
     {
-      "name": "认证与会话"
+      "name": "后台账号"
     },
     {
-      "name": "后台导入"
+      "name": "客户企业"
+    },
+    {
+      "name": "文件管理"
+    },
+    {
+      "name": "审计日志"
     },
     {
       "name": "服务目录"
     },
     {
-      "name": "后台企业"
+      "name": "客户功能开放"
     },
     {
       "name": "后台导出"
@@ -48,19 +51,19 @@
       "name": "后台工作台"
     },
     {
+      "name": "客户报单"
+    },
+    {
+      "name": "后台企业"
+    },
+    {
       "name": "客户通知"
     },
     {
+      "name": "认证与会话"
+    },
+    {
       "name": "品类匹配"
-    },
-    {
-      "name": "后台产品"
-    },
-    {
-      "name": "客户企业"
-    },
-    {
-      "name": "审计日志"
     }
   ],
   "paths": {
@@ -257,6 +260,50 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseAccountView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/client-capabilities/{key}": {
+      "put": {
+        "tags": [
+          "客户功能开放"
+        ],
+        "summary": "修改客户功能开关并登记原因",
+        "description": "修改客户功能开关并登记原因。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "capabilityUpdate",
+        "parameters": [
+          {
+            "name": "key",
+            "in": "path",
+            "description": "接口参数",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "请求参数",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListSetting"
                 }
               }
             }
@@ -2114,6 +2161,29 @@
         }
       }
     },
+    "/api/v1/client/capabilities": {
+      "get": {
+        "tags": [
+          "客户功能开放"
+        ],
+        "summary": "查询客户功能可用状态",
+        "description": "查询客户功能可用状态。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "capabilityCapabilities",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseMapStringBoolean"
+                }
+              }
+            }
+          }
+        },
+        "security": []
+      }
+    },
     "/api/v1/cases/{caseId}": {
       "get": {
         "tags": [
@@ -2502,6 +2572,28 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseDashboardView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/client-capabilities": {
+      "get": {
+        "tags": [
+          "客户功能开放"
+        ],
+        "summary": "查询客户功能管理配置",
+        "description": "查询客户功能管理配置。响应统一使用 ApiResponse 结构。 ",
+        "operationId": "capabilitySettings",
+        "responses": {
+          "200": {
+            "description": "操作成功",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseListSetting"
                 }
               }
             }
@@ -3145,6 +3237,87 @@
             "type": "string",
             "format": "date-time",
             "description": "响应时间"
+          }
+        }
+      },
+      "UpdateRequest": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "接口字段"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号",
+            "minimum": 0
+          },
+          "reason": {
+            "type": "string",
+            "description": "推荐原因",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "enabled",
+          "reason",
+          "version"
+        ]
+      },
+      "ApiResponseListSetting": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "type": "array",
+            "description": "业务数据",
+            "items": {
+              "$ref": "#/components/schemas/Setting"
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
+      "Setting": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "接口字段"
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "接口字段"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "description": "乐观锁版本号"
+          },
+          "releaseAllowed": {
+            "type": "boolean",
+            "description": "接口字段"
           }
         }
       },
@@ -5025,6 +5198,39 @@
           }
         }
       },
+      "ApiResponseMapStringBoolean": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "请求是否成功"
+          },
+          "code": {
+            "type": "string",
+            "description": "业务结果编码"
+          },
+          "message": {
+            "type": "string",
+            "description": "中文结果说明"
+          },
+          "data": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "boolean"
+            },
+            "description": "业务数据"
+          },
+          "requestId": {
+            "type": "string",
+            "description": "请求追踪编号"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "响应时间"
+          }
+        }
+      },
       "ApiResponseListTimelineView": {
         "type": "object",
         "properties": {
@@ -5147,6 +5353,11 @@
             "type": "string",
             "format": "date-time",
             "description": "更新时间"
+          },
+          "submittedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "提交时间"
           }
         }
       },

@@ -2,6 +2,7 @@ package com.wqst.api.common;
 
 import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
+import cn.dev33.satoken.exception.NotRoleException;
 import jakarta.validation.ConstraintViolationException;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -61,6 +62,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotPermissionException.class)
     ResponseEntity<ApiResponse<Object>> noPermission(NotPermissionException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error("AUTH_PERMISSION_DENIED", "没有执行该操作的权限", null));
+    }
+
+    @ExceptionHandler(NotRoleException.class)
+    ResponseEntity<ApiResponse<Object>> noRole(NotRoleException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error("AUTH_PERMISSION_DENIED", "当前账号角色无权执行该操作", null));
     }
 
     @ExceptionHandler(Exception.class)

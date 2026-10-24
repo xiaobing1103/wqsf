@@ -28,8 +28,10 @@ import type {
   ApiResponseListFileView,
   ApiResponseListModuleView,
   ApiResponseListProductAdminView,
+  ApiResponseListSetting,
   ApiResponseListTimelineView,
   ApiResponseLoginResult,
+  ApiResponseMapStringBoolean,
   ApiResponseMaterialView,
   ApiResponsePageResponseCaseSummary,
   ApiResponsePageResponseCompanyView,
@@ -76,6 +78,7 @@ import type {
   SupplementRequest,
   TemplateVersionRequest,
   TextRequest,
+  UpdateRequest,
   WechatLoginRequest,
   ZipRequest
 } from './models';
@@ -253,6 +256,46 @@ return uniGeneratedRequest<ApiResponseAccountView>(getAdminCompanyResetClientPas
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
     body: JSON.stringify(clientPasswordRequest)
+  }
+);}
+
+
+
+export const getCapabilityUpdateUrl = (key: string,) => {
+
+
+
+
+  return `/api/v1/admin/client-capabilities/${key}`
+}
+
+/**
+ * 修改客户功能开关并登记原因。响应统一使用 ApiResponse 结构。
+ * @summary 修改客户功能开关并登记原因
+ */
+export const capabilityUpdate = async (key: string,
+    updateRequest: UpdateRequest, options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseListSetting> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (!Array.isArray(h) && 'entries' in h && typeof h.entries === 'function') return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return uniGeneratedRequest<ApiResponseListSetting>(getCapabilityUpdateUrl(key),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(updateRequest)
   }
 );}
 
@@ -1850,6 +1893,31 @@ export const companyMine = async ( options?: Parameters<typeof uniGeneratedReque
 
 
 
+export const getCapabilityCapabilitiesUrl = () => {
+
+
+
+
+  return `/api/v1/client/capabilities`
+}
+
+/**
+ * 查询客户功能可用状态。响应统一使用 ApiResponse 结构。
+ * @summary 查询客户功能可用状态
+ */
+export const capabilityCapabilities = async ( options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseMapStringBoolean> => {
+
+  return uniGeneratedRequest<ApiResponseMapStringBoolean>(getCapabilityCapabilitiesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
 export const getCaseDetailUrl = (caseId: number,) => {
 
 
@@ -2143,6 +2211,31 @@ export const getDashboardDashboardUrl = () => {
 export const dashboardDashboard = async ( options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseDashboardView> => {
 
   return uniGeneratedRequest<ApiResponseDashboardView>(getDashboardDashboardUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export const getCapabilitySettingsUrl = () => {
+
+
+
+
+  return `/api/v1/admin/client-capabilities`
+}
+
+/**
+ * 查询客户功能管理配置。响应统一使用 ApiResponse 结构。
+ * @summary 查询客户功能管理配置
+ */
+export const capabilitySettings = async ( options?: Parameters<typeof uniGeneratedRequest>[1]): Promise<ApiResponseListSetting> => {
+
+  return uniGeneratedRequest<ApiResponseListSetting>(getCapabilitySettingsUrl(),
   {
     ...options,
     method: 'GET'

@@ -20,16 +20,12 @@ const loading = ref(false)
 const preparing = ref(false)
 const pageError = ref('')
 const selectedProduct = computed(() => catalogStore.products.find((item) => item.id === selectedId.value) || catalogStore.products[0])
-const otherProducts = computed(() => catalogStore.products.filter((item) => item.id !== selectedProduct.value?.id))
 
 function productSubtitle(product: ProductView) {
   if (serviceKind(product) === 'TRADE_INCREMENT') return product.description || '适用于已合作企业提交月度业务材料'
   return product.description || '填写法人姓名、公司名称、联系电话'
 }
 
-function selectProduct(product: ProductView) {
-  selectedId.value = product.id
-}
 
 async function confirmSelection() {
   if (!selectedProduct.value) {
@@ -122,22 +118,6 @@ onLoad((query) => {
           <view><text>进度通知</text><strong>实时查看</strong></view>
         </view>
 
-        <view v-if="otherProducts.length" class="other-section">
-          <text class="other-title">其他服务</text>
-          <button
-            v-for="(product, index) in otherProducts"
-            :key="product.id || product.productCode"
-            class="other-card"
-            @click="selectProduct(product)"
-          >
-            <ServiceGlyph :kind="serviceIcon(product)" :tone="index % 2 ? 'mint' : 'purple'" />
-            <view class="other-copy">
-              <text class="other-name">{{ product.productName || '企业服务' }}</text>
-              <text class="other-desc">{{ productSubtitle(product) }}</text>
-            </view>
-            <AppIcon class="other-chevron" type="right" :size="18" />
-          </button>
-        </view>
 
         <view class="privacy-note">
           <AppIcon class="privacy-lock" type="locked-filled" :size="22" />
@@ -175,14 +155,6 @@ onLoad((query) => {
 .service-facts text, .service-facts strong { display: block; }
 .service-facts text { color: #788688; font-size: 18rpx; }
 .service-facts strong { margin-top: 6rpx; font-size: 23rpx; }
-.other-section { margin-top: 32rpx; }
-.other-title { display: block; margin-bottom: 14rpx; font-size: 22rpx; font-weight: 700; }
-.other-card { display: flex; align-items: center; width: 100%; min-height: 118rpx; margin: 0 0 14rpx; padding: 20rpx 24rpx; border: 1rpx solid #dce5e5; border-radius: 24rpx; background: #fff; color: var(--color-text); text-align: left; line-height: 1.2; }
-.other-copy { flex: 1; min-width: 0; margin-left: 20rpx; }
-.other-name, .other-desc { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.other-name { font-size: 26rpx; font-weight: 800; }
-.other-desc { margin-top: 8rpx; color: #7d8a8c; font-size: 18rpx; }
-.other-chevron { margin-right: 2rpx; color: #799092; }
 .privacy-note { display: flex; align-items: flex-start; margin-top: 18rpx; padding: 24rpx; border-radius: 22rpx; background: #fff2da; }
 .privacy-lock { width: 34rpx; height: 34rpx; margin: 7rpx 18rpx 0 0; color: #9b6d20; }
 .privacy-title, .privacy-copy { display: block; }

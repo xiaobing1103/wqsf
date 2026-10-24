@@ -4,103 +4,78 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>TekMark Card</title>
-  <!-- 发信前替换 owner.first_name、full_name、job_title、background_url、avatar_url、profile_url、vcard_url。 -->
+  <!-- 发信前替换 owner.first_name、full_name、job_title、avatar_url、profile_url、vcard_url；缺失图片替换为空字符串。 -->
   <style>
-    @media screen and (max-width:600px) {
-      .email-frame { width:100% !important; max-width:100% !important; }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+    @media screen and (max-width:480px) {
+      .email-outer { padding-right:16px !important; padding-left:16px !important; }
       .email-pad { padding-right:20px !important; padding-left:20px !important; }
-      .email-heading { font-size:24px !important; line-height:30px !important; }
-      .email-intro { font-size:12px !important; line-height:19px !important; }
-      .email-cta-heading { font-size:24px !important; line-height:30px !important; }
-      .email-cta-copy { font-size:11px !important; line-height:17px !important; }
-      .email-column { display:block !important; width:100% !important; box-sizing:border-box !important; padding:0 0 18px !important; }
-      .email-nav-column { width:33% !important; word-break:break-word !important; }
-      .email-nav-column div, .email-nav-column a { font-size:11px !important; line-height:19px !important; }
+      .email-heading { font-size:20px !important; line-height:28px !important; }
+      .email-intro { font-size:12px !important; line-height:20px !important; }
+      .email-profile-pad { padding-right:18px !important; padding-left:18px !important; }
+      .email-cta-pad { padding-right:20px !important; padding-left:20px !important; }
+      .email-cta-heading { font-size:25px !important; line-height:32px !important; }
+      .email-cta-copy { font-size:11px !important; line-height:16px !important; }
+      .email-cta-button { width:100% !important; }
+      .email-note { font-size:8px !important; }
+      .email-address { font-size:10px !important; line-height:16px !important; }
+    }
+    @media screen and (max-width:360px) {
+      .email-heading { font-size:18px !important; line-height:26px !important; }
+      .email-cta-heading { font-size:22px !important; line-height:30px !important; }
     }
   </style>
+  <!--[if mso]><style>body, table, td, a, h1, h2, p { font-family:Arial,Helvetica,sans-serif !important; }</style><![endif]-->
 </head>
-<body style="margin:0;padding:0;background-color:#ffffff;color:#080808;font-family:Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">
-  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border-collapse:collapse;background-color:#ffffff;">
-    <tr><td align="center" valign="top" style="padding:0;">
-      <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-      <table class="email-frame" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;max-width:600px;border-collapse:collapse;background-color:#ffffff;">
-        <tr><td><img src="https://s3.tkhub.ca/web/assets/email/HeaderImg.png" width="100%" alt="TekMark — First impressions, solved" style="display:block;width:100%;max-width:600px;height:auto;border:0;"></td></tr>
-        <tr><td class="email-pad" align="center" style="padding:28px 30px 0;">
-          <div class="email-heading" style="color:#080808;font-size:35px;line-height:41px;font-weight:800;text-align:center;">Keep the conversation<br>going-</div>
-          <div class="email-intro" style="padding-top:12px;color:#111111;font-size:16px;line-height:25px;text-align:center;">You just connected with {{ owner.first_name }}.<br>Here’s their info — save it so you don’t lose it.</div>
+<body style="margin:0;padding:0;background-color:#f5fcff;color:#080808;font-family:'Poppins',Arial,Helvetica,sans-serif;-webkit-text-size-adjust:100%;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#f5fcff" style="width:100%;border-collapse:collapse;background-color:#f5fcff;">
+    <tr><td class="email-outer" align="center" valign="top" style="padding:6px 24px 35px;">
+      <!--[if mso]><table role="presentation" width="470" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
+      <table class="email-frame" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#ffffff" style="width:100%;max-width:470px;border-collapse:separate;border-spacing:0;background-color:#ffffff;border-radius:20px;">
+        <tr><td align="center" style="padding:43px 20px 0;">
+          <!-- 从现有品牌图片中仅展示 Logo，标题使用下方可编辑文字。 -->
+          <div role="img" aria-label="TekMark" style="width:64px;height:42px;overflow:hidden;margin:0 auto;">
+            <img src="https://s3.tkhub.ca/web/assets/email/HeaderImg.png" width="470" height="110" alt="TekMark" style="display:block;width:470px;max-width:none;height:110px;margin:-25px 0 0 -203px;border:0;">
+          </div>
         </td></tr>
-        <tr><td class="email-pad" style="padding:38px 30px 0;">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border:1px solid #e5e6e8;border-radius:24px;border-collapse:separate;background-color:#f7f8fa;">
-            <tr><td align="center" height="220" bgcolor="#203145" background="{{ owner.background_url }}" style="height:220px;padding:0;background-color:#203145;background-image:url('{{ owner.background_url }}');background-position:center center;background-repeat:no-repeat;background-size:cover;border-radius:23px 23px 0 0;font-size:1px;line-height:1px;">&nbsp;</td></tr>
-            <tr><td align="center" bgcolor="#f7f8fa" style="padding:0 20px;background-color:#f7f8fa;">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center"><tr><td align="center" width="112" height="112" bgcolor="#899bab" background="{{ owner.avatar_url }}" style="width:112px;height:112px;padding:0;text-align:center;border:3px solid #087ff5;border-radius:60px;background-color:#899bab;background-image:url('{{ owner.avatar_url }}');background-position:center center;background-repeat:no-repeat;background-size:cover;font-size:1px;line-height:1px;">&nbsp;</td></tr></table>
-            </td></tr>
-            <tr><td align="center" bgcolor="#f7f8fa" style="padding:22px 30px 0;background-color:#f7f8fa;">
-              <div style="color:#080808;font-size:21px;line-height:29px;font-weight:700;text-align:center;">{{ owner.full_name }}</div>
-              <div style="padding-top:5px;color:#080808;font-size:16px;line-height:24px;text-align:center;">{{ owner.job_title }}</div>
-            </td></tr>
-            <tr><td bgcolor="#f7f8fa" style="padding:30px 30px 0;background-color:#f7f8fa;">
-              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center" bgcolor="#087ff5" height="51" style="height:51px;background-color:#087ff5;border-radius:3px;">
-                <a href="{{ owner.profile_url }}" style="display:block;padding:16px 8px;color:#ffffff;font-size:15px;line-height:19px;font-weight:700;letter-spacing:1px;text-align:center;text-decoration:none;">VIEW FULL PROFILE →</a>
+        <tr><td class="email-pad" align="center" style="padding:14px 25px 0;">
+          <h1 class="email-heading" style="margin:0;color:#080808;font-size:26px;line-height:31px;font-weight:800;letter-spacing:-0.7px;text-align:center;">FIRST IMPRESSIONS, SOLVED</h1>
+          <p class="email-intro" style="margin:15px 0 0;color:#111111;font-size:13px;line-height:21px;font-weight:400;text-align:center;">You just connected with {{ owner.first_name }}.<br>Here's their info — save it so you don't lose it.</p>
+        </td></tr>
+        <tr><td class="email-pad" style="padding:27px 25px 0;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#f5f6f8" style="width:100%;border:1px solid #e5e5e5;border-radius:19px;border-collapse:separate;border-spacing:0;background-color:#f5f6f8;">
+            <tr><td align="center" style="padding:24px 20px 0;">
+              <table class="email-avatar" role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;border-collapse:separate;border-spacing:0;"><tr><td align="center" width="90" height="90" bgcolor="#899bab" style="width:90px;height:90px;padding:0;text-align:center;border:2px solid #0080ff;border-radius:50%;background-color:#899bab;box-shadow:0 5px 12px #00000026;font-size:0;line-height:0;">
+                <img src="{{ owner.avatar_url }}" width="90" height="90" alt="" style="display:block;width:90px;height:90px;object-fit:cover;border:0;border-radius:50%;">
               </td></tr></table>
             </td></tr>
-            <tr><td align="center" bgcolor="#f7f8fa" style="padding:18px 20px 28px;background-color:#f7f8fa;border-radius:0 0 23px 23px;">
-              <a href="{{ owner.vcard_url }}" style="color:#087ff5;font-size:13px;line-height:19px;text-decoration:underline;">or download contact card</a>
+            <tr><td class="email-profile-pad" align="center" style="padding:18px 24px 0;">
+              <p style="margin:0;color:#080808;font-size:15px;line-height:24px;font-weight:700;text-align:center;overflow-wrap:anywhere;">{{ owner.full_name }}</p>
+              <p style="margin:6px 0 0;color:#080808;font-size:12px;line-height:20px;font-weight:400;text-align:center;overflow-wrap:anywhere;">{{ owner.job_title }}</p>
+            </td></tr>
+            <tr><td class="email-profile-pad" style="padding:27px 24px 0;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center" bgcolor="#007bff" style="background-color:#007bff;border-radius:3px;">
+                <a href="{{ owner.profile_url }}" style="display:block;padding:12px 8px;color:#ffffff;font-size:12px;line-height:16px;font-weight:700;letter-spacing:1px;text-align:center;text-decoration:none;">VIEW FULL PROFILE →</a>
+              </td></tr></table>
+            </td></tr>
+            <tr><td align="center" style="padding:14px 18px 31px;font-size:11px;line-height:18px;border-radius:0 0 18px 18px;">
+              <a href="{{ owner.vcard_url }}" style="color:#007bff;font-size:11px;line-height:18px;font-weight:500;letter-spacing:1.5px;text-decoration:underline;">or download contact card</a>
             </td></tr>
           </table>
         </td></tr>
-        <tr><td height="42" style="height:42px;font-size:1px;line-height:42px;">&nbsp;</td></tr>
-        <tr><td><img src="https://s3.tkhub.ca/web/assets/email/FrameCardImg.png" width="100%" alt="Custom card designs" style="display:block;width:100%;max-width:600px;height:auto;border:0;"></td></tr>
-        <tr><td class="email-pad" style="padding:0 30px;">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border-collapse:separate;border-radius:24px;background-color:#000000;"><tr><td align="center" bgcolor="#000000" style="padding:55px 25px 42px;background-color:#000000;border-radius:24px;color:#ffffff;">
-            <div class="email-cta-heading" style="color:#ffffff;font-size:35px;line-height:42px;font-weight:900;text-align:center;">Want a card like this?</div>
-            <div class="email-cta-copy" style="padding-top:16px;color:#f0f0f0;font-size:14px;line-height:21px;text-align:center;">One card. One tap. Every contact saved.<br>No more paper business cards — upgrade to a<br>smart NFC card that works forever.</div>
-            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="80%" align="center" style="width:80%;max-width:403px;margin:22px auto 0;"><tr><td align="center" bgcolor="#087ff5" height="53" style="height:53px;background-color:#087ff5;border-radius:4px;">
-              <a href="https://tekmarkcard.com/" style="display:block;padding:16px 8px;color:#ffffff;font-size:16px;line-height:21px;font-weight:700;letter-spacing:1px;text-align:center;text-decoration:none;">GET YOUR OWN CARD</a>
+        <tr><td class="email-pad" style="padding:18px 25px 19px;">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" bgcolor="#000000" style="width:100%;border-collapse:separate;border-spacing:0;border-radius:19px;background-color:#000000;"><tr><td class="email-cta-pad" align="center" bgcolor="#000000" style="padding:42px 28px 29px;background-color:#000000;border-radius:19px;color:#ffffff;">
+            <h2 class="email-cta-heading" style="margin:0;color:#ffffff;font-size:30px;line-height:36px;font-weight:800;letter-spacing:-0.7px;text-align:center;">Want a card like this?</h2>
+            <p class="email-cta-copy" style="margin:6px 0 0;color:#f0f0f0;font-size:11.5px;line-height:16px;font-weight:400;text-align:center;">One card. One tap. Every contact saved.<br>No more paper business cards — upgrade to a<br>smart NFC card that works forever.</p>
+            <table class="email-cta-button" role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" align="center" style="width:100%;max-width:313px;margin:16px auto 0;"><tr><td align="center" bgcolor="#007bff" style="background-color:#007bff;border-radius:3px;">
+              <a href="https://tekmarkcard.com/" style="display:block;padding:12px 8px;color:#ffffff;font-size:12px;line-height:15px;font-weight:700;letter-spacing:1px;text-align:center;text-decoration:none;">GET YOUR OWN CARD →</a>
             </td></tr></table>
-            <div style="padding-top:20px;color:#858585;font-size:12px;line-height:19px;text-align:center;">✓ No subscription · Lifetime access · Ships in 72 hours</div>
+            <p class="email-note" style="margin:14px 0 0;color:#858585;font-size:8px;line-height:17px;font-weight:400;text-align:center;">✓ No subscription · Lifetime access · Ships in 72 hours</p>
           </td></tr></table>
         </td></tr>
-        <tr><td height="38" style="height:38px;font-size:1px;line-height:38px;">&nbsp;</td></tr>
-        <tr><td bgcolor="#0c0c0c" style="padding:0;background-color:#0c0c0c;">
-          <img src="https://s3.tkhub.ca/web/assets/email/middleImg.png" width="100%" alt="TekMark" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="width:100%;border-collapse:collapse;">
-            <tr><td class="email-pad" style="padding:28px 30px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-              <td class="email-column" width="65%" valign="middle" style="width:65%;padding:0 16px 0 0;vertical-align:middle;">
-                <div style="color:#ffffff;font-size:18px;line-height:24px;font-weight:700;">Tek<span style="color:#087ff5;">Mark</span> Card</div>
-                <div style="padding-top:10px;color:#d5d5d5;font-size:13px;line-height:20px;">Smart digital business cards powered by NFC. Share your contact, links, and profile with a single tap — no app needed.</div>
-              </td>
-              <td class="email-column" width="35%" align="center" valign="middle" style="width:35%;vertical-align:middle;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center" bgcolor="#087ff5" height="44" style="height:44px;background-color:#087ff5;border-radius:4px;">
-                <a href="https://tekmarkcard.com/" style="display:block;padding:12px 4px;color:#ffffff;font-size:13px;line-height:20px;font-weight:700;text-align:center;text-decoration:none;">Shop cards</a>
-              </td></tr></table></td>
-            </tr></table></td></tr>
-            <tr><td class="email-pad" style="padding:30px 30px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr>
-              <td class="email-nav-column" width="33%" valign="top" style="width:33%;padding:0 8px 0 0;vertical-align:top;"><div style="color:#ffffff;font-size:12px;line-height:18px;font-weight:700;">Products</div><div style="padding-top:17px;font-size:14px;line-height:30px;">
-                <a href="https://tekmarkcard.com/" style="color:#e9e9e9;text-decoration:none;">Metal card</a><br>
-                <a href="https://tekmarkcard.com/pages/platform" style="color:#e9e9e9;text-decoration:none;">Carbon Fiber</a><br>
-                <a href="https://tekmarkcard.com/products/carbon-fiber-digital-business-card" style="color:#e9e9e9;text-decoration:none;">Wood</a><br>
-                <a href="https://tekmarkcard.com/products/digital-table-tent" style="color:#e9e9e9;text-decoration:none;">Table tent</a>
-              </div></td>
-              <td class="email-nav-column" width="34%" valign="top" style="width:34%;padding:0 8px 0 0;vertical-align:top;"><div style="color:#ffffff;font-size:12px;line-height:18px;font-weight:700;">Support</div><div style="padding-top:17px;font-size:14px;line-height:30px;">
-                <a href="https://tekmarkcard.com/pages/contact" style="color:#e9e9e9;text-decoration:none;">Contact us</a><br>
-                <a href="https://tekmarkcard.com/policies/refund-policy" style="color:#e9e9e9;text-decoration:none;">Design &amp; Refund Policy</a><br>
-                <a href="https://tekmarkcard.com/policies/shipping-policy" style="color:#e9e9e9;text-decoration:none;">Shipping policy</a>
-              </div></td>
-              <td class="email-nav-column" width="33%" valign="top" style="width:33%;vertical-align:top;"><div style="color:#ffffff;font-size:12px;line-height:18px;font-weight:700;">Legal</div><div style="padding-top:17px;font-size:14px;line-height:30px;">
-                <a href="https://tekmarkcard.com/policies/privacy-policy" style="color:#e9e9e9;text-decoration:none;">Privacy policy</a><br>
-                <a href="https://tekmarkcard.com/policies/terms-of-service" style="color:#e9e9e9;text-decoration:none;">Terms of service</a>
-              </div></td>
-            </tr></table></td></tr>
-            <tr><td style="padding:32px 30px 0;color:#e9e9e9;font-size:13px;line-height:20px;">© 2026 TekMark Card. All rights reserved.</td></tr>
-            <tr><td style="padding:12px 30px 0;color:#e9e9e9;font-size:13px;line-height:20px;">PO BOX 9990 EE 500 952 RPO CACHET CENTRE Markham, Ontario L6C 0V3</td></tr>
-            <tr><td style="padding:18px 30px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td style="padding:0 16px 0 0;"><a href="#instagram" aria-label="Instagram"><img src="https://s3.tkhub.ca/web/assets/email/insgramIcon.png" width="26" height="26" alt="Instagram" style="display:block;width:26px;height:26px;border:0;"></a></td>
-              <td style="padding:0 16px 0 0;"><a href="#facebook" aria-label="Facebook"><img src="https://s3.tkhub.ca/web/assets/email/FacebookIcon.png" width="26" height="26" alt="Facebook" style="display:block;width:26px;height:26px;border:0;"></a></td>
-              <td><a href="#tiktok" aria-label="TikTok"><img src="https://s3.tkhub.ca/web/assets/email/TiktokIcon.png" width="26" height="26" alt="TikTok" style="display:block;width:26px;height:26px;border:0;"></a></td>
-            </tr></table></td></tr>
-            <tr><td style="padding:32px 30px 0;"><table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td height="1" bgcolor="#292929" style="height:1px;font-size:1px;line-height:1px;background-color:#292929;">&nbsp;</td></tr></table></td></tr>
-            <tr><td style="padding:28px 30px 36px;color:#777777;font-size:12px;line-height:18px;"><a href="#unsubscribe" style="color:#777777;text-decoration:underline;">Unsubscribe</a>&nbsp;·&nbsp;<span style="text-decoration:underline;">Manage Preferences</span></td></tr>
-          </table>
+        <tr><td align="center" bgcolor="#0a0a0a" style="padding:19px 0 24px;background-color:#0a0a0a;border-radius:20px;">
+          <img src="https://s3.tkhub.ca/web/assets/email/middleImg.png" width="470" alt="TekMark" style="display:block;width:100%;max-width:470px;height:auto;border:0;">
+          <p class="email-address" style="margin:24px 15px 0;color:#f0f0f0;font-family:Arial,Helvetica,sans-serif;font-size:10px;line-height:16px;font-weight:400;text-align:center;">PO BOX 99900 EE 500 952 RPO CACHET CENTRE Markham, Ontario L6C 0V3</p>
         </td></tr>
       </table>
       <!--[if mso]></td></tr></table><![endif]-->

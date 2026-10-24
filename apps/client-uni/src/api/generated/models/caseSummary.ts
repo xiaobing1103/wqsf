@@ -26,4 +26,6 @@ export interface CaseSummary {
   createdAt?: string;
   /** 更新时间 */
   updatedAt?: string;
+  /** 提交时间 */
+  submittedAt?: string;
 }

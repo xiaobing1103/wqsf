@@ -7,6 +7,8 @@ import { getMyCasePage } from '../../api/case'
 import { errorMessage } from '../../api/response'
 import { useAuthStore } from '../../stores/auth'
 import { useCompanyStore } from '../../stores/company'
+import { useCapabilitiesStore } from '../../stores/capabilities'
+const capabilities = useCapabilitiesStore()
 
 const authStore = useAuthStore()
 const companyStore = useCompanyStore()
@@ -46,6 +48,7 @@ async function loadPage() {
   try {
     await authStore.ensureSession()
     await Promise.all([
+      capabilities.load(),
       companyStore.companies.length ? Promise.resolve() : companyStore.loadCompanies(),
       loadStats(),
     ])
@@ -113,10 +116,10 @@ onShow(() => { void loadPage() })
       <button @click="openCompanyProfile"><view class="link-label"><AppIcon type="shop" :size="21" /><text>企业资料</text></view><AppIcon class="link-arrow" type="right" :size="17" /></button>
       <button @click="openNotifications"><view class="link-label"><AppIcon type="notification" :size="21" /><text>消息通知</text></view><AppIcon class="link-arrow" type="right" :size="17" /></button>
       <!-- #ifdef MP-WEIXIN -->
-      <button open-type="contact"><view class="link-label"><AppIcon type="headphones" :size="21" /><text>联系客服</text></view><AppIcon class="link-arrow" type="right" :size="17" /></button>
+      <button v-if="capabilities.flags.customerServiceEnabled" open-type="contact"><view class="link-label"><AppIcon type="headphones" :size="21" /><text>联系客服</text></view><AppIcon class="link-arrow" type="right" :size="17" /></button>
       <!-- #endif -->
       <!-- #ifndef MP-WEIXIN -->
-      <button @click="showContactNotice"><view class="link-label"><AppIcon type="headphones" :size="21" /><text>联系客服</text></view><AppIcon class="link-arrow" type="right" :size="17" /></button>
+      <button v-if="capabilities.flags.customerServiceEnabled" @click="showContactNotice"><view class="link-label"><AppIcon type="headphones" :size="21" /><text>联系客服</text></view><AppIcon class="link-arrow" type="right" :size="17" /></button>
       <!-- #endif -->
       <button class="logout-link" @click="logoutVisible = true"><view class="link-label"><AppIcon type="person" :size="21" /><text>退出登录 / 登录其他账号</text></view><AppIcon class="link-arrow" type="right" :size="17" /></button>
     </view>

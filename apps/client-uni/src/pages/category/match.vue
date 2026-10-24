@@ -7,6 +7,8 @@ import { recognizeBusinessLicense, recommendCategories } from '../../api/categor
 import { errorMessage } from '../../api/response'
 import type { CategoryMatchView } from '../../api/generated/models'
 import { useAuthStore } from '../../stores/auth'
+import { useCapabilitiesStore } from '../../stores/capabilities'
+const capabilities = useCapabilitiesStore()
 
 const authStore = useAuthStore()
 const imagePath = ref('')
@@ -20,14 +22,14 @@ const ocrNotice = ref('')
 const pageError = ref('')
 const result = ref<CategoryMatchView | null>(null)
 
-const canMatch = computed(() => businessScope.value.trim().length >= 2 && !matching.value)
+const canMatch = computed(() => capabilities.flags.categoryMatchEnabled && businessScope.value.trim().length >= 2 && !matching.value)
 const resultSummary = computed(() => {
   if (!result.value) return ''
   return `${result.value.industryCount || 0} 个行业 · ${result.value.categoryCount || 0} 个品类`
 })
 
 function chooseLicense() {
-  if (recognizing.value) return
+  if (recognizing.value || !capabilities.flags.licenseOcrEnabled) return
   uni.chooseImage({
     count: 1,
     sizeType: ['compressed'],
@@ -93,6 +95,7 @@ function openServices() {
 }
 
 onShow(() => {
+  void capabilities.load()
   void authStore.ensureSession().catch((cause) => {
     pageError.value = errorMessage(cause, '登录状态校验失败')
   })
@@ -101,12 +104,14 @@ onShow(() => {
 
 <template>
   <view class="safe-page match-page">
+    <view v-if="!capabilities.flags.categoryMatchEnabled" class="state-panel"><text class="state-title">品类参考功能暂未开放</text><text class="state-copy">{{ capabilities.error || '已有报单可继续在首页或我的页面查看。' }}</text></view>
+    <template v-else>
     <view class="intro-card">
       <view class="intro-orbit intro-orbit-large" />
       <view class="intro-orbit intro-orbit-small" />
       <view class="intro-icon"><AppIcon type="scan" :size="28" /></view>
       <text class="intro-kicker">智能经营范围分析</text>
-      <text class="intro-title">上传营业执照，匹配可做品类</text>
+      <text class="intro-title">经营范围关键词，匹配品类参考</text>
       <text class="intro-copy">识别企业名称与经营范围，按业务关键词生成推荐清单；识别结果支持手工校正。</text>
     </view>
 
@@ -116,7 +121,8 @@ onShow(() => {
         <text class="required-mark">必填</text>
       </view>
 
-      <button v-if="!imagePath" class="upload-zone" :disabled="recognizing" @click="chooseLicense">
+      <view v-if="!capabilities.flags.licenseOcrEnabled" class="recognize-notice">图片识别暂未开放，请手工填写经营范围进行参考匹配。</view>
+      <button v-else-if="!imagePath" class="upload-zone" :disabled="recognizing" @click="chooseLicense">
         <view class="upload-icon"><AppIcon type="camera-filled" :size="31" /></view>
         <text class="upload-title">拍照或从相册上传</text>
         <text class="upload-copy">请保证证照边缘完整、文字清晰、无明显反光</text>
@@ -159,7 +165,8 @@ onShow(() => {
     <button class="match-button" :disabled="!canMatch" @click="startMatch">
       <AppIcon type="search" :size="21" />{{ matching ? '正在匹配…' : '开始匹配品类' }}
     </button>
-    <view class="privacy-tip"><AppIcon type="locked-filled" :size="15" /><text>营业执照图片仅用于本次 OCR，不写入报单和文件库</text></view>
+    <view class="privacy-tip"><AppIcon type="info-filled" :size="15" /><text>匹配仅为关键词参考，不代表取得经营许可或业务资质。</text></view>
+    <view v-if="capabilities.flags.licenseOcrEnabled" class="privacy-tip"><AppIcon type="locked-filled" :size="15" /><text>图片发送至腾讯云 OCR 识别，本系统不写入报单和文件库；请先确认有权提交。</text></view>
 
     <view v-if="pageError" class="state-panel error-panel">
       <text class="state-title">暂时无法完成匹配</text><text class="state-copy">{{ pageError }}</text>
@@ -198,6 +205,7 @@ onShow(() => {
       </view>
     </view>
 
+    </template>
     <BottomNav active="category" />
   </view>
 </template>

@@ -57,6 +57,12 @@ const router = createRouter({
       component: AdminLayout,
       meta: { requiresAuth: true, role: "SUPER_ADMIN" },
     },
+    {
+      path: "/capabilities",
+      name: "capabilities",
+      component: AdminLayout,
+      meta: { requiresAuth: true, role: "SUPER_ADMIN" },
+    },
     { path: "/:pathMatch(.*)*", redirect: "/dashboard" },
   ],
 });

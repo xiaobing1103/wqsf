@@ -7,15 +7,16 @@ import { getAdminCase, getCredentialHandover, listAdminCases, requestSupplement,
 import { createAdminCompany, createCompanyClientAccount, deleteAdminCompany, getAdminCompany, listAdminCompanies, listCompanyClientAccounts, resetCompanyClientPassword, updateAdminCompany, type CompanyPayload } from "../api/companies";
 import { getProductTemplate, getServiceCatalog, listAdminProducts } from "../api/catalog";
 import { createMaterialZip, createReviewExcel, getExportDownload, getExportJob, type ExportJobView } from "../api/exports";
-import { importCreate, importTemplate } from "../api/generated/endpoints";
+import { importCreate, importTemplate, fileList, filePreview } from "../api/generated/endpoints";
 import { unwrapResponse } from "../api/unwrap";
 import AdminIcon from "../components/AdminIcon.vue";
+import ClientCapabilitiesPanel from "../components/ClientCapabilitiesPanel.vue";
 import { useAuthStore } from "../stores/auth";
 import { ApiError } from "../types/api";
 import type { DashboardData } from "../types/dashboard";
-import type { AccountView, CaseSummary, CaseView, CompanyView, CredentialHandoverView, JobView as ImportJobView, ModuleView, ProductAdminView, TemplateDownload, TemplateView } from "../api/generated/models";
+import type { AccountView, CaseSummary, CaseView, CompanyView, CredentialHandoverView, FileView, PreviewView, JobView as ImportJobView, ModuleView, ProductAdminView, TemplateDownload, TemplateView } from "../api/generated/models";
 
-type ViewKey = "dashboard" | "cases" | "customers" | "exports" | "products" | "team";
+type ViewKey = "dashboard" | "cases" | "customers" | "exports" | "products" | "team" | "capabilities";
 type CompanyRecord = CompanyView & { version?: number };
 type CompanyDialogMode = "create" | "view" | "edit";
 
@@ -44,6 +45,14 @@ const caseError = ref("");
 const casePage = ref({ page: 1, pageSize: 20, total: 0, totalPages: 0 });
 const caseDetailLoading = ref(false);
 const caseActionLoading = ref(false);
+const supplementIds = ref<number[]>([]);
+const supplementMessage = ref("");
+const caseFiles = ref<Record<number, FileView[]>>({});
+const fileErrors = ref<Record<number, string>>({});
+const previewImageUrl = ref("");
+const canReviewCase = computed(() => ["PENDING_REVIEW", "PROCESSING"].includes(caseDetail.value?.status || ""));
+const allRequiredReviewed = computed(() => (caseDetail.value?.materials || []).filter(item => item.required).every(item => ["PASSED", "NOT_REQUIRED"].includes(item.reviewStatus || "")));
+const reviewedCount = computed(() => (caseDetail.value?.materials || []).filter(item => ["PASSED", "NOT_REQUIRED"].includes(item.reviewStatus || "")).length);
 const credentialHandover = ref<CredentialHandoverView | null>(null);
 const credentialHandoverLoading = ref(false);
 const credentialHandoverError = ref("");
@@ -150,11 +159,13 @@ const credentialStatusOptions = [
 ];
 
 function statusText(status?: string) { return statusLabels[status || ""] || status || "未知"; }
+function serviceText(service?: string) { return ({ TRADE_INCREMENT: "贸易增量", IP: "商标注册咨询", QUALIFICATION: "资质申报服务" } as Record<string, string>)[service || ""] || service || "未分类服务"; }
 function statusClass(status?: string) { return status === "COMPLETED" ? "success" : status === "PROCESSING" ? "processing" : status === "CANCELED" ? "muted-status" : "warning"; }
 function progressText(item: CaseSummary) { return `${item.materials?.completed ?? 0} / ${item.materials?.total ?? 0}`; }
 function progressPercent(item: CaseSummary) { const total = item.materials?.total ?? 0; return total ? Math.round(((item.materials?.completed ?? 0) / total) * 100) : 0; }
-function formatTime(value?: string) { if (!value) return "—"; return new Intl.DateTimeFormat("zh-CN", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(value)); }
-function formatDateTime(value?: string) { if (!value) return "从未登录"; return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(value)); }
+function beijingDate(value: string) { const normalized = value.replace(' ', 'T'); return new Date(/[zZ]|[+-]\d{2}:?\d{2}$/.test(normalized) ? normalized : `${normalized}+08:00`); }
+function formatTime(value?: string) { if (!value) return "—"; return new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).format(beijingDate(value)); }
+function formatDateTime(value?: string) { return value ? formatTime(value) : "从未登录"; }
 function roleText(roles?: string[]) { return (roles ?? []).map((role) => roleLabels[role] || role).join("、") || "未分配角色"; }
 function jobLabel(job: ExportJobView) { return job.exportType === "MATERIAL_ZIP" ? "资料包 ZIP" : "审核表 Excel"; }
 function jobFileName(job: ExportJobView) { return `${job.exportType === "MATERIAL_ZIP" ? "贸易增量资料包" : "客户审核情况"}_${job.id ?? "任务"}.${job.exportType === "MATERIAL_ZIP" ? "zip" : "xlsx"}`; }
@@ -182,6 +193,11 @@ async function openCase(id: number) {
   selectedCaseId.value = id; caseDetailLoading.value = true; caseError.value = "";
   try {
     caseDetail.value = await getAdminCase(id);
+    supplementIds.value = []; supplementMessage.value = ""; caseFiles.value = {}; fileErrors.value = {};
+    await Promise.all((caseDetail.value.materials || []).filter(item => item.inputType === 'FILE' && item.id).map(async item => {
+      try { caseFiles.value[item.id!] = unwrapResponse<FileView[]>(await fileList({ materialId: item.id! })); }
+      catch (cause) { fileErrors.value[item.id!] = cause instanceof Error ? cause.message : '附件读取失败'; }
+    }));
     if (caseDetail.value.serviceType === "TRADE_INCREMENT" && canManageCredentials.value) await loadCredentialHandover(id);
   }
   catch (error) { caseError.value = error instanceof ApiError ? error.message : "报单详情加载失败"; caseDetail.value = null; }
@@ -208,16 +224,16 @@ async function submitCredentialHandover() {
   } catch (error) { credentialHandoverError.value = error instanceof ApiError ? error.message : "线下凭证交接状态保存失败"; notify(credentialHandoverError.value); }
   finally { credentialHandoverLoading.value = false; }
 }
-async function saveCaseStatus(event: Event) {
+async function saveCaseStatus(targetStatus: string) {
   if (!caseDetail.value) return;
-  const targetStatus = (event.target as HTMLSelectElement).value;
+  if (!window.confirm(targetStatus === 'PROCESSING' ? '确认资料审核通过，开始办理该报单？' : '确认该报单已办理完成？')) return;
   caseActionLoading.value = true;
   try { caseDetail.value = await updateAdminCaseStatus(caseDetail.value.id!, { targetStatus }); notify("报单状态已更新"); await loadCases(); }
   catch (error) { notify(error instanceof ApiError ? error.message : "状态更新失败"); }
   finally { caseActionLoading.value = false; }
 }
 async function reviewCaseMaterial(materialId: number, version: number | undefined, reviewStatus: string) {
-  if (!version) { notify("资料版本号缺失，无法提交审核"); return; }
+  if (version == null) { notify("资料版本号缺失，无法提交审核"); return; }
   caseActionLoading.value = true;
   try { await reviewMaterial(materialId, { reviewStatus, version }); await openCase(caseDetail.value!.id!); notify("资料审核结果已保存"); }
   catch (error) { notify(error instanceof ApiError ? error.message : "资料审核失败"); }
@@ -225,12 +241,23 @@ async function reviewCaseMaterial(materialId: number, version: number | undefine
 }
 async function askSupplement() {
   if (!caseDetail.value) return;
-  const ids = (caseDetail.value.materials ?? []).filter((item) => item.reviewStatus !== "PASSED").map((item) => item.id).filter((id): id is number => Boolean(id));
-  if (!ids.length) { notify("当前没有待补资料项"); return; }
+  const ids = [...supplementIds.value];
+  if (!ids.length) { notify("请勾选需要客户补充的资料"); return; }
+  if (!supplementMessage.value.trim()) { notify("请填写客户需要补充或修改的具体内容"); return; }
+  if (!window.confirm(`确认退回所选 ${ids.length} 项资料并通知客户？`)) return;
   caseActionLoading.value = true;
-  try { await requestSupplement(caseDetail.value.id!, { materialIds: ids, clientMessage: "请根据资料说明补充或重新上传文件" }); await openCase(caseDetail.value.id!); notify("补件通知已发送"); }
+  try { await requestSupplement(caseDetail.value.id!, { materialIds: ids, clientMessage: supplementMessage.value.trim() }); await openCase(caseDetail.value.id!); await loadCases(); notify("已通知客户补充所选资料"); }
   catch (error) { notify(error instanceof ApiError ? error.message : "补件通知发送失败"); }
   finally { caseActionLoading.value = false; }
+}
+async function previewCaseFile(file: FileView) {
+  if (!file.id) return;
+  try {
+    const data = unwrapResponse<PreviewView>(await filePreview(file.id));
+    if (!data.previewUrl) throw new Error('未返回预览地址');
+    if (file.contentType?.startsWith('image/')) previewImageUrl.value = data.previewUrl;
+    else { const link = document.createElement('a'); link.href = data.previewUrl; link.target = '_blank'; link.rel = 'noopener'; link.click(); }
+  } catch (cause) { notify(cause instanceof Error ? cause.message : '预览失败'); }
 }
 async function loadCompanies() {
   companyLoading.value = true; companyError.value = "";
@@ -524,6 +551,7 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
           :class="{ active: current === 'team' }"
           @click="nav('team')"
         ><i><AdminIcon name="users" /></i>团队与权限</button>
+        <button v-if="auth.hasRole('SUPER_ADMIN')" :class="{ active: current === 'capabilities' }" @click="nav('capabilities')"><i><AdminIcon name="templates" /></i>小程序功能开关</button>
       </nav>
       <div class="sidebar-foot">
         <div class="secure-dot" />
@@ -546,7 +574,7 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
                   ? "导出中心"
                   : current === "products"
                     ? "业务模板"
-                    : "团队与权限"
+                    : current === "capabilities" ? "小程序功能开关" : "团队与权限"
           }}
         </div>
         <div class="top-actions">
@@ -575,7 +603,8 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
         </div>
       </header>
 
-      <section v-if="current === 'dashboard'" class="content dashboard-view">
+      <section v-if="current === 'capabilities' && auth.hasRole('SUPER_ADMIN')" class="content"><ClientCapabilitiesPanel /></section>
+      <section v-else-if="current === 'dashboard'" class="content dashboard-view">
         <div class="page-intro">
           <div>
             <div class="kicker">{{ currentDate }}</div>
@@ -689,18 +718,21 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
           <div class="panel-head">
             <div>
               <h2>最近报单</h2>
-              <p>来自后台报单接口的最新 5 条记录。</p>
+              <p>最新 5 条报单 · 已提交显示最近提交时间，草稿显示创建时间</p>
             </div>
             <button class="text-btn" @click="nav('cases')">
-              查看全部 ›
+              查看全部 <AdminIcon name="arrow-right" />
             </button>
           </div>
           <div v-if="recentCases.length" class="recent-case-list">
             <div v-for="item in recentCases" :key="item.id" class="recent-case-row">
-              <span class="company-logo">{{ (item.companyName || "企业").slice(0, 1) }}</span>
-              <div class="recent-case-main"><b>{{ item.companyName || "未命名企业" }}</b><small>{{ item.caseNo }} · {{ item.serviceType || "—" }}</small></div>
+              <span class="recent-company-logo">{{ (item.companyName || "企业").slice(0, 1) }}</span>
+              <div class="recent-case-main">
+                <b :title="item.companyName || '未命名企业'">{{ item.companyName || "未命名企业" }}</b>
+                <div class="recent-case-meta"><small>{{ item.caseNo || "—" }}</small><span class="recent-service-tag">{{ serviceText(item.serviceType) }}</span></div>
+              </div>
               <span class="status" :class="statusClass(item.status)">{{ statusText(item.status) }}</span>
-              <span class="muted">{{ formatTime(item.updatedAt || item.createdAt) }}</span>
+              <div class="recent-case-time"><span>{{ item.submittedAt ? '最近提交' : '草稿创建' }}</span><time>{{ formatTime(item.submittedAt || item.createdAt) }}</time></div>
             </div>
           </div>
           <div v-else class="empty-live-data">
@@ -718,7 +750,7 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
             <h1>报单管理</h1>
             <p>查看和处理客户提交的业务报单。</p>
           </div>
-          <button class="primary" @click="loadCases">{{ caseLoading ? "正在刷新…" : "刷新报单" }}</button>
+          <button class="primary" @click="selectedCaseId ? openCase(selectedCaseId) : loadCases()">{{ caseLoading ? "正在刷新…" : "刷新报单" }}</button>
         </div>
         <div v-if="selectedCaseId === null" class="panel table-panel case-list-panel">
           <div class="toolbar">
@@ -774,7 +806,7 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
                     <span>{{ progressText(item) }}</span>
                   </div>
                 </td>
-                <td class="muted">{{ formatTime(item.createdAt) }}</td>
+                <td class="muted">{{ formatTime(item.submittedAt || item.createdAt) }}<small>{{ item.submittedAt ? '最近提交' : '草稿创建' }}</small></td>
                 <td>
                   <span class="status" :class="statusClass(item.status)">{{ statusText(item.status) }}</span>
                 </td>
@@ -821,7 +853,7 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
               <div class="panel-head">
                 <div>
                   <h2>资料审核</h2>
-                  <p>共 {{ caseProgress.total }} 项资料，已完成 {{ caseProgress.completed }} 项</p>
+                  <p>已提交 {{ caseProgress.completed }}/{{ caseProgress.total }} 项 · 审核通过 {{ reviewedCount }} 项。提交齐全不代表审核通过。</p>
                 </div>
                 <div class="big-progress">
                   <b>{{ caseProgressPercent }}%</b>
@@ -832,11 +864,17 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
                 <span class="material-no">{{ String(item.id || 0).padStart(2, "0") }}</span>
                 <div class="material-name">
                   <b>{{ item.materialName || item.materialCode }}</b
-                  ><small>{{ item.clientVisibleNote || (item.textValue ? "已填写文字或链接" : item.submitStatus === "SUBMITTED" ? "客户已提交" : "客户暂未提交") }}</small>
+                  ><small>{{ item.textValue || (item.submitStatus === "SUBMITTED" ? "客户已提交" : "客户暂未提交") }}</small>
+                  <small v-if="item.clientVisibleNote">补充说明：{{ item.clientVisibleNote }}</small>
+                  <div v-if="item.inputType === 'FORM_GROUP' && caseDetail.invoiceInfo" class="review-values">
+                    <p v-for="(value, key) in caseDetail.invoiceInfo" :key="key">{{ ({companyName:'公司名称', taxNoMask:'税号', contactAddress:'联系地址', contactPhoneMask:'联系电话', legalPerson:'法人姓名', companyEmail:'邮箱', bankBranch:'开户行', basicAccountMask:'基本户账号'} as Record<string,string>)[key] || key }}：{{ value || '—' }}</p>
+                  </div>
+                  <div v-for="file in caseFiles[item.id || 0] || []" :key="file.id"><button class="link-btn" @click="previewCaseFile(file)">{{ file.originalName }} · 查看附件</button></div>
+                  <small v-if="fileErrors[item.id || 0]">{{ fileErrors[item.id || 0] }}</small>
                 </div>
                 <span class="status" :class="item.reviewStatus === 'PASSED' ? 'success' : item.reviewStatus === 'NEED_SUPPLEMENT' ? 'warning' : 'processing'">{{ item.reviewStatus === 'PASSED' ? "已通过" : item.reviewStatus === 'NEED_SUPPLEMENT' ? "待补充" : "待审核" }}</span>
-                <button v-if="item.id && item.reviewStatus !== 'PASSED'" class="link-btn" :disabled="caseActionLoading" @click="reviewCaseMaterial(item.id, item.version, 'PASSED')">通过</button>
-                <button v-else-if="item.id" class="link-btn" :disabled="caseActionLoading" @click="reviewCaseMaterial(item.id, item.version, 'NEED_SUPPLEMENT')">补件</button>
+                <button v-if="item.id && canReviewCase && item.reviewStatus !== 'PASSED'" class="link-btn" :disabled="caseActionLoading || item.submitStatus !== 'SUBMITTED'" @click="reviewCaseMaterial(item.id, item.version, 'PASSED')">审核通过</button>
+                <label v-if="item.id && canReviewCase" class="supplement-choice"><input v-model="supplementIds" type="checkbox" :value="item.id" :disabled="caseActionLoading">需补充</label>
               </div>
               <div v-if="!caseDetail.materials?.length" class="empty-cell">该报单暂无资料项</div>
             </div>
@@ -874,18 +912,17 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
                 <div v-else-if="credentialHandoverLoading" class="credential-loading">正在读取交接状态…</div>
               </div>
               <div class="panel info-panel">
-                <h2>处理操作</h2>
-                <label>更新状态</label
-                ><select :value="caseDetail.status" @change="saveCaseStatus">
-                  <option value="PENDING_REVIEW">待审核</option>
-                  <option value="NEED_SUPPLEMENT">待补资料</option>
-                  <option value="PROCESSING">处理中</option>
-                  <option value="COMPLETED">已完成</option></select
-                ><label>补件说明</label
-                ><textarea value="请根据资料说明补充或重新上传文件" readonly></textarea
-                ><button class="primary full" :disabled="caseActionLoading" @click="askSupplement">
-                  {{ caseActionLoading ? "正在保存…" : "发起补件通知" }}
-                </button>
+                <h2>审核与办理</h2>
+                <p>1. 查看左侧资料和附件；2. 逐项审核通过或勾选需补充；3. 开始办理或退回客户补充。</p>
+                <template v-if="canReviewCase">
+                  <button v-if="caseDetail.status === 'PENDING_REVIEW'" class="primary full" :disabled="caseActionLoading || !allRequiredReviewed" @click="saveCaseStatus('PROCESSING')">审核通过，开始办理</button>
+                  <small v-if="!allRequiredReviewed">请先审核通过左侧所有必填资料。</small>
+                  <button v-if="caseDetail.status === 'PROCESSING'" class="primary full" :disabled="caseActionLoading || !allRequiredReviewed" @click="saveCaseStatus('COMPLETED')">确认办理完成</button>
+                  <label>补充原因（客户可见）</label>
+                  <textarea v-model="supplementMessage" maxlength="500" placeholder="例如：营业执照图片模糊，请重新上传清晰图片。"></textarea>
+                  <button class="outline full" :disabled="caseActionLoading || !supplementIds.length || !supplementMessage.trim()" @click="askSupplement">退回所选 {{ supplementIds.length }} 项并通知客户</button>
+                </template>
+                <p v-else>{{ caseDetail.status === 'NEED_SUPPLEMENT' ? '已通知客户补充资料，等待客户重新提交后继续审核。' : caseDetail.status === 'DRAFT' ? '客户尚未提交，当前只能查看草稿。' : '本报单已结束，资料可继续查看。' }}</p>
               </div>
               <div class="panel security-panel">
                 <span class="lock">⌕</span>
@@ -1281,6 +1318,21 @@ onMounted(() => { if (current.value === "dashboard") void loadDashboard(); else 
         </section>
       </div>
     </main>
+    <div v-if="previewImageUrl" class="file-preview-overlay" @click.self="previewImageUrl = ''">
+      <button class="file-preview-close" @click="previewImageUrl = ''">关闭图片</button>
+      <img :src="previewImageUrl" alt="报单附件大图" @error="notify('图片加载失败，请刷新后重新预览')">
+    </div>
     <div v-if="toast" class="toast">{{ toast }}</div>
   </div>
 </template>
+
+<style scoped>
+.file-preview-overlay { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: #10272aee; overflow: auto; }
+.file-preview-overlay img { max-width: 94vw; max-height: 90vh; object-fit: contain; }
+.file-preview-close { position: fixed; top: 20px; right: 28px; padding: 10px 18px; border-radius: 8px; background: white; }
+.supplement-choice { display: flex; align-items: center; gap: 6px; white-space: nowrap; font-size: 12px; }
+.supplement-choice input { width: auto; }
+.review-values p { margin: 5px 0; font-size: 13px; overflow-wrap: anywhere; }
+.info-panel p { font-size: 13px; line-height: 1.7; color: #627c7f; }
+.info-panel small { display: block; margin: 10px 0; }
+</style>

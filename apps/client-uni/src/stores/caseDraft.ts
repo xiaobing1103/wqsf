@@ -5,6 +5,7 @@ import { createCaseDraft, getCaseDetail, getMyCasePage, saveInvoice, saveMateria
 import { deleteMaterialFile, getMaterialFiles, uploadCaseMaterial } from '../api/file'
 import { getProductTemplate } from '../api/product'
 import { errorMessage } from '../api/response'
+import { useCapabilitiesStore } from './capabilities'
 
 const CURRENT_DRAFT_STORAGE_KEY = 'wqst_client_current_case_id'
 
@@ -50,7 +51,9 @@ export const useCaseDraftStore = defineStore('client-case-draft', () => {
     const bOrder = template.value?.items?.find((item) => item.itemCode === b.materialCode)?.sortOrder || 0
     return aOrder - bOrder
   }))
-  const isEditable = computed(() => ['DRAFT', 'NEED_SUPPLEMENT'].includes(caseDetail.value?.status || ''))
+  const capabilities = useCapabilitiesStore()
+  const isEditable = computed(() => ['DRAFT', 'NEED_SUPPLEMENT'].includes(caseDetail.value?.status || '')
+    && capabilities.serviceEnabled(caseDetail.value?.serviceType))
   const completedCount = computed(() => caseDetail.value?.progress?.completed || 0)
   const totalCount = computed(() => caseDetail.value?.progress?.total || materials.value.length)
   const completionPercent = computed(() => totalCount.value ? Math.round(completedCount.value / totalCount.value * 100) : 0)
@@ -68,6 +71,7 @@ export const useCaseDraftStore = defineStore('client-case-draft', () => {
     if (showLoading) loading.value = true
     error.value = ''
     try {
+      await capabilities.load()
       const detail = await getCaseDetail(caseId)
       if (!detail.productId) throw new Error('报单缺少产品编号')
       const [productTemplate] = await Promise.all([

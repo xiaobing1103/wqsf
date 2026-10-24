@@ -3,11 +3,14 @@ import { computed, reactive, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import AppIcon from '../../components/AppIcon.vue'
 import FileUploadCard from '../../components/FileUploadCard.vue'
+import CaseTimeNotice from '../../components/CaseTimeNotice.vue'
 import type { InvoiceRequest, ItemView, MaterialView } from '../../api/generated/models'
 import { errorMessage } from '../../api/response'
-import { chooseLocalFiles, validateLocalFile } from '../../composables/useFileUpload'
+import type { SelectedLocalFile } from '../../composables/useFileUpload'
 import { useCaseDraftStore } from '../../stores/caseDraft'
 import { useCompanyStore } from '../../stores/company'
+import { useCapabilitiesStore } from '../../stores/capabilities'
+const capabilities = useCapabilitiesStore()
 
 type FormKey = keyof InvoiceRequest
 
@@ -102,19 +105,14 @@ async function saveInvoiceForm() {
   }
 }
 
-async function chooseAndUpload(material: MaterialView, item?: ItemView) {
+function showFileError(cause: Error) {
+  uni.showToast({ title: errorMessage(cause, '文件上传失败'), icon: 'none', duration: 3000 })
+}
+
+async function uploadSelectedFiles(material: MaterialView, files: SelectedLocalFile[]) {
   if (!material.id || !caseDraftStore.isEditable) return
-  const existing = caseDraftStore.filesByMaterial[material.id] || []
-  const maxCount = item?.maxFileCount || 1
-  const remaining = maxCount - existing.length
-  if (remaining <= 0) {
-    uni.showToast({ title: `最多上传 ${maxCount} 个文件`, icon: 'none' })
-    return
-  }
   try {
-    const files = await chooseLocalFiles(remaining, item?.allowedExtensions || [])
     for (const file of files) {
-      validateLocalFile(file, item?.allowedExtensions || [], item?.maxFileSizeMb)
       await caseDraftStore.uploadFile(material.id, file.path)
     }
     if (files.length) uni.showToast({ title: '文件上传成功', icon: 'success' })
@@ -152,6 +150,10 @@ async function saveUrl(material: MaterialView) {
   }
 }
 
+function copyMaterialUrl(material: MaterialView) {
+  if (material.textValue) uni.setClipboardData({ data: material.textValue })
+}
+
 function nextStep() {
   if (activeTab.value === 'invoice') {
     if (!invoiceSaved.value || editingInvoice.value) void saveInvoiceForm()
@@ -167,6 +169,7 @@ async function loadPage() {
   try {
     if (!companyStore.companies.length) await companyStore.loadCompanies()
     await caseDraftStore.loadCase(caseId.value)
+    uni.setNavigationBarTitle({ title: caseDraftStore.isEditable ? '填写报单资料' : '查看报单资料' })
     hydrateInvoiceForm()
     editingInvoice.value = !invoiceSaved.value
   } catch (cause) {
@@ -202,6 +205,7 @@ onLoad((query) => {
       </view>
 
       <template v-else-if="caseDraftStore.caseDetail">
+        <CaseTimeNotice :detail="caseDraftStore.caseDetail" />
         <view class="tab-switch">
           <button :class="{ active: activeTab === 'invoice' }" @click="activeTab = 'invoice'">开票信息</button>
           <button :class="{ active: activeTab === 'files' }" @click="activeTab = 'files'">附件资料</button>
@@ -209,22 +213,27 @@ onLoad((query) => {
 
         <view v-if="activeTab === 'invoice'" class="invoice-section">
           <view v-if="invoiceSaved && !editingInvoice" class="saved-invoice">
-            <view class="saved-title"><text>开票信息已保存</text><button v-if="caseDraftStore.isEditable" @click="editingInvoice = true">重新填写</button></view>
+            <view class="saved-title"><text>开票信息已保存</text><button v-if="caseDraftStore.isEditable && capabilities.flags.sensitiveMaterialUploadEnabled" @click="editingInvoice = true">重新填写</button></view>
             <view class="saved-grid">
               <view><text>公司名称</text><strong>{{ caseDraftStore.caseDetail.invoiceInfo?.companyName }}</strong></view>
               <view><text>税号</text><strong>{{ caseDraftStore.caseDetail.invoiceInfo?.taxNoMask }}</strong></view>
               <view><text>联系电话</text><strong>{{ caseDraftStore.caseDetail.invoiceInfo?.contactPhoneMask }}</strong></view>
               <view><text>基本户账号</text><strong>{{ caseDraftStore.caseDetail.invoiceInfo?.basicAccountMask }}</strong></view>
+              <view><text>联系地址</text><strong>{{ caseDraftStore.caseDetail.invoiceInfo?.contactAddress }}</strong></view>
+              <view><text>法人姓名</text><strong>{{ caseDraftStore.caseDetail.invoiceInfo?.legalPerson }}</strong></view>
+              <view><text>公司邮箱</text><strong>{{ caseDraftStore.caseDetail.invoiceInfo?.companyEmail }}</strong></view>
+              <view><text>开户行网点</text><strong>{{ caseDraftStore.caseDetail.invoiceInfo?.bankBranch }}</strong></view>
             </view>
           </view>
 
           <view v-else class="invoice-form">
             <view v-for="field in invoiceFields" :key="field.key" class="form-field">
               <text>{{ field.label }}<small>*</small></text>
-              <input v-model="invoiceForm[field.key]" :placeholder="field.placeholder" :disabled="!caseDraftStore.isEditable" />
+              <input v-model="invoiceForm[field.key]" :placeholder="field.placeholder" :disabled="!caseDraftStore.isEditable || !capabilities.flags.sensitiveMaterialUploadEnabled" />
               <small v-if="field.sensitive" class="field-hint">提交后仅显示掩码</small>
             </view>
-            <button class="save-invoice" :disabled="savingInvoice || !caseDraftStore.isEditable" @click="saveInvoiceForm">
+            <text v-if="!capabilities.flags.sensitiveMaterialUploadEnabled" class="section-hint">开票及敏感资料提交暂未开放，已保存内容仍可查看。</text>
+            <button class="save-invoice" :disabled="savingInvoice || !caseDraftStore.isEditable || !capabilities.flags.sensitiveMaterialUploadEnabled" @click="saveInvoiceForm">
               {{ savingInvoice ? '正在保存…' : '保存开票信息' }}
             </button>
           </view>
@@ -242,7 +251,8 @@ onLoad((query) => {
             :busy="caseDraftStore.busyMaterialId === material.id"
             :disabled="!caseDraftStore.isEditable"
             :class="{ focused: focusedMaterialId === material.id }"
-            @choose="chooseAndUpload"
+            @selected="uploadSelectedFiles"
+            @error="showFileError"
             @delete="deleteFile"
           />
 
@@ -250,7 +260,8 @@ onLoad((query) => {
             <text class="url-title">{{ material.materialName }} <small v-if="material.required">必填</small></text>
             <text class="url-help">{{ templateItem(material)?.helpText || '请输入 http/https 链接' }}</text>
             <input v-if="material.id" v-model="urlValues[material.id]" placeholder="https://example.com/report" :disabled="!caseDraftStore.isEditable" />
-            <button :disabled="caseDraftStore.busyMaterialId === material.id || !caseDraftStore.isEditable" @click="saveUrl(material)">
+            <button v-if="!caseDraftStore.isEditable && material.textValue" @click="copyMaterialUrl(material)">复制资料链接</button>
+            <button v-if="caseDraftStore.isEditable" :disabled="caseDraftStore.busyMaterialId === material.id" @click="saveUrl(material)">
               {{ material.submitStatus === 'SUBMITTED' ? '更新链接' : '保存链接' }}
             </button>
           </view>

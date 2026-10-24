@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { formatBeijingTime } from '../../utils/time'
 import { onShow } from '@dcloudio/uni-app'
 import AppIcon from '../../components/AppIcon.vue'
 import BottomNav from '../../components/BottomNav.vue'
@@ -40,10 +41,7 @@ const featuredServices = computed(() => {
 const currentCase = computed(() => cases.value[0])
 
 function formatDate(value?: string) {
-  if (!value) return '提交时间待更新'
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value.slice(0, 10)
-  return `${String(date.getMonth() + 1).padStart(2, '0')}月${String(date.getDate()).padStart(2, '0')}日提交`
+  return formatBeijingTime(value)
 }
 
 function serviceName(caseItem: CaseSummary) {
@@ -155,7 +153,7 @@ onShow(() => { void loadPage() })
       </button>
     </view>
     <view v-else class="state-panel compact-state">
-      <text class="state-title">暂无已发布服务</text>
+      <text class="state-title">暂无开放的新申请服务</text>
       <text class="state-copy">后台发布产品后会自动显示在这里。</text>
     </view>
 
@@ -168,7 +166,7 @@ onShow(() => { void loadPage() })
       <ServiceGlyph kind="arrow" tone="mint" />
       <view class="case-copy">
         <text class="case-name">{{ serviceName(currentCase) }}</text>
-        <text class="case-no">{{ currentCase.caseNo || '编号待生成' }} · {{ formatDate(currentCase.createdAt) }}</text>
+        <text class="case-no">{{ currentCase.caseNo || '编号待生成' }} · {{ currentCase.submittedAt ? '提交' : '草稿创建' }} {{ formatDate(currentCase.submittedAt || currentCase.createdAt) }}</text>
       </view>
       <view class="case-side">
         <StatusBadge :label="caseStatusLabel(currentCase.status)" :tone="caseStatusTone(currentCase.status)" />

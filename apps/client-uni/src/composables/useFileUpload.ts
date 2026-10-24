@@ -17,13 +17,16 @@ function normalizeFiles(files: RawSelectedFile[]): SelectedLocalFile[] {
 }
 
 export function chooseLocalFiles(count: number, extensions: string[]) {
+  // 微信桥接不能复制 Vue Proxy；平台参数必须是普通数组和基础类型。
+  const plainExtensions = Array.from(extensions, (extension) => String(extension).trim().replace(/^\./, '').toLowerCase())
+  const selectionCount = Math.min(100, Math.max(1, Math.floor(count)))
   return new Promise<SelectedLocalFile[]>((resolve, reject) => {
     let supported = false
     // #ifdef H5
     supported = true
     uni.chooseFile({
-      count,
-      extension: extensions,
+      count: selectionCount,
+      extension: plainExtensions,
       success: (result) => resolve(normalizeFiles(result.tempFiles as RawSelectedFile[])),
       fail: (error) => reject(new Error(error.errMsg || '选择文件失败')),
     })
@@ -31,9 +34,9 @@ export function chooseLocalFiles(count: number, extensions: string[]) {
     // #ifdef MP-WEIXIN
     supported = true
     uni.chooseMessageFile({
-      count,
+      count: selectionCount,
       type: 'file',
-      extension: extensions,
+      extension: plainExtensions,
       success: (result) => resolve(normalizeFiles(result.tempFiles as RawSelectedFile[])),
       fail: (error) => reject(new Error(error.errMsg || '选择文件失败')),
     })

@@ -4,6 +4,7 @@ import { onLoad, onReachBottom } from '@dcloudio/uni-app'
 import AppIcon from '../../components/AppIcon.vue'
 import ServiceGlyph from '../../components/ServiceGlyph.vue'
 import StatusBadge from '../../components/StatusBadge.vue'
+import { formatBeijingTime } from '../../utils/time'
 import { getMyCasePage } from '../../api/case'
 import type { CaseSummary } from '../../api/generated/models'
 import { errorMessage } from '../../api/response'
@@ -148,6 +149,8 @@ onReachBottom(() => { void loadMore() })
         </view>
         <view class="progress-track"><view :style="{ width: `${caseItem.materials?.total ? Math.round((caseItem.materials.completed || 0) / caseItem.materials.total * 100) : 0}%` }" /></view>
         <view class="progress-copy"><text>资料完成度</text><strong>{{ caseItem.materials?.completed || 0 }} / {{ caseItem.materials?.total || 0 }}</strong></view>
+        <view class="progress-copy"><text>{{ caseItem.status === 'DRAFT' ? '草稿创建' : '最近提交' }}</text><text>{{ formatBeijingTime(caseItem.submittedAt || caseItem.createdAt) }}</text></view>
+        <view v-if="caseItem.status === 'DRAFT'" class="supplement-note">尚未提交 · 最近保存 {{ formatBeijingTime(caseItem.updatedAt) }} · 点击继续编辑</view>
         <view v-if="caseItem.status === 'NEED_SUPPLEMENT'" class="supplement-note">后台已发起补件，请打开报单查看需要补充的资料。</view>
         <view class="case-footer"><text>查看资料状态</text><AppIcon type="right" :size="15" /></view>
       </button>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { formatBeijingTime } from '../../utils/time'
 import { onReachBottom, onShow } from '@dcloudio/uni-app'
 import AppIcon from '../../components/AppIcon.vue'
 import type { NotificationEntity } from '../../api/generated/models'
@@ -19,10 +20,7 @@ const openingId = ref<number>()
 const pageError = ref('')
 
 function formatTime(value?: string) {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return value.replace('T', ' ').slice(0, 16)
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+  return formatBeijingTime(value)
 }
 
 function typeLabel(type?: string) {

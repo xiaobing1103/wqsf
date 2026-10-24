@@ -32,6 +32,7 @@ public class OpenApiConfig {
             Map.entry("AuthController", "认证与会话"),
             Map.entry("AdminCaseController", "后台报单"),
             Map.entry("CaseController", "客户报单"),
+            Map.entry("CapabilityController", "客户功能开放"),
             Map.entry("CategoryMatchController", "品类匹配"),
             Map.entry("AdminProductController", "后台产品"),
             Map.entry("CatalogController", "服务目录"),
@@ -45,7 +46,7 @@ public class OpenApiConfig {
 
     private static final Map<String, String> SUMMARIES = summaries();
     private static final Set<String> PUBLIC_OPERATIONS = Set.of(
-            "authAdminLogin", "authClientLogin", "authDevLogin", "authWechat", "catalogCatalog", "catalogTemplate");
+            "authAdminLogin", "authClientLogin", "authDevLogin", "authWechat", "catalogCatalog", "catalogTemplate", "capabilityCapabilities");
 
     private static final Map<String, String> FIELD_DESCRIPTIONS = Map.ofEntries(
             Map.entry("id", "主键编号"), Map.entry("userId", "用户编号"), Map.entry("companyId", "企业编号"),
@@ -192,6 +193,9 @@ public class OpenApiConfig {
 
     private static Map<String, String> summaries() {
         Map<String, String> values = new LinkedHashMap<>();
+        values.put("CapabilityController#capabilities", "查询客户功能可用状态");
+        values.put("CapabilityController#settings", "查询客户功能管理配置");
+        values.put("CapabilityController#update", "修改客户功能开关并登记原因");
         values.put("AdminAccountController#list", "查询后台账号列表");
         values.put("AdminAccountController#create", "创建后台或客户账号");
         values.put("AdminAccountController#roles", "修改账号角色");

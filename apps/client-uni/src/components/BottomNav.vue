@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import AppIcon from './AppIcon.vue'
+import { useCapabilitiesStore } from '../stores/capabilities'
+const capabilities = useCapabilitiesStore()
 
 defineProps<{ active: 'home' | 'category' | 'mine' }>()
 
@@ -18,7 +20,7 @@ const go = (target: 'home' | 'category' | 'mine') => {
     <button class="nav-item" :class="{ active: active === 'home' }" @click="go('home')">
       <view class="nav-icon-wrap" :class="{ active: active === 'home' }"><AppIcon :type="active === 'home' ? 'home-filled' : 'home'" :size="24" /></view><text>首页</text>
     </button>
-    <button class="nav-item" :class="{ active: active === 'category' }" @click="go('category')">
+    <button v-if="capabilities.flags.categoryMatchEnabled" class="nav-item" :class="{ active: active === 'category' }" @click="go('category')">
       <view class="nav-icon-wrap" :class="{ active: active === 'category' }"><AppIcon type="scan" :size="25" /></view><text>品类匹配</text>
     </button>
     <button class="nav-item" :class="{ active: active === 'mine' }" @click="go('mine')">
@@ -35,7 +37,8 @@ const go = (target: 'home' | 'category' | 'mine') => {
   left: 0;
   z-index: 20;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   height: calc(120rpx + env(safe-area-inset-bottom));
   padding: 10rpx 14rpx calc(10rpx + env(safe-area-inset-bottom));
   border-top: 1rpx solid rgba(205, 220, 220, 0.82);

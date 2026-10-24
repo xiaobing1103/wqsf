@@ -112,7 +112,7 @@ public class CaseService {
         LambdaQueryWrapper<ServiceCaseEntity> q = new LambdaQueryWrapper<ServiceCaseEntity>()
                 .in(ServiceCaseEntity::getCompanyId, companyIds).isNull(ServiceCaseEntity::getDeletedAt)
                 .in(!statuses.isEmpty(), ServiceCaseEntity::getStatus, statuses)
-                .orderByDesc(ServiceCaseEntity::getCreatedAt).orderByDesc(ServiceCaseEntity::getId);
+                .last("ORDER BY COALESCE(submitted_at, created_at) DESC, id DESC");
         Page<ServiceCaseEntity> result = cases.selectPage(Page.of(page, size), q);
         return PageResponse.of(result.getRecords().stream().map(this::summary).toList(), page, size, result.getTotal());
     }
@@ -153,6 +153,7 @@ public class CaseService {
         c.setLegalPersonName(command.legalPersonName().trim()); c.setCompanyNameSnapshot(command.companyName().trim());
         c.setContactPhoneCipher(crypto.encrypt(command.contactPhone())); c.setContactPhoneHash(crypto.hash(command.contactPhone()));
         c.setContactPhoneMask(crypto.maskPhone(command.contactPhone()));
+        c.setUpdatedAt(LocalDateTime.now());
         if (cases.updateById(c) == 0) throw optimistic();
         markSubmitted(caseId, "LEGAL_PERSON_NAME", command.legalPersonName().trim());
         markSubmitted(caseId, "COMPANY_NAME", command.companyName().trim());
@@ -174,6 +175,7 @@ public class CaseService {
             catch (RuntimeException ex) { throw new BusinessException("MATERIAL_URL_INVALID", "请输入有效的 http/https 链接", HttpStatus.BAD_REQUEST); }
         }
         m.setTextValue(text); m.setSubmitStatus("SUBMITTED"); m.setReviewStatus("PENDING"); m.setClientVisibleNote(null); m.setInternalNote(null);
+        m.setUpdatedAt(LocalDateTime.now());
         if (materials.updateById(m) == 0) throw optimistic();
         return materialView(m, false);
     }
@@ -206,7 +208,7 @@ public class CaseService {
                 .eq(StringUtils.hasText(serviceType), ServiceCaseEntity::getServiceType, serviceType)
                 .eq(assigneeId != null, ServiceCaseEntity::getAssigneeId, assigneeId)
                 .and(StringUtils.hasText(keyword), w -> w.like(ServiceCaseEntity::getCaseNo, keyword).or().like(ServiceCaseEntity::getCompanyNameSnapshot, keyword))
-                .orderByDesc(ServiceCaseEntity::getCreatedAt).orderByDesc(ServiceCaseEntity::getId);
+                .last("ORDER BY COALESCE(submitted_at, created_at) DESC, id DESC");
         Page<ServiceCaseEntity> result=cases.selectPage(Page.of(page,size),q);
         return PageResponse.of(result.getRecords().stream().map(this::summary).toList(),page,size,result.getTotal());
     }
@@ -220,7 +222,11 @@ public class CaseService {
 
     @Transactional
     public CaseView adminTransition(long caseId, String target, String note, long operatorId) {
-        ServiceCaseEntity c=require(caseId); transition(c,target,note,operatorId);
+        ServiceCaseEntity c=require(caseId);
+        if (List.of("PROCESSING", "COMPLETED").contains(target) && caseMaterials(caseId).stream()
+                .anyMatch(m -> Boolean.TRUE.equals(m.getRequired()) && !List.of("PASSED", "NOT_REQUIRED").contains(m.getReviewStatus())))
+            throw new BusinessException("CASE_REVIEW_INCOMPLETE", "请先审核通过所有必填资料", HttpStatus.CONFLICT);
+        transition(c,target,note,operatorId);
         for(CompanyUserEntity member:memberships.findEnabledByCompany(c.getCompanyId()))notifications.send(member.getUserId(),c.getCompanyId(),caseId,"CASE_STATUS_CHANGED","报单状态已更新","报单 "+c.getCaseNo()+" 已更新为 "+target);
         audit.operation(operatorId,"CASE_STATUS_CHANGE","CASE",caseId,"报单状态变更为 "+target); return view(cases.selectById(caseId),true);
     }
@@ -232,18 +238,19 @@ public class CaseService {
     public List<MaterialSubmissionEntity> caseMaterials(long caseId){return materials.selectList(new LambdaQueryWrapper<MaterialSubmissionEntity>().eq(MaterialSubmissionEntity::getCaseId,caseId).orderByAsc(MaterialSubmissionEntity::getId));}
 
     @Transactional
-    public void markFileSubmitted(long caseId,long materialId){MaterialSubmissionEntity m=requireMaterial(materialId);if(!Objects.equals(m.getCaseId(),caseId)||!"FILE".equals(m.getInputType()))throw new BusinessException("MATERIAL_INPUT_INVALID","文件与资料项不匹配",HttpStatus.BAD_REQUEST);m.setSubmitStatus("SUBMITTED");m.setReviewStatus("PENDING");m.setClientVisibleNote(null);m.setInternalNote(null);if(materials.updateById(m)==0)throw optimistic();}
+    public void markFileSubmitted(long caseId,long materialId){MaterialSubmissionEntity m=requireMaterial(materialId);if(!Objects.equals(m.getCaseId(),caseId)||!"FILE".equals(m.getInputType()))throw new BusinessException("MATERIAL_INPUT_INVALID","文件与资料项不匹配",HttpStatus.BAD_REQUEST);m.setSubmitStatus("SUBMITTED");m.setReviewStatus("PENDING");m.setClientVisibleNote(null);m.setInternalNote(null);m.setUpdatedAt(LocalDateTime.now());if(materials.updateById(m)==0)throw optimistic();}
 
     private ServiceCaseEntity requireEditable(long id,long userId){ServiceCaseEntity c=require(id);companies.requireClientAccess(c.getCompanyId(),userId);if(!List.of("DRAFT","NEED_SUPPLEMENT").contains(c.getStatus()))throw new BusinessException("CASE_NOT_EDITABLE","当前状态不允许修改资料",HttpStatus.CONFLICT);return c;}
-    private void transition(ServiceCaseEntity c,String target,String note,long operatorId){String before=c.getStatus();stateMachine.check(before,target);c.setStatus(target);if("PENDING_REVIEW".equals(target))c.setSubmittedAt(LocalDateTime.now());if("COMPLETED".equals(target))c.setCompletedAt(LocalDateTime.now());if(cases.updateById(c)==0)throw optimistic();logStatus(c.getId(),before,target,note,operatorId);}
+    private void transition(ServiceCaseEntity c,String target,String note,long operatorId){String before=c.getStatus();stateMachine.check(before,target);c.setStatus(target);c.setUpdatedAt(LocalDateTime.now());if("PENDING_REVIEW".equals(target))c.setSubmittedAt(LocalDateTime.now());if("COMPLETED".equals(target))c.setCompletedAt(LocalDateTime.now());if(cases.updateById(c)==0)throw optimistic();logStatus(c.getId(),before,target,note,operatorId);}
     private void logStatus(long caseId,String before,String after,String note,Long userId){CaseStatusLogEntity l=new CaseStatusLogEntity();l.setCaseId(caseId);l.setBeforeStatus(before);l.setAfterStatus(after);l.setNote(note);l.setChangedBy(userId);statusLogs.insert(l);}
-    private void markSubmitted(long caseId,String code,String value){MaterialSubmissionEntity m=materials.selectOne(new LambdaQueryWrapper<MaterialSubmissionEntity>().eq(MaterialSubmissionEntity::getCaseId,caseId).eq(MaterialSubmissionEntity::getMaterialCode,code));if(m==null)throw new BusinessException("MATERIAL_NOT_FOUND","资料项不存在",HttpStatus.CONFLICT);m.setTextValue(value);m.setSubmitStatus("SUBMITTED");m.setReviewStatus("PENDING");m.setClientVisibleNote(null);m.setInternalNote(null);if(materials.updateById(m)==0)throw optimistic();}
+    private void markSubmitted(long caseId,String code,String value){MaterialSubmissionEntity m=materials.selectOne(new LambdaQueryWrapper<MaterialSubmissionEntity>().eq(MaterialSubmissionEntity::getCaseId,caseId).eq(MaterialSubmissionEntity::getMaterialCode,code));if(m==null)throw new BusinessException("MATERIAL_NOT_FOUND","资料项不存在",HttpStatus.CONFLICT);m.setTextValue(value);m.setSubmitStatus("SUBMITTED");m.setReviewStatus("PENDING");m.setClientVisibleNote(null);m.setInternalNote(null);m.setUpdatedAt(LocalDateTime.now());if(materials.updateById(m)==0)throw optimistic();}
     private String typeForTemplate(String code){return switch(code){case "TRADE_INCREMENT"->"TRADE_INCREMENT";case "IP_SIMPLE"->"IP";case "QUALIFICATION_SIMPLE"->"QUALIFICATION";default->throw new BusinessException("TEMPLATE_SERVICE_UNKNOWN","模板服务类型未知",HttpStatus.CONFLICT);};}
     private String nextCaseNo(){return "BD"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))+UUID.randomUUID().toString().substring(0,4).toUpperCase(Locale.ROOT);}
     private BusinessException optimistic(){return new BusinessException("OPTIMISTIC_LOCK_CONFLICT","数据已被其他用户修改，请刷新后重试",HttpStatus.CONFLICT);}
 
-    private CaseSummary summary(ServiceCaseEntity c){Progress p=progress(c.getId());return new CaseSummary(c.getId(),c.getCaseNo(),c.getCompanyNameSnapshot(),c.getServiceType(),c.getStatus(),c.getCaseMonth(),p,c.getCreatedAt(),c.getUpdatedAt());}
-    private CaseView view(ServiceCaseEntity c,boolean internal){Progress p=progress(c.getId());List<MaterialView> ms=caseMaterials(c.getId()).stream().map(m->materialView(m,internal)).toList();InvoiceInfoEntity invoice=invoices.selectOne(new LambdaQueryWrapper<InvoiceInfoEntity>().eq(InvoiceInfoEntity::getCaseId,c.getId()));return new CaseView(c.getId(),c.getCaseNo(),c.getCompanyId(),c.getProductId(),c.getCompanyNameSnapshot(),c.getServiceType(),c.getStatus(),c.getCaseMonth(),c.getAssigneeId(),c.getApplicantUserId(),c.getLegalPersonName(),c.getContactPhoneMask(),p,ms,invoice==null?null:invoiceView(invoice),c.getSubmittedAt(),c.getCompletedAt(),c.getCreatedAt(),c.getUpdatedAt(),c.getVersion());}
+    private CaseSummary summary(ServiceCaseEntity c){Progress p=progress(c.getId());return new CaseSummary(c.getId(),c.getCaseNo(),c.getCompanyNameSnapshot(),c.getServiceType(),c.getStatus(),c.getCaseMonth(),p,c.getCreatedAt(),savedAt(c),c.getSubmittedAt());}
+    private LocalDateTime savedAt(ServiceCaseEntity c){return java.util.stream.Stream.concat(java.util.stream.Stream.of(c.getCreatedAt(),c.getUpdatedAt()),caseMaterials(c.getId()).stream().map(MaterialSubmissionEntity::getUpdatedAt)).filter(Objects::nonNull).max(LocalDateTime::compareTo).orElse(null);}
+    private CaseView view(ServiceCaseEntity c,boolean internal){Progress p=progress(c.getId());List<MaterialView> ms=caseMaterials(c.getId()).stream().map(m->materialView(m,internal)).toList();InvoiceInfoEntity invoice=invoices.selectOne(new LambdaQueryWrapper<InvoiceInfoEntity>().eq(InvoiceInfoEntity::getCaseId,c.getId()));return new CaseView(c.getId(),c.getCaseNo(),c.getCompanyId(),c.getProductId(),c.getCompanyNameSnapshot(),c.getServiceType(),c.getStatus(),c.getCaseMonth(),c.getAssigneeId(),c.getApplicantUserId(),c.getLegalPersonName(),c.getContactPhoneMask(),p,ms,invoice==null?null:invoiceView(invoice),c.getSubmittedAt(),c.getCompletedAt(),c.getCreatedAt(),savedAt(c),c.getVersion());}
     private Progress progress(long caseId){List<MaterialSubmissionEntity> list=caseMaterials(caseId);long completed=list.stream().filter(m->"SUBMITTED".equals(m.getSubmitStatus())||"NOT_REQUIRED".equals(m.getReviewStatus())).count();long remaining=list.stream().filter(m->Boolean.TRUE.equals(m.getRequired())&&!"SUBMITTED".equals(m.getSubmitStatus())&&!"NOT_REQUIRED".equals(m.getReviewStatus())).count();return new Progress(list.size(),completed,remaining);}
     private MaterialView materialView(MaterialSubmissionEntity m,boolean internal){return new MaterialView(m.getId(),m.getMaterialCode(),m.getMaterialName(),m.getInputType(),Boolean.TRUE.equals(m.getRequired()),Boolean.TRUE.equals(m.getIsSensitive()),m.getTextValue(),m.getSubmitStatus(),m.getReviewStatus(),m.getClientVisibleNote(),internal?m.getInternalNote():null,m.getVersion());}
     private InvoiceView invoiceView(InvoiceInfoEntity i){return new InvoiceView(i.getCompanyName(),i.getTaxNoMask(),i.getContactAddress(),i.getContactPhoneMask(),i.getLegalPerson(),i.getCompanyEmail(),i.getBankBranch(),i.getBasicAccountMask());}
@@ -255,7 +262,7 @@ public class CaseService {
     public record Progress(long total,long completed,long requiredRemaining){}
     public record MaterialView(Long id,String materialCode,String materialName,String inputType,boolean required,boolean sensitive,String textValue,String submitStatus,String reviewStatus,String clientVisibleNote,String internalNote,Integer version){}
     public record InvoiceView(String companyName,String taxNoMask,String contactAddress,String contactPhoneMask,String legalPerson,String companyEmail,String bankBranch,String basicAccountMask){}
-    public record CaseSummary(Long id,String caseNo,String companyName,String serviceType,String status,String caseMonth,Progress materials,LocalDateTime createdAt,LocalDateTime updatedAt){}
+    public record CaseSummary(Long id,String caseNo,String companyName,String serviceType,String status,String caseMonth,Progress materials,LocalDateTime createdAt,LocalDateTime updatedAt,LocalDateTime submittedAt){}
     public record CaseView(Long id,String caseNo,Long companyId,Long productId,String companyName,String serviceType,String status,String caseMonth,Long assigneeId,Long applicantUserId,String legalPersonName,String contactPhoneMask,Progress progress,List<MaterialView> materials,InvoiceView invoiceInfo,LocalDateTime submittedAt,LocalDateTime completedAt,LocalDateTime createdAt,LocalDateTime updatedAt,Integer version){}
     public record TimelineView(String status,String note,LocalDateTime time){}
 }

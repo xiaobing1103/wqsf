@@ -6,6 +6,16 @@
 
 ## 1. 通用约定
 
+### 2026-10-14 客户功能开放接口
+
+- 匿名 `GET /api/v1/client/capabilities`：`ApiResponse.data` 是七个布尔字段（tradeApplicationEnabled、trademarkConsultationEnabled、qualificationConsultationEnabled、categoryMatchEnabled、licenseOcrEnabled、sensitiveMaterialUploadEnabled、customerServiceEnabled），仅表示当前可用，不表示审核通过。
+- `GET /api/v1/admin/client-capabilities`：后台登录且角色为 `SUPER_ADMIN`；data 为 key/enabled/version/releaseAllowed 的数组。releaseAllowed仅为兼容旧客户端保留，现固定true，不参与有效值计算，不表示业务资质或审核通过。
+- `PUT /api/v1/admin/client-capabilities/{key}`：后台登录且角色为 `SUPER_ADMIN`；请求 enabled（布尔必填）、version（整数>=0必填）、reason（非空<=200字）；返回最新配置数组，更新与审计同事务。
+- 普通管理员即使拥有 product:view/product:edit 仍返回 403 `AUTH_PERMISSION_DENIED`；匿名和客户会话不能作为后台登录使用。角色拒绝统一返回403，不再落入通用500处理；其他角色注解接口同样受益。公开布尔接口、路径及响应字段不变。
+- 403 FEATURE_DISABLED：功能暂未开放；404 CAPABILITY_NOT_FOUND：未知功能键；409 OPTIMISTIC_LOCK_CONFLICT：版本冲突。2026-10-14取消部署清单限制，管理接口不再返回FEATURE_RELEASE_NOT_ALLOWED；七项有效值按enabled计算，OCR另依赖品类参考。超级管理员可直接开启/关闭所有七项，无需修改环境变量。
+- 目录过滤未开放服务；新建、开票/简表/文字保存、提交、文件上传及品类推荐/OCR按开关拦截。开票与敏感项新上传/文字需敏感开关；服务关闭不影响既有授权列表/详情/时间线/文件预览。保留原权限，不开放匿名客户资料。
+- 默认仅开启手填品类参考，其他关闭；配置、管理员使用及审查边界见 [功能开放管理](./10_小程序审核风险与功能开放管理.md)。
+
 ### 1.1 请求头
 
 ```http
@@ -842,6 +852,8 @@ apps/client-uni/src/api/generated/      # uni-app Orval API 和 models
 `generated` 目录由 Orval 管理，禁止手工修改。后台请求通过 `src/api/generated-client.ts` 接入现有 Token、Request ID 和错误处理；uni-app 请求通过同名适配器接入 `uni.request`。文件上传不能调用普通生成函数，应使用 `apps/client-uni/src/api/upload.ts` 的 `uni.uploadFile` 适配器。
 
 ### 15.3 中文化维护规则
+
+2026-10-14 报单契约更新：客户/后台列表 CaseSummary 新增 `submittedAt`（最近提交时间）；无时区偏移的业务时间按北京时间理解。列表按最近提交时间排列，未提交回落创建时间。`updatedAt` 表示报单及资料最近更新时间。`POST /api/v1/admin/cases/{id}/status` 进入 PROCESSING/COMPLETED 时，所有必填资料必须已通过或无需提交，否则 HTTP 409、`CASE_REVIEW_INCOMPLETE`。补件仍传具体 `materialIds` 和客户可见 `clientMessage`，不自动把全部未审核项当补件。OpenAPI 和两端生成类型已同步。
 
 - 新增 Controller 必须在 `services/api/src/main/java/com/wqst/api/config/OpenApiConfig.java` 增加中文 Tag 和每个方法的中文摘要。
 - 不允许依赖 Springdoc 默认的 `*-controller` 分组或默认 `list_1`、`create_1` 等自增 operationId。

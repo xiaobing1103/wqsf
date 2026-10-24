@@ -541,6 +541,34 @@ nav em {
   color: #9ba6a7;
   margin: 6px 0 0;
 }
+.upcoming-panel .panel-head { gap: 16px; }
+.upcoming-panel .panel-head p { font-size: 12px; line-height: 1.6; }
+.upcoming-panel .text-btn { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; font-size: 12px; }
+.upcoming-panel .text-btn .admin-icon { width: 14px; height: 14px; }
+.recent-case-list { margin-top: 18px; }
+.recent-case-row { display: grid; grid-template-columns: 42px minmax(0, 1fr) 80px 150px; align-items: center; gap: 16px; padding: 18px 12px; border-bottom: 1px solid #edf1f1; border-radius: 8px; transition: background-color .15s; }
+.recent-case-row:last-child { border-bottom: 0; }
+.recent-case-row:hover { background: #f6f9f9; }
+.recent-company-logo { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 12px; background: #eaf4f2; color: #397d76; font-size: 17px; font-weight: 600; }
+.recent-case-main { min-width: 0; }
+.recent-case-main > b { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; color: #283f43; line-height: 1.6; }
+.recent-case-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 5px; }
+.recent-case-meta small { font-size: 12px; color: #819094; overflow-wrap: anywhere; }
+.recent-service-tag { padding: 3px 7px; border-radius: 5px; background: #f1f5f5; color: #577275; font-size: 11px; }
+.recent-case-row > .status { justify-self: start; font-size: 12px; padding: 6px 10px; white-space: nowrap; }
+.recent-case-row > .status.muted-status { background: #f0f2f3; color: #7b898c; }
+.recent-case-time { display: flex; flex-direction: column; gap: 5px; text-align: right; font-size: 12px; color: #60767a; font-variant-numeric: tabular-nums; }
+.recent-case-time > span { font-size: 11px; color: #94a1a4; }
+@media (max-width: 900px) {
+  .recent-case-row { grid-template-columns: 42px minmax(0, 1fr) auto; gap: 12px; padding: 16px 4px; }
+  .recent-case-time { grid-column: 2 / -1; flex-direction: row; flex-wrap: wrap; gap: 8px; text-align: left; }
+}
+@media (max-width: 560px) {
+  .upcoming-panel .panel-head { flex-wrap: wrap; }
+  .recent-case-row { grid-template-columns: 36px minmax(0, 1fr); }
+  .recent-company-logo { width: 36px; height: 36px; border-radius: 10px; }
+  .recent-case-row > .status { grid-column: 2; }
+}
 .select {
   border: 1px solid #e4eaea;
   background: #fbfcfc;

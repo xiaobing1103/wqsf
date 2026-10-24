@@ -35,6 +35,7 @@
 | `/api/v1/notifications` | `notification/NotificationController.java` | `NotificationService.java` | `notification` |
 | `/api/v1/audit` | `audit/AuditController.java` | `AuditService.java` | 三类审计日志表 |
 | `/api/v1/admin/dashboard` | `dashboard/DashboardController.java` | `DashboardService.java` | 报单和企业统计 |
+| `/api/v1/client/capabilities`、`/api/v1/admin/client-capabilities` | `capability/CapabilityController.java` | `CapabilityService`、`ClientWriteGate`、客户各 Controller | client_capability、超级管理员角色、operation_log |
 
 ## 3. 前端最常修改的后端位置
 
@@ -150,7 +151,9 @@ $env:JAVA_TOOL_OPTIONS = "-Djdk.net.unixdomain.tmpdir=C:\Windows\Temp"
 .\mvnw.cmd "-Dapi.version=1.40" clean verify
 ```
 
-当前基线成功时必须同时看到 `67` 个单元测试和 `3` 个集成测试均为 `Skipped: 0`。其中品类匹配集成用例会验证 001–004 脚本、19 条规则以及客户 Token 调用推荐接口；只看到 `BUILD SUCCESS` 不代表集成测试实际运行，应同时检查 `target/failsafe-reports/`。
+当前基线成功时必须同时看到 `75` 个单元测试和 `4` 个集成测试均为 `Skipped: 0`。集成临时库初始化001–004及006（005无历史数据无需修复），包含19条规则、能力开关/超级管理员角色（普通管理员有产品编辑权限仍拒绝）/冲突审计/禁用拦截与原业务闭环。测试开放值只作用于临时库。只看到 BUILD SUCCESS 不代表集成测试实际运行，应检查 target/failsafe-reports。
+
+功能开关问题先看后台 `ClientCapabilitiesPanel.vue`、路由 role 守卫和 `CapabilityController` 的 SUPER_ADMIN 校验；403看角色是否启用，409 OPTIMISTIC_LOCK_CONFLICT应重新读取版本。部署清单和FEATURE_RELEASE_NOT_ALLOWED已取消；若仍出现需检查是否运行旧JAR/旧前端。角色异常由 GlobalExceptionHandler 返回403；不要通过增加 product:edit 或手改 enabled 绕过权限。七项API开启/关闭回归仅在临时库执行。
 
 基础设施：
 

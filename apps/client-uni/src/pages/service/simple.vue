@@ -3,6 +3,7 @@ import { computed, reactive, ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import AppIcon from '../../components/AppIcon.vue'
 import StatusBadge from '../../components/StatusBadge.vue'
+import CaseTimeNotice from '../../components/CaseTimeNotice.vue'
 import { errorMessage } from '../../api/response'
 import { caseStatusLabel, caseStatusTone } from '../../constants/status'
 import { serviceType } from '../../constants/service'
@@ -26,7 +27,7 @@ const form = reactive({ legalPersonName: '', companyName: '', contactPhone: '' }
 const detail = computed(() => caseDraftStore.caseDetail)
 const product = computed(() => catalogStore.products.find((item) => item.id === detail.value?.productId || item.id === requestedProductId.value))
 const serviceName = computed(() => product.value?.productName || (detail.value?.serviceType === 'QUALIFICATION' ? '资质申报服务' : '商标注册咨询'))
-const editable = computed(() => ['DRAFT', 'NEED_SUPPLEMENT'].includes(detail.value?.status || ''))
+const editable = computed(() => caseDraftStore.isEditable)
 const savedPhone = computed(() => detail.value?.materials?.some((item) => item.materialCode === 'CONTACT_PHONE' && item.submitStatus === 'SUBMITTED') || false)
 const notes = computed(() => (detail.value?.materials || []).filter((item) => item.clientVisibleNote))
 
@@ -141,6 +142,7 @@ onLoad((query) => { void loadPage(query as Record<string, string> | undefined) }
     </view>
 
     <template v-else-if="detail">
+      <CaseTimeNotice :detail="detail" />
       <view class="summary-card">
         <view><text class="summary-kicker">企业服务咨询</text><text class="summary-title">{{ serviceName }}</text><text class="summary-no">{{ detail.caseNo || '报单编号生成中' }}</text></view>
         <StatusBadge :label="caseStatusLabel(detail.status)" :tone="caseStatusTone(detail.status)" />

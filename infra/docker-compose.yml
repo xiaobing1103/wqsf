@@ -18,6 +18,8 @@ services:
       - ../database/002_full_schema.sql:/docker-entrypoint-initdb.d/002_full_schema.sql:ro
       - ../database/003_credential_handover.sql:/docker-entrypoint-initdb.d/003_credential_handover.sql:ro
       - ../database/004_category_match.sql:/docker-entrypoint-initdb.d/004_category_match.sql:ro
+      - ../database/005_business_time_repair.sql:/docker-entrypoint-initdb.d/005_business_time_repair.sql:ro
+      - ../database/006_client_capabilities.sql:/docker-entrypoint-initdb.d/006_client_capabilities.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
       interval: 10s

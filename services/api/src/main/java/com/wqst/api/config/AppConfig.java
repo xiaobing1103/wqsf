@@ -33,9 +33,9 @@ public class AppConfig {
     }
 
     @Bean
-    S3Presigner s3Presigner(AppProperties props) {
+    S3Presigner s3Presigner(AppProperties props, @org.springframework.beans.factory.annotation.Value("${wqst.s3.public-endpoint:}") String publicEndpoint) {
         var p = props.s3();
-        return S3Presigner.builder().endpointOverride(URI.create(p.endpoint())).region(Region.of(p.region()))
+        return S3Presigner.builder().endpointOverride(URI.create(publicEndpoint.isBlank()?p.endpoint():publicEndpoint)).region(Region.of(p.region()))
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(p.accessKey(), p.secretKey())))
                 .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build()).build();
     }

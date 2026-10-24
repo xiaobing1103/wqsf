@@ -54,7 +54,8 @@ function normalizeGeneratedUrl(url: string) {
 }
 
 function isPublicOperation(url: string) {
-  return url === "/api/v1/auth/admin/login"
+  return url === "/api/v1/client/capabilities"
+    || url === "/api/v1/auth/admin/login"
     || url === "/api/v1/auth/client/login"
     || url === "/api/v1/auth/client/dev-login"
     || url === "/api/v1/auth/wechat/login"

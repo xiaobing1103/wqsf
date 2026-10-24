@@ -10,6 +10,7 @@ import com.wqst.api.caseorder.CaseController;
 import com.wqst.api.catalog.AdminProductController;
 import com.wqst.api.catalog.CatalogController;
 import com.wqst.api.categorymatch.CategoryMatchController;
+import com.wqst.api.capability.CapabilityController;
 import com.wqst.api.company.AdminCompanyController;
 import com.wqst.api.company.CompanyController;
 import com.wqst.api.dashboard.DashboardController;
@@ -35,7 +36,7 @@ class OpenApiConfigTest {
             AdminCaseController.class, CaseController.class, AdminProductController.class,
             CatalogController.class, CategoryMatchController.class, AdminCompanyController.class, CompanyController.class,
             DashboardController.class, ExportController.class, FileController.class,
-            ImportController.class, NotificationController.class);
+            ImportController.class, NotificationController.class, CapabilityController.class);
 
     @Test
     void openApiMetadataUsesChineseContractAndBearerAuth() {
@@ -63,7 +64,7 @@ class OpenApiConfigTest {
                 count++;
             }
         }
-        assertThat(count).isEqualTo(66);
+        assertThat(count).isEqualTo(69);
     }
 
     private boolean isEndpoint(Method method) {

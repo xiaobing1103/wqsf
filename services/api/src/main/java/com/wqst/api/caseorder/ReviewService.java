@@ -61,6 +61,7 @@ public class ReviewService {
             throw new BusinessException("OPTIMISTIC_LOCK_CONFLICT", "资料已被其他用户修改", HttpStatus.CONFLICT);
         String before=m.getReviewStatus(); m.setReviewStatus(command.reviewStatus()); m.setClientVisibleNote(trim(command.clientVisibleNote()));
         m.setInternalNote(trim(command.internalNote())); m.setReviewedBy(operatorId); m.setReviewedAt(LocalDateTime.now());
+        m.setUpdatedAt(LocalDateTime.now());
         if ("NOT_REQUIRED".equals(command.reviewStatus())) m.setSubmitStatus("SUBMITTED");
         if(materials.updateById(m)==0)throw new BusinessException("OPTIMISTIC_LOCK_CONFLICT","资料已被其他用户修改",HttpStatus.CONFLICT);
         MaterialReviewLogEntity log=new MaterialReviewLogEntity();log.setMaterialId(m.getId());log.setCaseId(m.getCaseId());log.setBeforeStatus(before);
@@ -74,6 +75,7 @@ public class ReviewService {
                 ()->requestTransaction(caseId,command,operatorId));
     }
 
+    @Transactional
     protected SupplementView requestTransaction(long caseId,SupplementCommand command,long operatorId){
         ServiceCaseEntity c=cases.require(caseId);
         if(command.materialIds()==null||command.materialIds().isEmpty())throw new BusinessException("SUPPLEMENT_ITEMS_REQUIRED","请选择需要补充的资料项",HttpStatus.BAD_REQUEST);

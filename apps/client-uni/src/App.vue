@@ -2,8 +2,10 @@
 import { onLaunch } from '@dcloudio/uni-app'
 import { CLIENT_AUTH_EXPIRED_EVENT } from './api/generated-client'
 import { useAuthStore } from './stores/auth'
+import { useCapabilitiesStore } from './stores/capabilities'
 
 onLaunch(() => {
+  void useCapabilitiesStore().load()
   const authStore = useAuthStore()
   uni.$on(CLIENT_AUTH_EXPIRED_EVENT, authStore.handleExpiredSession)
   void authStore.restoreSession()
